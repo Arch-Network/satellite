@@ -72,8 +72,25 @@
 use futures::{Future, StreamExt};
 use regex::Regex;
 use satellite_lang::arch_program::program_error::ProgramError;
-use satellite_lang::arch_program::pubkey::Pubkey;
 use satellite_lang::{AccountDeserialize, Discriminator, InstructionData, ToAccountMetas};
+
+// Use Solana SDK's Pubkey for client operations (compatible with solana_sdk::Signer)
+use solana_sdk::pubkey::Pubkey;
+
+// Type alias for arch_program's Pubkey when needed for program interactions
+pub type ArchPubkey = satellite_lang::arch_program::pubkey::Pubkey;
+
+/// Convert between arch_program::Pubkey and solana_sdk::Pubkey
+/// Both are 32-byte arrays with the same layout
+#[inline]
+pub fn arch_to_solana_pubkey(pubkey: &ArchPubkey) -> Pubkey {
+    Pubkey::from(pubkey.0)
+}
+
+#[inline]
+pub fn solana_to_arch_pubkey(pubkey: &Pubkey) -> ArchPubkey {
+    ArchPubkey::new_from_array(pubkey.to_bytes())
+}
 use solana_account_decoder::UiAccountEncoding;
 use solana_client::nonblocking::rpc_client::RpcClient as AsyncRpcClient;
 use solana_client::rpc_config::{

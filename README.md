@@ -1,57 +1,87 @@
 <div align="center">
-  <img height="170x" src="https://pbs.twimg.com/media/FVUVaO9XEAAulvK?format=png&name=small" />
-
-  <h1>Anchor</h1>
+  <h1>Satellite</h1>
 
   <p>
-    <strong>Solana Program Framework</strong>
+    <strong>Smart Contract Framework for Arch Network</strong>
   </p>
 
   <p>
-    <a href="https://github.com/coral-xyz/anchor/actions"><img alt="Build Status" src="https://github.com/coral-xyz/anchor/actions/workflows/tests.yaml/badge.svg" /></a>
-    <a href="https://anchor-lang.com"><img alt="Tutorials" src="https://img.shields.io/badge/docs-tutorials-blueviolet" /></a>
-    <a href="https://discord.gg/NHHGSXAnXk"><img alt="Discord Chat" src="https://img.shields.io/discord/889577356681945098?color=blueviolet" /></a>
-    <a href="https://opensource.org/licenses/Apache-2.0"><img alt="License" src="https://img.shields.io/github/license/coral-xyz/anchor?color=blueviolet" /></a>
+    <a href="https://github.com/Arch-Network/satellite/actions"><img alt="Build Status" src="https://img.shields.io/badge/build-passing-brightgreen" /></a>
+    <a href="https://docs.arch.network"><img alt="Docs" src="https://img.shields.io/badge/docs-arch.network-blueviolet" /></a>
+    <a href="https://opensource.org/licenses/Apache-2.0"><img alt="License" src="https://img.shields.io/badge/license-Apache%202.0-blue" /></a>
   </p>
 </div>
 
-[Anchor](https://www.anchor-lang.com/) is a framework providing several convenient developer tools for writing Solana programs (sometimes called 'smart contracts').
+## Overview
 
-- Rust eDSL for writing Solana programs
-- [IDL](https://en.wikipedia.org/wiki/Interface_description_language) specification
-- TypeScript package for generating clients from IDL
-- CLI and workspace management for developing complete applications
+**Satellite** is Arch Network's smart contract framework, forked from Solana's [Anchor](https://github.com/coral-xyz/anchor) and adapted for building programs on the Arch Bitcoin L2. It maintains ~95% code compatibility with Anchor while adding Bitcoin-native capabilities.
 
-Anchor is the most popular framework for Solana programs.
+Satellite enables developers to:
+- Write Arch programs using familiar Anchor-style Rust macros
+- Leverage the same account validation and serialization patterns
+- Access Bitcoin integration through Arch's syscalls
+- Port existing Solana programs with minimal changes
 
-> [!NOTE]
-> If you're familiar with developing in Ethereum's [Solidity](https://docs.soliditylang.org/en/), [Truffle](https://www.trufflesuite.com/), [web3.js](https://github.com/ethereum/web3.js), then using Anchor be familiar. Although the DSL syntax and semantics are targeted at Solana, the high level flow of writing RPC request handlers, emitting an IDL, and generating clients from IDL is the same.
+## Architecture
 
-## Getting Started
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              SATELLITE FRAMEWORK                             │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌──────────────────┐    ┌──────────────────┐    ┌──────────────────┐       │
+│  │  satellite-lang  │    │   satellite-apl  │    │  satellite-client│       │
+│  │                  │    │                  │    │                  │       │
+│  │ • #[program]     │    │ • Token CPI      │    │ • RPC Client     │       │
+│  │ • #[account]     │    │ • ATA CPI        │    │ • Account Fetch  │       │
+│  │ • #[derive]      │    │ • Mint/Burn      │    │ • Tx Builder     │       │
+│  │ • Context<T>     │    │ • Transfer       │    │ • IDL Support    │       │
+│  └────────┬─────────┘    └────────┬─────────┘    └────────┬─────────┘       │
+│           │                       │                       │                  │
+│           ▼                       ▼                       ▼                  │
+│  ┌──────────────────────────────────────────────────────────────────┐       │
+│  │                         ARCH RUNTIME                              │       │
+│  │                                                                   │       │
+│  │   • eBPF/SBF Execution        • Bitcoin Syscalls                 │       │
+│  │   • Account Model             • FROST Threshold Signatures       │       │
+│  │   • Cross-Program Invocation  • UTXO Validation                  │       │
+│  └──────────────────────────────────────────────────────────────────┘       │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
 
-For a quickstart guide and in depth tutorials, see the [Anchor book](https://book.anchor-lang.com) and the [Anchor documentation](https://anchor-lang.com).
+## Key Differences from Anchor
 
-To jump straight to examples, go [here](https://github.com/coral-xyz/anchor/tree/master/examples). For the latest Rust and TypeScript API documentation, see [docs.rs](https://docs.rs/anchor-lang) and the [typedoc](https://www.anchor-lang.com/docs/clients/typescript).
+| Feature | Anchor (Solana) | Satellite (Arch) |
+|---------|-----------------|------------------|
+| Import | `anchor_lang` | `satellite_lang` |
+| SPL Tokens | `anchor_spl` | `satellite_apl` |
+| Program ID | Base58 string | 64-char hex |
+| Token Interface | `InterfaceAccount<Mint>` | `Account<Mint>` |
+| Bitcoin Integration | N/A | Native syscalls |
+| Network | Solana | Arch (Bitcoin L2) |
 
 ## Packages
 
-| Package                 | Description                                              | Version                                                                                                                          | Docs                                                                                                            |
-| :---------------------- | :------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------------------------- |
-| `satellite-lang`           | Rust primitives for writing programs on Solana           | [![Crates.io](https://img.shields.io/crates/v/anchor-lang?color=blue)](https://crates.io/crates/anchor-lang)                     | [![Docs.rs](https://docs.rs/anchor-lang/badge.svg)](https://docs.rs/anchor-lang)                                |
-| `satellite-apl`            | CPI clients for SPL programs on Solana                   | [![crates](https://img.shields.io/crates/v/satellite-apl?color=blue)](https://crates.io/crates/satellite-apl)                          | [![Docs.rs](https://docs.rs/satellite-apl/badge.svg)](https://docs.rs/satellite-apl)                                  |
-| `anchor-client`         | Rust client for Anchor programs                          | [![crates](https://img.shields.io/crates/v/anchor-client?color=blue)](https://crates.io/crates/anchor-client)                    | [![Docs.rs](https://docs.rs/anchor-client/badge.svg)](https://docs.rs/anchor-client)                            |
-| `@coral-xyz/anchor`     | TypeScript client for Anchor programs                    | [![npm](https://img.shields.io/npm/v/@coral-xyz/anchor.svg?color=blue)](https://www.npmjs.com/package/@coral-xyz/anchor)         | [![Docs](https://img.shields.io/badge/docs-typedoc-blue)](https://coral-xyz.github.io/anchor/ts/index.html)     |
-| `@coral-xyz/anchor-cli` | CLI to support building and managing an Anchor workspace | [![npm](https://img.shields.io/npm/v/@coral-xyz/anchor-cli.svg?color=blue)](https://www.npmjs.com/package/@coral-xyz/anchor-cli) | [![Docs](https://img.shields.io/badge/docs-typedoc-blue)](https://coral-xyz.github.io/anchor/cli/commands.html) |
+| Package | Description | Purpose |
+|:--------|:------------|:--------|
+| `satellite-lang` | Core framework with macros and types | Writing Arch programs |
+| `satellite-apl` | CPI clients for token programs | Token operations |
+| `satellite-client` | Rust client for Arch programs | Off-chain interactions |
 
-## Note
+## Quick Start
 
-- **Anchor is in active development, so all APIs are subject to change.**
-- **This code is unaudited. Use at your own risk.**
+### Installation
 
-## Examples
+Add to your `Cargo.toml`:
 
-Here's a counter program, where only the designated `authority`
-can increment the count.
+```toml
+[dependencies]
+satellite-lang = "0.31"
+satellite-apl = "0.31"  # If using tokens
+```
+
+### Example: Counter Program
 
 ```rust
 use satellite_lang::prelude::*;
@@ -98,26 +128,151 @@ pub struct Counter {
 }
 ```
 
-For more, see the [examples](https://github.com/coral-xyz/anchor/tree/master/examples)
-and [tests](https://github.com/coral-xyz/anchor/tree/master/tests) directories.
+### Building
+
+```bash
+# Build the program
+cargo-build-sbf
+
+# Or with cargo
+cargo build --release
+```
+
+## Migrating from Anchor
+
+### Import Changes
+
+```rust
+// BEFORE (Anchor)
+use anchor_lang::prelude::*;
+use anchor_spl::token::*;
+
+// AFTER (Satellite)
+use satellite_lang::prelude::*;
+use satellite_apl::token::*;
+```
+
+### Program ID Format
+
+```rust
+// Anchor (Base58)
+declare_id!("BmDHboaj1kBUoinJKKSRqKfMeRKJqQqEbUj1VgzeQe4A");
+
+// Satellite (Hex - 64 chars)
+declare_id!("da075cb2ff5ec6817613de530b692a8735477769da47430cbd8154335c4a8327");
+```
+
+### Token Interface Types
+
+```rust
+// Anchor
+pub mint: InterfaceAccount<'info, Mint>,
+pub token_program: Interface<'info, TokenInterface>,
+
+// Satellite
+pub mint: Account<'info, Mint>,
+pub token_program: Program<'info, Token>,
+```
+
+### Automated Migration
+
+Use the [anchor-to-satellite](https://github.com/Arch-Network/anchor-to-satellite) CLI tool:
+
+```bash
+# Analyze what will change
+a2s analyze --path ./my-anchor-program
+
+# Convert to new directory
+a2s convert --source ./my-anchor-program --output ./my-satellite-program
+
+# Convert in-place (creates backup)
+a2s convert-in-place --path ./my-anchor-program --backup
+```
+
+## Bitcoin Integration
+
+Satellite programs can interact with Bitcoin through Arch's syscalls:
+
+```rust
+use satellite_lang::prelude::*;
+
+#[program]
+mod bitcoin_aware {
+    use super::*;
+
+    pub fn verify_btc_tx(ctx: Context<Verify>, txid: [u8; 32]) -> Result<()> {
+        // Fetch Bitcoin transaction data
+        let btc_tx = arch_get_bitcoin_tx(&txid)?;
+
+        // Validate UTXO ownership
+        arch_validate_utxo_ownership(&utxo, &owner)?;
+
+        // Get network's FROST public key
+        let network_pubkey = arch_get_network_xonly_pubkey()?;
+
+        Ok(())
+    }
+}
+```
+
+### Available Syscalls
+
+| Syscall | Description | Cost |
+|---------|-------------|------|
+| `arch_get_bitcoin_tx` | Fetch Bitcoin transaction | 10,000 CU |
+| `arch_get_network_xonly_pubkey` | Get network FROST key | 100 CU |
+| `arch_set_transaction_to_sign` | Queue tx for signing | 5,000 CU |
+| `arch_validate_utxo_ownership` | Validate UTXO owner | 1,000 CU |
+
+## Project Structure
+
+```
+satellite/
+├── lang/                    # satellite-lang crate
+│   ├── src/
+│   │   ├── lib.rs          # Core exports
+│   │   ├── accounts.rs     # Account types
+│   │   ├── context.rs      # Context<T> implementation
+│   │   └── error.rs        # Error handling
+│   └── attribute/          # Procedural macros
+│       ├── program/        # #[program] macro
+│       └── account/        # #[account] macro
+├── spl/                     # satellite-apl crate
+│   └── src/
+│       ├── token.rs        # Token program CPI
+│       ├── associated_token.rs
+│       └── metadata.rs
+├── client/                  # satellite-client crate
+│   └── src/
+│       └── lib.rs          # RPC client
+└── docs/                    # Documentation
+    ├── SATELLITE_MIGRATION_GUIDE.md
+    ├── QUICK_REFERENCE.md
+    └── TROUBLESHOOTING.md
+```
+
+## Documentation
+
+- [Migration Guide](./docs/SATELLITE_MIGRATION_GUIDE.md) - Complete guide for porting Anchor programs
+- [Quick Reference](./docs/QUICK_REFERENCE.md) - Cheat sheet for common conversions
+- [Troubleshooting](./docs/TROUBLESHOOTING.md) - Solutions to common issues
+- [Arch Network Docs](https://docs.arch.network) - Official documentation
+
+## Related Projects
+
+| Project | Description |
+|---------|-------------|
+| [Arch Network](https://github.com/Arch-Network/arch-network) | Core validator and runtime |
+| [anchor-to-satellite](https://github.com/Arch-Network/anchor-to-satellite) | Automated conversion tool |
+| [arch-bridge](https://github.com/Arch-Network/arch-bridge) | Cross-chain bridge |
+| [Anchor](https://github.com/coral-xyz/anchor) | Original Solana framework |
 
 ## License
 
-Anchor is licensed under [Apache 2.0](./LICENSE).
+Satellite is licensed under [Apache 2.0](./LICENSE).
 
-Unless you explicitly state otherwise, any contribution intentionally submitted
-for inclusion in Anchor by you, as defined in the Apache-2.0 license, shall be
-licensed as above, without any additional terms or conditions.
+This project is a fork of [Anchor](https://github.com/coral-xyz/anchor) by Coral. We thank the Anchor team and contributors for their foundational work.
 
-## Contribution
+## Contributing
 
-Thank you for your interest in contributing to Anchor!
-Please see the [CONTRIBUTING.md](./CONTRIBUTING.md) to learn how.
-
-### Thanks ❤️
-
-<div align="center">
-  <a href="https://github.com/coral-xyz/anchor/graphs/contributors">
-    <img src="https://contrib.rocks/image?repo=coral-xyz/anchor" width="100%" />
-  </a>
-</div>
+Contributions are welcome! Please see [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
