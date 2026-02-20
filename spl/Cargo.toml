@@ -1,7 +1,7 @@
 [package]
-name = "satellite-apl"
+name = "arch-satellite-apl"
 version.workspace = true
-authors = ["Anchor Maintainers <accounts@200ms.io>"]
+authors = ["Arch Network <contact@arch.network>", "Anchor Maintainers <accounts@200ms.io>"]
 edition.workspace = true
 license = "Apache-2.0"
 description = "CPI clients for SPL programs"
@@ -12,15 +12,15 @@ rustdoc-args = ["--cfg", "docsrs"]
 
 [features]
 default = ["associated_token", "token", "metadata"]
-satellite-debug = ["satellite-lang/satellite-debug"]
+satellite-debug = ["arch-satellite-lang/satellite-debug"]
 associated_token = ["apl-associated-token-account"]
-idl-build = ["satellite-lang/idl-build"]
+idl-build = ["arch-satellite-lang/idl-build"]
 stake = ["borsh"]
 token = ["apl-token"]
 metadata = ["apl-token-metadata"]
 
 [dependencies]
-satellite-lang = { workspace = true, features = ["derive"] }
+arch-satellite-lang = { workspace = true, features = ["derive"] }
 borsh = { version = "0.10.3", optional = true }
 apl-associated-token-account = { version = "0.6.2", features = ["no-entrypoint"], optional = true }
 apl-token = { version = "0.6.2", features = ["no-entrypoint"], optional = true }

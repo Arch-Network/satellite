@@ -1,8 +1,8 @@
 use arch_program::decode_error::DecodeError;
 use arch_program::program_error::ProgramError;
 use num_derive::FromPrimitive;
-use satellite_collections::generic::fixed_set::FixedSetError;
-use satellite_math::MathError;
+use arch_satellite_collections::generic::fixed_set::FixedSetError;
+use arch_satellite_math::MathError;
 use thiserror::Error;
 
 /// Custom errors for Bitcoin transaction operations.

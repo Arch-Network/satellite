@@ -1,6 +1,6 @@
 use proc_macro2::Literal;
 use quote::{format_ident, quote};
-use satellite_lang_idl::types::{
+use arch_satellite_lang_idl::types::{
     Idl, IdlArrayLen, IdlDefinedFields, IdlField, IdlGenericArg, IdlRepr, IdlSerialization,
     IdlType, IdlTypeDef, IdlTypeDefGeneric, IdlTypeDefTy,
 };

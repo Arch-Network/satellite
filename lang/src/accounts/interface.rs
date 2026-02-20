@@ -67,10 +67,10 @@ use std::ops::Deref;
 ///
 /// # Out of the Box Types
 ///
-/// Between the [`satellite_lang`](https://docs.rs/satellite-lang/latest/satellite_lang) and [`satellite_apl`](https://docs.rs/satellite_apl/latest/satellite_apl) crates,
+/// Between the [`arch_satellite_lang`](https://docs.rs/satellite-lang/latest/arch_satellite_lang) and [`arch_satellite_apl`](https://docs.rs/arch_satellite_apl/latest/arch_satellite_apl) crates,
 /// the following `Interface` types are provided out of the box:
 ///
-/// - [`TokenInterface`](https://docs.rs/satellite-apl/latest/satellite_apl/token_interface/struct.TokenInterface.html)
+/// - [`TokenInterface`](https://docs.rs/satellite-apl/latest/arch_satellite_apl/token_interface/struct.TokenInterface.html)
 ///
 #[derive(Clone)]
 pub struct Interface<'info, T>(Program<'info, T>);

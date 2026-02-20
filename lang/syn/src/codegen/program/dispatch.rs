@@ -34,13 +34,13 @@ pub fn generate(program: &Program) -> proc_macro2::TokenStream {
             __private::__events::__event_dispatch(
                 program_id,
                 accounts,
-                &data[satellite_lang::event::EVENT_IX_TAG_LE.len()..]
+                &data[arch_satellite_lang::event::EVENT_IX_TAG_LE.len()..]
             )
         }
         #[cfg(not(feature = "event-cpi"))]
         quote! {
             // `event-cpi` feature is not enabled
-            Err(satellite_lang::error::ErrorCode::EventInstructionStub.into())
+            Err(arch_satellite_lang::error::ErrorCode::EventInstructionStub.into())
         }
     };
 
@@ -56,7 +56,7 @@ pub fn generate(program: &Program) -> proc_macro2::TokenStream {
         })
         .unwrap_or_else(|| {
             quote! {
-                Err(satellite_lang::error::ErrorCode::InstructionFallbackNotFound.into())
+                Err(arch_satellite_lang::error::ErrorCode::InstructionFallbackNotFound.into())
             }
         });
 
@@ -75,11 +75,11 @@ pub fn generate(program: &Program) -> proc_macro2::TokenStream {
             program_id: &Pubkey,
             accounts: &'info [AccountInfo<'info>],
             data: &[u8],
-        ) -> satellite_lang::Result<()> {
+        ) -> arch_satellite_lang::Result<()> {
             #(#global_ixs)*
 
             // Dispatch IDL instructions
-            if data.starts_with(satellite_lang::idl::IDL_IX_TAG_LE) {
+            if data.starts_with(arch_satellite_lang::idl::IDL_IX_TAG_LE) {
                 // If the method identifier is the IDL tag, then execute an IDL
                 // instruction, injected into all Anchor programs unless they have
                 // `no-idl` feature enabled
@@ -87,14 +87,14 @@ pub fn generate(program: &Program) -> proc_macro2::TokenStream {
                 return __private::__idl::__idl_dispatch(
                     program_id,
                     accounts,
-                    &data[satellite_lang::idl::IDL_IX_TAG_LE.len()..],
+                    &data[arch_satellite_lang::idl::IDL_IX_TAG_LE.len()..],
                 );
                 #[cfg(feature = "no-idl")]
-                return Err(satellite_lang::error::ErrorCode::IdlInstructionStub.into());
+                return Err(arch_satellite_lang::error::ErrorCode::IdlInstructionStub.into());
             }
 
             // Dispatch Event CPI instruction
-            if data.starts_with(satellite_lang::event::EVENT_IX_TAG_LE) {
+            if data.starts_with(arch_satellite_lang::event::EVENT_IX_TAG_LE) {
                 return #event_cpi_handler;
             }
 

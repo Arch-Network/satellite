@@ -18,11 +18,11 @@
 //! ## Quick Start
 //!
 //! ```rust,no_run
-//! use satellite_bitcoin_transactions::TransactionBuilder;
-//! use satellite_bitcoin_transactions::fee_rate::FeeRate;
+//! use arch_satellite_bitcoin_transactions::TransactionBuilder;
+//! use arch_satellite_bitcoin_transactions::fee_rate::FeeRate;
 //!
 //! // Create a builder that can handle up to 8 modified accounts and 4 inputs to sign
-//! let mut builder: TransactionBuilder<8, 4, satellite_bitcoin_transactions::utxo_info::SingleRuneSet> = TransactionBuilder::new();
+//! let mut builder: TransactionBuilder<8, 4, arch_satellite_bitcoin_transactions::utxo_info::SingleRuneSet> = TransactionBuilder::new();
 //!
 //! // Add inputs, outputs, and state transitions...
 //! // (See TransactionBuilder documentation for detailed examples)
@@ -62,8 +62,8 @@ pub use mempool::{AccountMempoolInfo, MempoolData, MempoolDataView, MempoolInfo,
 #[cfg(feature = "runes")]
 use ordinals::{Artifact, Runestone};
 
-use satellite_collections::generic::fixed_list_unchecked::FixedRefList;
-use satellite_collections::generic::{fixed_list::FixedList, fixed_set::FixedCapacitySet};
+use arch_satellite_collections::generic::fixed_list_unchecked::FixedRefList;
+use arch_satellite_collections::generic::{fixed_list::FixedList, fixed_set::FixedCapacitySet};
 
 use crate::btc_utxo_holder::BtcUtxoHolder;
 use crate::bytes::txid_to_bytes_big_endian;
@@ -166,7 +166,7 @@ impl<'info> AsRef<AccountInfo<'info>> for ModifiedAccount<'info> {
 /// ## Examples
 ///
 /// ```rust
-/// # use satellite_bitcoin_transactions::NewPotentialInputAmount;
+/// # use arch_satellite_bitcoin_transactions::NewPotentialInputAmount;
 /// # use bitcoin::{TxIn, OutPoint, ScriptBuf, Sequence, Witness};
 /// // Estimate adding 3 similar inputs
 /// let potential_inputs = NewPotentialInputAmount {
@@ -200,7 +200,7 @@ pub struct NewPotentialInputAmount {
 /// ## Examples
 ///
 /// ```rust
-/// # use satellite_bitcoin_transactions::NewPotentialOutputAmount;
+/// # use arch_satellite_bitcoin_transactions::NewPotentialOutputAmount;
 /// # use bitcoin::{TxOut, Amount, ScriptBuf};
 /// // Estimate adding 2 similar outputs
 /// let potential_outputs = NewPotentialOutputAmount {
@@ -225,7 +225,7 @@ pub struct NewPotentialOutputAmount {
 /// ## Usage Patterns
 ///
 /// ```rust
-/// # use satellite_bitcoin_transactions::{NewPotentialInputsAndOutputs, NewPotentialInputAmount, NewPotentialOutputAmount};
+/// # use arch_satellite_bitcoin_transactions::{NewPotentialInputsAndOutputs, NewPotentialInputAmount, NewPotentialOutputAmount};
 /// # use bitcoin::{TxIn, TxOut, OutPoint, ScriptBuf, Sequence, Witness, Amount};
 /// // Planning a transaction with multiple potential changes
 /// let potential_changes = NewPotentialInputsAndOutputs {
@@ -299,11 +299,11 @@ pub struct NewPotentialInputsAndOutputs {
 /// ## Basic Usage
 ///
 /// ```rust
-/// use satellite_bitcoin_transactions::TransactionBuilder;
-/// use satellite_bitcoin_transactions::fee_rate::FeeRate;
+/// use arch_satellite_bitcoin_transactions::TransactionBuilder;
+/// use arch_satellite_bitcoin_transactions::fee_rate::FeeRate;
 ///
 /// // Create a builder with capacity for 8 modified accounts and 4 inputs to sign
-/// let mut builder: TransactionBuilder<8, 4, satellite_bitcoin_transactions::utxo_info::SingleRuneSet> = TransactionBuilder::new();
+/// let mut builder: TransactionBuilder<8, 4, arch_satellite_bitcoin_transactions::utxo_info::SingleRuneSet> = TransactionBuilder::new();
 ///
 /// // The builder starts with an empty version 2 transaction
 /// assert_eq!(builder.transaction.input.len(), 0);
@@ -319,10 +319,10 @@ pub struct NewPotentialInputsAndOutputs {
 /// State transitions are a core concept in Arch. Use these methods to manage program account updates:
 ///
 /// ```rust,no_run
-/// # use satellite_bitcoin_transactions::{TransactionBuilder, SignPolicy};
+/// # use arch_satellite_bitcoin_transactions::{TransactionBuilder, SignPolicy};
 /// # use arch_program::account::AccountInfo;
 /// # use arch_program::pubkey::Pubkey;
-/// # let mut builder: TransactionBuilder<8, 4, satellite_bitcoin_transactions::utxo_info::SingleRuneSet> = TransactionBuilder::new();
+/// # let mut builder: TransactionBuilder<8, 4, arch_satellite_bitcoin_transactions::utxo_info::SingleRuneSet> = TransactionBuilder::new();
 /// # let account: AccountInfo<'static> = unsafe { std::mem::zeroed() };
 /// // Add a state transition for an existing account
 /// builder.add_state_transition(&account, SignPolicy::Managed)?;
@@ -332,7 +332,7 @@ pub struct NewPotentialInputsAndOutputs {
 /// // 2. Creates an InputToSign entry
 /// // 3. Updates total_btc_input with DUST_LIMIT
 /// // 4. Adds the state transition to the transaction
-/// # Ok::<(), satellite_bitcoin_transactions::error::BitcoinTxError>(())
+/// # Ok::<(), arch_satellite_bitcoin_transactions::error::BitcoinTxError>(())
 /// ```
 ///
 /// ## Adding User Inputs
@@ -340,11 +340,11 @@ pub struct NewPotentialInputsAndOutputs {
 /// Add user-controlled UTXOs to the transaction:
 ///
 /// ```rust
-/// # use satellite_bitcoin_transactions::TransactionBuilder;
-/// # use satellite_bitcoin_transactions::utxo_info::{UtxoInfo, SingleRuneSet};
-/// # use satellite_bitcoin_transactions::TxStatus;
+/// # use arch_satellite_bitcoin_transactions::TransactionBuilder;
+/// # use arch_satellite_bitcoin_transactions::utxo_info::{UtxoInfo, SingleRuneSet};
+/// # use arch_satellite_bitcoin_transactions::TxStatus;
 /// # use arch_program::pubkey::Pubkey;
-/// # let mut builder: TransactionBuilder<8, 4, satellite_bitcoin_transactions::utxo_info::SingleRuneSet> = TransactionBuilder::new();
+/// # let mut builder: TransactionBuilder<8, 4, arch_satellite_bitcoin_transactions::utxo_info::SingleRuneSet> = TransactionBuilder::new();
 /// # let utxo: UtxoInfo<SingleRuneSet> = unsafe { std::mem::zeroed() };
 /// # let status = TxStatus::Confirmed;
 /// # let signer = Pubkey::system_program();
@@ -353,7 +353,7 @@ pub struct NewPotentialInputsAndOutputs {
 ///
 /// // For precise control over input order:
 /// builder.insert_tx_input(0, &utxo, &status, Some(&signer))?;
-/// # Ok::<(), satellite_bitcoin_transactions::error::BitcoinTxError>(())
+/// # Ok::<(), arch_satellite_bitcoin_transactions::error::BitcoinTxError>(())
 /// ```
 ///
 /// ## Fee Management
@@ -361,10 +361,10 @@ pub struct NewPotentialInputsAndOutputs {
 /// The builder provides sophisticated fee management with mempool ancestry tracking:
 ///
 /// ```rust,no_run
-/// # use satellite_bitcoin_transactions::TransactionBuilder;
-/// # use satellite_bitcoin_transactions::fee_rate::FeeRate;
+/// # use arch_satellite_bitcoin_transactions::TransactionBuilder;
+/// # use arch_satellite_bitcoin_transactions::fee_rate::FeeRate;
 /// # use bitcoin::ScriptBuf;
-/// # let mut builder: TransactionBuilder<8, 4, satellite_bitcoin_transactions::utxo_info::SingleRuneSet> = TransactionBuilder::new();
+/// # let mut builder: TransactionBuilder<8, 4, arch_satellite_bitcoin_transactions::utxo_info::SingleRuneSet> = TransactionBuilder::new();
 /// # let change_address = ScriptBuf::new();
 /// // Set target fee rate
 /// let fee_rate = FeeRate::try_from(25.0)?; // 25 sat/vB
@@ -386,10 +386,10 @@ pub struct NewPotentialInputsAndOutputs {
 /// Automatically select UTXOs to meet funding requirements:
 ///
 /// ```rust,no_run
-/// # use satellite_bitcoin_transactions::TransactionBuilder;
-/// # use satellite_bitcoin_transactions::utxo_info::UtxoInfo;
+/// # use arch_satellite_bitcoin_transactions::TransactionBuilder;
+/// # use arch_satellite_bitcoin_transactions::utxo_info::UtxoInfo;
 /// # use arch_program::pubkey::Pubkey;
-/// # let mut builder: TransactionBuilder<8, 4, satellite_bitcoin_transactions::utxo_info::SingleRuneSet> = TransactionBuilder::new();
+/// # let mut builder: TransactionBuilder<8, 4, arch_satellite_bitcoin_transactions::utxo_info::SingleRuneSet> = TransactionBuilder::new();
 /// # let utxos: Vec<UtxoInfo<_>> = vec![];
 /// # let program_pubkey = Pubkey::system_program();
 /// // Find UTXOs to cover a specific amount
@@ -402,7 +402,7 @@ pub struct NewPotentialInputsAndOutputs {
 ///
 /// // The builder automatically selects the most efficient UTXOs
 /// // and adds them to the transaction
-/// # Ok::<(), satellite_bitcoin_transactions::error::BitcoinTxError>(())
+/// # Ok::<(), arch_satellite_bitcoin_transactions::error::BitcoinTxError>(())
 /// ```
 ///
 /// ## Rune Support (with `runes` feature)
@@ -412,11 +412,11 @@ pub struct NewPotentialInputsAndOutputs {
 /// ```rust
 /// # #[cfg(feature = "runes")]
 /// # {
-/// # use satellite_bitcoin_transactions::TransactionBuilder;
-/// # use satellite_bitcoin_transactions::utxo_info::UtxoInfo;
+/// # use arch_satellite_bitcoin_transactions::TransactionBuilder;
+/// # use arch_satellite_bitcoin_transactions::utxo_info::UtxoInfo;
 /// # use arch_program::rune::RuneAmount;
-/// # let mut builder: TransactionBuilder<8, 4, satellite_bitcoin_transactions::utxo_info::SingleRuneSet> = TransactionBuilder::new();
-/// # use satellite_bitcoin_transactions::utxo_info::SingleRuneSet;
+/// # let mut builder: TransactionBuilder<8, 4, arch_satellite_bitcoin_transactions::utxo_info::SingleRuneSet> = TransactionBuilder::new();
+/// # use arch_satellite_bitcoin_transactions::utxo_info::SingleRuneSet;
 /// # let rune_utxo: UtxoInfo<SingleRuneSet> = unsafe { std::mem::zeroed() };
 /// // Rune inputs are automatically tracked when adding UTXOs
 /// // The builder maintains total_rune_inputs and runestone data
@@ -434,12 +434,12 @@ pub struct NewPotentialInputsAndOutputs {
 /// ```rust,no_run
 /// # #[cfg(feature = "utxo-consolidation")]
 /// # {
-/// # use satellite_bitcoin_transactions::TransactionBuilder;
-/// # use satellite_bitcoin_transactions::fee_rate::FeeRate;
-/// # use satellite_bitcoin_transactions::NewPotentialInputsAndOutputs;
-/// # use satellite_bitcoin_transactions::utxo_info::UtxoInfo;
+/// # use arch_satellite_bitcoin_transactions::TransactionBuilder;
+/// # use arch_satellite_bitcoin_transactions::fee_rate::FeeRate;
+/// # use arch_satellite_bitcoin_transactions::NewPotentialInputsAndOutputs;
+/// # use arch_satellite_bitcoin_transactions::utxo_info::UtxoInfo;
 /// # use arch_program::pubkey::Pubkey;
-/// # let mut builder: TransactionBuilder<8, 4, satellite_bitcoin_transactions::utxo_info::SingleRuneSet> = TransactionBuilder::new();
+/// # let mut builder: TransactionBuilder<8, 4, arch_satellite_bitcoin_transactions::utxo_info::SingleRuneSet> = TransactionBuilder::new();
 /// # let pool_pubkey = Pubkey::system_program();
 /// # let fee_rate = FeeRate::try_from(10.0).unwrap();
 /// # let utxos: Vec<UtxoInfo> = vec![];
@@ -463,9 +463,9 @@ pub struct NewPotentialInputsAndOutputs {
 /// Estimate transaction sizes for fee calculation:
 ///
 /// ```rust
-/// # use satellite_bitcoin_transactions::TransactionBuilder;
-/// # use satellite_bitcoin_transactions::NewPotentialInputsAndOutputs;
-/// # let mut builder: TransactionBuilder<8, 4, satellite_bitcoin_transactions::utxo_info::SingleRuneSet> = TransactionBuilder::new();
+/// # use arch_satellite_bitcoin_transactions::TransactionBuilder;
+/// # use arch_satellite_bitcoin_transactions::NewPotentialInputsAndOutputs;
+/// # let mut builder: TransactionBuilder<8, 4, arch_satellite_bitcoin_transactions::utxo_info::SingleRuneSet> = TransactionBuilder::new();
 /// # let potential_changes = NewPotentialInputsAndOutputs { inputs: None, outputs: vec![] };
 /// // Estimate current transaction size
 /// let current_vsize = builder.estimate_final_tx_vsize();
@@ -481,9 +481,9 @@ pub struct NewPotentialInputsAndOutputs {
 /// The builder provides detailed error information:
 ///
 /// ```rust
-/// # use satellite_bitcoin_transactions::TransactionBuilder;
-/// # use satellite_bitcoin_transactions::error::BitcoinTxError;
-/// # let mut builder: TransactionBuilder<8, 4, satellite_bitcoin_transactions::utxo_info::SingleRuneSet> = TransactionBuilder::new();
+/// # use arch_satellite_bitcoin_transactions::TransactionBuilder;
+/// # use arch_satellite_bitcoin_transactions::error::BitcoinTxError;
+/// # let mut builder: TransactionBuilder<8, 4, arch_satellite_bitcoin_transactions::utxo_info::SingleRuneSet> = TransactionBuilder::new();
 /// // Capacity limits are enforced at runtime
 /// match builder.inputs_to_sign.len() {
 ///     len if len >= 4 => {
@@ -511,8 +511,8 @@ pub struct NewPotentialInputsAndOutputs {
 /// Complete the transaction and prepare it for signing:
 ///
 /// ```rust
-/// # use satellite_bitcoin_transactions::TransactionBuilder;
-/// # let mut builder: TransactionBuilder<8, 4, satellite_bitcoin_transactions::utxo_info::SingleRuneSet> = TransactionBuilder::new();
+/// # use arch_satellite_bitcoin_transactions::TransactionBuilder;
+/// # let mut builder: TransactionBuilder<8, 4, arch_satellite_bitcoin_transactions::utxo_info::SingleRuneSet> = TransactionBuilder::new();
 /// // After adding all inputs, outputs, and adjusting fees
 /// builder.finalize()?;
 ///
@@ -626,11 +626,11 @@ impl<
     /// ## Examples
     ///
     /// ```rust
-    /// use satellite_bitcoin_transactions::TransactionBuilder;
+    /// use arch_satellite_bitcoin_transactions::TransactionBuilder;
     /// use bitcoin::Transaction;
     ///
     /// // Create a builder that can handle up to 8 modified accounts and 4 inputs to sign
-    /// let mut builder: TransactionBuilder<8, 4, satellite_bitcoin_transactions::utxo_info::SingleRuneSet> = TransactionBuilder::new();
+    /// let mut builder: TransactionBuilder<8, 4, arch_satellite_bitcoin_transactions::utxo_info::SingleRuneSet> = TransactionBuilder::new();
     ///
     /// // Verify initial state
     /// assert_eq!(builder.transaction.input.len(), 0);
@@ -735,11 +735,11 @@ impl<
     /// ```rust
     /// # #[cfg(feature = "runes")]
     /// # {
-    /// use satellite_bitcoin_transactions::TransactionBuilder;
+    /// use arch_satellite_bitcoin_transactions::TransactionBuilder;
     /// use arch_program::rune::RuneAmount;
     ///
     /// // Create a builder that can handle up to 8 modified accounts and 4 inputs to sign
-    /// let mut builder: TransactionBuilder<8, 4, satellite_bitcoin_transactions::utxo_info::SingleRuneSet> = TransactionBuilder::new();
+    /// let mut builder: TransactionBuilder<8, 4, arch_satellite_bitcoin_transactions::utxo_info::SingleRuneSet> = TransactionBuilder::new();
     ///
     /// // Verify initial state
     /// assert_eq!(builder.transaction.input.len(), 0);
@@ -870,9 +870,9 @@ impl<
     /// ## Examples
     ///
     /// ```rust,no_run
-    /// # use satellite_bitcoin_transactions::{TransactionBuilder, SignPolicy};
+    /// # use arch_satellite_bitcoin_transactions::{TransactionBuilder, SignPolicy};
     /// # use arch_program::account::AccountInfo;
-    /// # let mut builder: TransactionBuilder<8, 4, satellite_bitcoin_transactions::utxo_info::SingleRuneSet> = TransactionBuilder::new();
+    /// # let mut builder: TransactionBuilder<8, 4, arch_satellite_bitcoin_transactions::utxo_info::SingleRuneSet> = TransactionBuilder::new();
     /// # let account: AccountInfo<'static> = unsafe { std::mem::zeroed() };
     /// // Add a state transition for an existing liquidity pool account
     /// builder.add_state_transition(&account, SignPolicy::Managed)?;
@@ -881,7 +881,7 @@ impl<
     /// // - This account will be modified
     /// // - The account's key must sign the transaction
     /// // - 546 sats are consumed from the account's UTXO
-    /// # Ok::<(), satellite_bitcoin_transactions::error::BitcoinTxError>(())
+    /// # Ok::<(), arch_satellite_bitcoin_transactions::error::BitcoinTxError>(())
     /// ```
     ///
     /// ## Error Handling
@@ -1251,10 +1251,10 @@ impl<
     /// ## Examples
     ///
     /// ```rust,no_run
-    /// # use satellite_bitcoin_transactions::TransactionBuilder;
-    /// # use satellite_bitcoin_transactions::fee_rate::FeeRate;
+    /// # use arch_satellite_bitcoin_transactions::TransactionBuilder;
+    /// # use arch_satellite_bitcoin_transactions::fee_rate::FeeRate;
     /// # use bitcoin::ScriptBuf;
-    /// # let mut builder: TransactionBuilder<8, 4, satellite_bitcoin_transactions::utxo_info::SingleRuneSet> = TransactionBuilder::new();
+    /// # let mut builder: TransactionBuilder<8, 4, arch_satellite_bitcoin_transactions::utxo_info::SingleRuneSet> = TransactionBuilder::new();
     /// // Set target fee rate (25 sat/vB)
     /// let fee_rate = FeeRate::try_from(25.0)?;
     ///
@@ -1286,10 +1286,10 @@ impl<
     /// ## Best Practices
     ///
     /// ```rust,no_run
-    /// # use satellite_bitcoin_transactions::TransactionBuilder;
-    /// # use satellite_bitcoin_transactions::fee_rate::FeeRate;
+    /// # use arch_satellite_bitcoin_transactions::TransactionBuilder;
+    /// # use arch_satellite_bitcoin_transactions::fee_rate::FeeRate;
     /// # use bitcoin::ScriptBuf;
-    /// # let mut builder: TransactionBuilder<8, 4, satellite_bitcoin_transactions::utxo_info::SingleRuneSet> = TransactionBuilder::new();
+    /// # let mut builder: TransactionBuilder<8, 4, arch_satellite_bitcoin_transactions::utxo_info::SingleRuneSet> = TransactionBuilder::new();
     /// # let change_address = ScriptBuf::new();
     /// // Always validate fee rate after adjustment
     /// let fee_rate = FeeRate::try_from(15.0)?;
@@ -1510,8 +1510,8 @@ impl<
     /// ## Examples
     ///
     /// ```rust,no_run
-    /// # use satellite_bitcoin_transactions::TransactionBuilder;
-    /// # let mut builder: TransactionBuilder<8, 4, satellite_bitcoin_transactions::utxo_info::SingleRuneSet> = TransactionBuilder::new();
+    /// # use arch_satellite_bitcoin_transactions::TransactionBuilder;
+    /// # let mut builder: TransactionBuilder<8, 4, arch_satellite_bitcoin_transactions::utxo_info::SingleRuneSet> = TransactionBuilder::new();
     /// // After adding state transitions and regular inputs...
     /// let non_state_transition_inputs = builder.get_non_state_transition_inputs();
     ///
@@ -1568,10 +1568,10 @@ impl<
     /// ## Examples
     ///
     /// ```rust,no_run
-    /// # use satellite_bitcoin_transactions::TransactionBuilder;
-    /// # use satellite_bitcoin_transactions::fee_rate::FeeRate;
+    /// # use arch_satellite_bitcoin_transactions::TransactionBuilder;
+    /// # use arch_satellite_bitcoin_transactions::fee_rate::FeeRate;
     /// # use bitcoin::ScriptBuf;
-    /// # let mut builder: TransactionBuilder<8, 4, satellite_bitcoin_transactions::utxo_info::SingleRuneSet> = TransactionBuilder::new();
+    /// # let mut builder: TransactionBuilder<8, 4, arch_satellite_bitcoin_transactions::utxo_info::SingleRuneSet> = TransactionBuilder::new();
     /// // After building your transaction...
     ///
     /// // 1. Adjust fees

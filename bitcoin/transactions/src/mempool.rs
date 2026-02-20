@@ -1,5 +1,5 @@
 use arch_program::rune::RuneAmount;
-use satellite_collections::generic::fixed_set::FixedCapacitySet;
+use arch_satellite_collections::generic::fixed_set::FixedCapacitySet;
 
 use crate::UtxoInfo;
 

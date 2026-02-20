@@ -2,8 +2,8 @@
 //!
 //! If you are making a change to this program, run `anchor run sync`.
 
-use satellite_lang::prelude::*;
-use satellite_apl::token_interface::{Mint, TokenAccount, TokenInterface};
+use arch_satellite_lang::prelude::*;
+use arch_satellite_apl::token_interface::{Mint, TokenAccount, TokenInterface};
 
 declare_id!("02ba888c41626fc822fc14c03809adec5af3fb9fe874a8a9bc12e08000000000");
 

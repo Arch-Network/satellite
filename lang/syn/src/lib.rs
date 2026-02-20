@@ -374,7 +374,7 @@ impl Field {
                 __program_id
             },
             _ => quote! {
-                &satellite_apl::token::ID
+                &arch_satellite_apl::token::ID
             },
         };
         match &self.ty {
@@ -464,19 +464,19 @@ impl Field {
     pub fn container_ty(&self) -> proc_macro2::TokenStream {
         match &self.ty {
             Ty::Account(_) => quote! {
-                satellite_lang::accounts::account::Account
+                arch_satellite_lang::accounts::account::Account
             },
             Ty::LazyAccount(_) => quote! {
-                satellite_lang::accounts::lazy_account::LazyAccount
+                arch_satellite_lang::accounts::lazy_account::LazyAccount
             },
             Ty::AccountLoader(_) => quote! {
-                satellite_lang::accounts::account_loader::AccountLoader
+                arch_satellite_lang::accounts::account_loader::AccountLoader
             },
-            // Ty::Sysvar(_) => quote! { satellite_lang::accounts::sysvar::Sysvar },
-            Ty::Program(_) => quote! { satellite_lang::accounts::program::Program },
-            Ty::Interface(_) => quote! { satellite_lang::accounts::interface::Interface },
+            // Ty::Sysvar(_) => quote! { arch_satellite_lang::accounts::sysvar::Sysvar },
+            Ty::Program(_) => quote! { arch_satellite_lang::accounts::program::Program },
+            Ty::Interface(_) => quote! { arch_satellite_lang::accounts::interface::Interface },
             Ty::InterfaceAccount(_) => {
-                quote! { satellite_lang::accounts::interface_account::InterfaceAccount }
+                quote! { arch_satellite_lang::accounts::interface_account::InterfaceAccount }
             }
             Ty::AccountInfo => quote! {},
             Ty::UncheckedAccount => quote! {},

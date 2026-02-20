@@ -1,4 +1,4 @@
-use satellite_lang::prelude::*;
+use arch_satellite_lang::prelude::*;
 
 macro_rules! size {
     ($name: ident, $size:expr) => {

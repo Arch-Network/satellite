@@ -11,9 +11,9 @@
 
 [package]
 edition = "2018"
-name = "borsh-derive-internal-satellite"
+name = "arch-satellite-borsh-derive-internal"
 version = "0.11.0"
-authors = ["Saturn BTC <contact@saturnbtc.io>"]
+authors = ["Arch Network <contact@arch.network>", "Saturn BTC <contact@saturnbtc.io>"]
 description = """
 Binary Object Representation Serializer for Hashing
 """
@@ -24,7 +24,7 @@ categories = [
     "network-programming",
 ]
 license = "Apache-2.0"
-repository = "https://github.com/saturnbtc/satellite"
+repository = "https://github.com/Arch-Network/satellite"
 
 [dependencies.proc-macro2]
 version = "1"

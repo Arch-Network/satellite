@@ -11,10 +11,10 @@
 + arch_program = "x.y"
 
 - anchor-lang = "x.y"
-+ satellite-lang = "x.y"
++ arch-satellite-lang = "x.y"
 
 - anchor-spl = "x.y"
-+ satellite-apl = "x.y"
++ arch-satellite-apl = "x.y"
 
 - spl-token = "x.y"
 + apl-token = "x.y"
@@ -27,10 +27,10 @@
 + use arch_program;
 
 - use anchor-lang;
-+ use satellite-lang;
++ use arch-satellite-lang;
 
 - use anchor-spl;
-+ use satellite-apl;
++ use arch-satellite-apl;
 
 - use spl-token;
 + use apl-token;
@@ -40,7 +40,7 @@
 
 ## 2) Token interfaces → classic types (no token extensions yet)
 
-`satellite-apl` does **not** support Token Extensions. Replace `Interface`, `InterfaceAccount`, and `TokenInterface` with the classic account types and comment out/replace all token 2022 usage.
+`arch-satellite-apl` does **not** support Token Extensions. Replace `Interface`, `InterfaceAccount`, and `TokenInterface` with the classic account types and comment out/replace all token 2022 usage.
 
 **Before (Anchor on Solana)**
 

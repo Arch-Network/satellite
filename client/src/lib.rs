@@ -1,6 +1,6 @@
 #![cfg_attr(docsrs, feature(doc_auto_cfg))]
 
-//! An RPC client to interact with Solana programs written in [`satellite_lang`].
+//! An RPC client to interact with Solana programs written in [`arch_satellite_lang`].
 //!
 //! # Examples
 //!
@@ -50,7 +50,7 @@
 //!
 //! More examples can be found in [here].
 //!
-//! [here]: https://github.com/coral-xyz/anchor/tree/v0.31.1/client/example/src
+//! [here]: https://github.com/coral-xyz/anchor/tree/v0.32.0/client/example/src
 //!
 //! # Features
 //!
@@ -59,7 +59,7 @@
 //! The client is blocking by default. To enable asynchronous client, add `async` feature:
 //!
 //! ```toml
-//! anchor-client = { version = "0.31.1 ", features = ["async"] }
+//! anchor-client = { version = "0.32.0 ", features = ["async"] }
 //! ````
 //!
 //! ## `mock`
@@ -71,14 +71,14 @@
 
 use futures::{Future, StreamExt};
 use regex::Regex;
-use satellite_lang::arch_program::program_error::ProgramError;
-use satellite_lang::{AccountDeserialize, Discriminator, InstructionData, ToAccountMetas};
+use arch_satellite_lang::arch_program::program_error::ProgramError;
+use arch_satellite_lang::{AccountDeserialize, Discriminator, InstructionData, ToAccountMetas};
 
 // Use Solana SDK's Pubkey for client operations (compatible with solana_sdk::Signer)
 use solana_sdk::pubkey::Pubkey;
 
 // Type alias for arch_program's Pubkey when needed for program interactions
-pub type ArchPubkey = satellite_lang::arch_program::pubkey::Pubkey;
+pub type ArchPubkey = arch_satellite_lang::arch_program::pubkey::Pubkey;
 
 /// Convert between arch_program::Pubkey and solana_sdk::Pubkey
 /// Both are 32-byte arrays with the same layout
@@ -128,7 +128,7 @@ use tokio::{
 pub use cluster::Cluster;
 #[cfg(feature = "async")]
 pub use nonblocking::ThreadSafeSigner;
-pub use satellite_lang;
+pub use arch_satellite_lang;
 pub use solana_account_decoder;
 pub use solana_client;
 pub use solana_sdk;
@@ -329,7 +329,7 @@ impl<C: Deref<Target = impl Signer> + Clone> Program<C> {
         Ok(())
     }
 
-    async fn on_internal<T: satellite_lang::Event + satellite_lang::AnchorDeserialize>(
+    async fn on_internal<T: arch_satellite_lang::Event + arch_satellite_lang::AnchorDeserialize>(
         &self,
         f: impl Fn(&EventContext, T) + Send + 'static,
     ) -> Result<
@@ -400,13 +400,13 @@ impl<T> Iterator for ProgramAccountsIterator<T> {
     }
 }
 
-pub fn handle_program_log<T: satellite_lang::Event + satellite_lang::AnchorDeserialize>(
+pub fn handle_program_log<T: arch_satellite_lang::Event + arch_satellite_lang::AnchorDeserialize>(
     self_program_str: &str,
     l: &str,
 ) -> Result<(Option<T>, Option<String>, bool), ClientError> {
     use base64::engine::general_purpose::STANDARD;
     use base64::Engine;
-    use satellite_lang::__private::base64;
+    use arch_satellite_lang::__private::base64;
 
     // Log emitted from the current program.
     if let Some(log) = l
@@ -506,7 +506,7 @@ pub enum ClientError {
     #[error("Account not found")]
     AccountNotFound,
     #[error("{0}")]
-    AnchorError(#[from] satellite_lang::error::Error),
+    AnchorError(#[from] arch_satellite_lang::error::Error),
     #[error("{0}")]
     ProgramError(#[from] ProgramError),
     #[error("{0}")]
@@ -706,7 +706,7 @@ impl<C: Deref<Target = impl Signer> + Clone, S: AsSigner> RequestBuilder<'_, C, 
     }
 }
 
-fn parse_logs_response<T: satellite_lang::Event + satellite_lang::AnchorDeserialize>(
+fn parse_logs_response<T: arch_satellite_lang::Event + arch_satellite_lang::AnchorDeserialize>(
     logs: RpcResponse<RpcLogsResponse>,
     program_id_str: &str,
 ) -> Result<Vec<T>, ClientError> {
@@ -768,9 +768,9 @@ fn parse_logs_response<T: satellite_lang::Event + satellite_lang::AnchorDeserial
 mod tests {
     use solana_client::rpc_response::RpcResponseContext;
 
-    // Creating a mock struct that implements `satellite_lang::events`
+    // Creating a mock struct that implements `arch_satellite_lang::events`
     // for type inference in `test_logs`
-    use satellite_lang::prelude::*;
+    use arch_satellite_lang::prelude::*;
     #[derive(Debug, Clone, Copy)]
     #[event]
     pub struct MockEvent {}

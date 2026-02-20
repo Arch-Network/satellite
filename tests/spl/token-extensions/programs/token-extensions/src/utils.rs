@@ -1,4 +1,4 @@
-use satellite_lang::{
+use arch_satellite_lang::{
     prelude::Result,
     arch_program::{
         account::AccountInfo,
@@ -11,7 +11,7 @@ use satellite_lang::{
     },
     Lamports,
 };
-use satellite_apl::token_interface::spl_token_2022::{
+use arch_satellite_apl::token_interface::spl_token_2022::{
     extension::{BaseStateWithExtensions, Extension, StateWithExtensions},
     state::Mint,
 };

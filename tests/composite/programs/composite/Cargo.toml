@@ -11,7 +11,7 @@ name = "composite"
 [features]
 no-entrypoint = []
 cpi = ["no-entrypoint"]
-idl-build = ["satellite-lang/idl-build"]
+idl-build = ["arch-satellite-lang/idl-build"]
 
 [dependencies]
-satellite-lang = { path = "../../../../lang" }
+arch-satellite-lang = { path = "../../../../lang" }

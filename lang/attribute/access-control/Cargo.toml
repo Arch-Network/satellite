@@ -1,8 +1,8 @@
 [package]
-name = "satellite-attribute-access-control"
+name = "arch-satellite-attribute-access-control"
 version.workspace = true
-authors = ["Satellite Maintainers <contact@saturnbtc.io>"]
-repository = "https://github.com/saturnbtc/satellite"
+authors = ["Arch Network <contact@arch.network>", "Saturn BTC <contact@saturnbtc.io>"]
+repository = "https://github.com/Arch-Network/satellite"
 license = "Apache-2.0"
 description = "Satellite attribute macro for instruction access control"
 edition.workspace = true
@@ -11,10 +11,10 @@ edition.workspace = true
 proc-macro = true
 
 [features]
-satellite-debug = ["satellite-syn/satellite-debug"]
+satellite-debug = ["arch-satellite-syn/satellite-debug"]
 
 [dependencies]
-satellite-syn = { workspace = true }
+arch-satellite-syn = { workspace = true }
 proc-macro2 = "1"
 quote = "1"
 syn = { version = "1", features = ["full"] }

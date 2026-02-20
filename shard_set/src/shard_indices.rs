@@ -1,4 +1,4 @@
-use satellite_bitcoin::generic::fixed_list::{FixedList, FixedListError};
+use arch_satellite_bitcoin::generic::fixed_list::{FixedList, FixedListError};
 
 /// Abstraction over "something that can be turned into a list of shard indices".
 ///

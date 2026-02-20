@@ -36,9 +36,9 @@ pub fn program(
         }
     }
 
-    // Convert modified module back into tokens and let satellite_syn handle the heavy lifting.
+    // Convert modified module back into tokens and let arch_satellite_syn handle the heavy lifting.
     let program_tokens = quote! { #program_mod };
-    match syn::parse2::<satellite_syn::Program>(program_tokens) {
+    match syn::parse2::<arch_satellite_syn::Program>(program_tokens) {
         Ok(p) => p.to_token_stream().into(),
         Err(e) => e.to_compile_error().into(),
     }
@@ -76,7 +76,7 @@ pub fn program(
 ///
 /// A full on-chain CPI usage example can be found [here].
 ///
-/// [here]: https://github.com/coral-xyz/anchor/tree/v0.31.1/tests/declare-program
+/// [here]: https://github.com/coral-xyz/anchor/tree/v0.32.0/tests/declare-program
 #[proc_macro]
 pub fn declare_program(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     parse_macro_input!(input as DeclareProgram)
@@ -91,7 +91,7 @@ pub fn declare_program(input: proc_macro::TokenStream) -> proc_macro::TokenStrea
 /// # Example
 ///
 /// ```rust,ignore
-/// use satellite_lang::prelude::*;
+/// use arch_satellite_lang::prelude::*;
 ///
 /// // SPL Transfer Hook Interface: `Execute` instruction.
 /// //
@@ -118,9 +118,9 @@ pub fn declare_program(input: proc_macro::TokenStream) -> proc_macro::TokenStrea
 /// ```
 #[cfg(feature = "interface-instructions")]
 #[deprecated(
-    since = "0.31.1",
+    since = "0.32.0",
     note = "Use `#[instruction(discriminator = <EXPR>)]` instead.
-    See examples in https://github.com/coral-xyz/anchor/tree/v0.31.1/tests/spl/transfer-hook"
+    See examples in https://github.com/coral-xyz/anchor/tree/v0.32.0/tests/spl/transfer-hook"
 )]
 #[proc_macro_attribute]
 pub fn interface(
@@ -156,7 +156,7 @@ pub fn interface(
 /// # Example
 ///
 /// ```ignore
-/// use satellite_lang::prelude::*;
+/// use arch_satellite_lang::prelude::*;
 ///
 /// declare_id!("CustomDiscriminator111111111111111111111111");
 ///

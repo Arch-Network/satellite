@@ -85,7 +85,7 @@ declare_id!("9fe85121d1f19362930d881e105e84b82df0cc379f9984cbb7edd40720e4fe33");
 
 **Symptom:**
 ```
-error: init_if_needed requires that satellite-lang be imported with the
+error: init_if_needed requires that arch-satellite-lang be imported with the
 init-if-needed cargo feature enabled.
 ```
 
@@ -95,7 +95,7 @@ init-if-needed cargo feature enabled.
 
 ```toml
 [dependencies]
-satellite-lang = {
+arch-satellite-lang = {
     path = "../satellite/lang",
     features = ["derive", "init-if-needed"]  # Add this
 }
@@ -126,8 +126,8 @@ use anchor_lang::prelude::*;
 use anchor_spl::token::Token;
 
 // After
-use satellite_lang::prelude::*;
-use satellite_apl::token::Token;
+use arch_satellite_lang::prelude::*;
+use arch_satellite_apl::token::Token;
 ```
 
 Or run the converter:
@@ -296,7 +296,7 @@ base58.b58decode("YOUR_BASE58_ID").hex()
 
 **Symptom:**
 ```toml
-satellite-lang = { path = "../satellite/lang" }  # Path doesn't exist
+arch-satellite-lang = { path = "../satellite/lang" }  # Path doesn't exist
 ```
 
 **Cause:** A2S uses relative paths that may not match your setup.
@@ -305,13 +305,13 @@ satellite-lang = { path = "../satellite/lang" }  # Path doesn't exist
 
 ```toml
 # Option 1: Absolute path
-satellite-lang = { path = "/home/user/satellite/lang", features = ["derive"] }
+arch-satellite-lang = { path = "/home/user/satellite/lang", features = ["derive"] }
 
 # Option 2: Correct relative path
-satellite-lang = { path = "../../satellite/lang", features = ["derive"] }
+arch-satellite-lang = { path = "../../satellite/lang", features = ["derive"] }
 
 # Option 3: Git dependency (when published)
-satellite-lang = { git = "https://github.com/org/satellite", features = ["derive"] }
+arch-satellite-lang = { git = "https://github.com/org/satellite", features = ["derive"] }
 ```
 
 ---
@@ -420,7 +420,7 @@ use anchor_spl::token_interface::TokenInterface;
 pub token_program: Interface<'info, TokenInterface>,
 
 // After
-use satellite_apl::token::Token;
+use arch_satellite_apl::token::Token;
 pub token_program: Program<'info, Token>,
 ```
 
@@ -435,8 +435,8 @@ pub token_program: Program<'info, Token>,
 **Solution:** Ensure consistent usage:
 
 ```rust
-use satellite_apl::token::{Token, TokenAccount, Mint};
-use satellite_apl::associated_token::AssociatedToken;
+use arch_satellite_apl::token::{Token, TokenAccount, Mint};
+use arch_satellite_apl::associated_token::AssociatedToken;
 
 #[derive(Accounts)]
 pub struct MyAccounts<'info> {
@@ -563,7 +563,7 @@ When something doesn't work, try these in order:
 
 - [ ] Run `cargo check` to see actual errors
 - [ ] Verify program ID is 64 hex characters
-- [ ] Check all imports are `satellite_*` not `anchor_*`
+- [ ] Check all imports are `arch_satellite_*` not `anchor_*`
 - [ ] Remove `InterfaceAccount` → use `Account`
 - [ ] Remove `TokenInterface` → use `Token`
 - [ ] Remove `token_program = x` constraints
@@ -595,7 +595,7 @@ cargo-build-sbf --version
 
 Create a minimal test case:
 ```rust
-use satellite_lang::prelude::*;
+use arch_satellite_lang::prelude::*;
 
 declare_id!("0000000000000000000000000000000000000000000000000000000000000001");
 

@@ -1,7 +1,7 @@
 //! This example demonstrates the ability to use optional accounts in
 //! structs deriving `Accounts`.
 
-use satellite_lang::prelude::*;
+use arch_satellite_lang::prelude::*;
 pub use context::*;
 
 pub mod account;

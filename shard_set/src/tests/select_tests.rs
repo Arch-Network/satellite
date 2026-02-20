@@ -2,7 +2,7 @@
 
 use std::cell::Ref;
 
-use satellite_bitcoin::generic::fixed_list_unchecked::FixedRefList;
+use arch_satellite_bitcoin::generic::fixed_list_unchecked::FixedRefList;
 
 use crate::error::StateShardError;
 use crate::select::*;

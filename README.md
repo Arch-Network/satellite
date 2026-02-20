@@ -30,7 +30,8 @@ Satellite enables developers to:
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                              │
 │  ┌──────────────────┐    ┌──────────────────┐    ┌──────────────────┐       │
-│  │  satellite-lang  │    │   satellite-apl  │    │  satellite-client│       │
+│  │ arch-satellite-  │    │ arch-satellite-  │    │  anchor-client   │       │
+│  │      lang        │    │      apl         │    │                  │       │
 │  │                  │    │                  │    │                  │       │
 │  │ • #[program]     │    │ • Token CPI      │    │ • RPC Client     │       │
 │  │ • #[account]     │    │ • ATA CPI        │    │ • Account Fetch  │       │
@@ -54,8 +55,8 @@ Satellite enables developers to:
 
 | Feature | Anchor (Solana) | Satellite (Arch) |
 |---------|-----------------|------------------|
-| Import | `anchor_lang` | `satellite_lang` |
-| SPL Tokens | `anchor_spl` | `satellite_apl` |
+| Import | `anchor_lang` | `arch_satellite_lang` |
+| SPL Tokens | `anchor_spl` | `arch_satellite_apl` |
 | Program ID | Base58 string | 64-char hex |
 | Token Interface | `InterfaceAccount<Mint>` | `Account<Mint>` |
 | Bitcoin Integration | N/A | Native syscalls |
@@ -65,9 +66,9 @@ Satellite enables developers to:
 
 | Package | Description | Purpose |
 |:--------|:------------|:--------|
-| `satellite-lang` | Core framework with macros and types | Writing Arch programs |
-| `satellite-apl` | CPI clients for token programs | Token operations |
-| `satellite-client` | Rust client for Arch programs | Off-chain interactions |
+| `arch-satellite-lang` | Core framework with macros and types | Writing Arch programs |
+| `arch-satellite-apl` | CPI clients for token programs | Token operations |
+| `anchor-client` | Rust client for Arch programs | Off-chain interactions |
 
 ## Quick Start
 
@@ -77,14 +78,14 @@ Add to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-satellite-lang = "0.31"
-satellite-apl = "0.31"  # If using tokens
+arch-satellite-lang = "0.31"
+arch-satellite-apl = "0.31"  # If using tokens
 ```
 
 ### Example: Counter Program
 
 ```rust
-use satellite_lang::prelude::*;
+use arch_satellite_lang::prelude::*;
 
 declare_id!("da075cb2ff5ec6817613de530b692a8735477769da47430cbd8154335c4a8327");
 
@@ -148,8 +149,8 @@ use anchor_lang::prelude::*;
 use anchor_spl::token::*;
 
 // AFTER (Satellite)
-use satellite_lang::prelude::*;
-use satellite_apl::token::*;
+use arch_satellite_lang::prelude::*;
+use arch_satellite_apl::token::*;
 ```
 
 ### Program ID Format
@@ -183,7 +184,7 @@ Use the [anchor-to-satellite](https://github.com/Arch-Network/anchor-to-satellit
 a2s analyze --path ./my-anchor-program
 
 # Convert to new directory
-a2s convert --source ./my-anchor-program --output ./my-satellite-program
+a2s convert --source ./my-anchor-program --output ./my-arch-satellite-program
 
 # Convert in-place (creates backup)
 a2s convert-in-place --path ./my-anchor-program --backup
@@ -194,7 +195,7 @@ a2s convert-in-place --path ./my-anchor-program --backup
 Satellite programs can interact with Bitcoin through Arch's syscalls:
 
 ```rust
-use satellite_lang::prelude::*;
+use arch_satellite_lang::prelude::*;
 
 #[program]
 mod bitcoin_aware {
@@ -228,7 +229,7 @@ mod bitcoin_aware {
 
 ```
 satellite/
-├── lang/                    # satellite-lang crate
+├── lang/                    # arch-satellite-lang crate
 │   ├── src/
 │   │   ├── lib.rs          # Core exports
 │   │   ├── accounts.rs     # Account types
@@ -237,12 +238,12 @@ satellite/
 │   └── attribute/          # Procedural macros
 │       ├── program/        # #[program] macro
 │       └── account/        # #[account] macro
-├── spl/                     # satellite-apl crate
+├── spl/                     # arch-satellite-apl crate
 │   └── src/
 │       ├── token.rs        # Token program CPI
 │       ├── associated_token.rs
 │       └── metadata.rs
-├── client/                  # satellite-client crate
+├── client/                  # anchor-client crate
 │   └── src/
 │       └── lib.rs          # RPC client
 └── docs/                    # Documentation

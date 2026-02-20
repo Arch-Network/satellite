@@ -14,10 +14,10 @@ no-idl = []
 cpi = ["no-entrypoint"]
 default = []
 test-sbf = []
-idl-build = ["satellite-lang/idl-build"]
+idl-build = ["arch-satellite-lang/idl-build"]
 
 [dependencies]
-satellite-lang = { path = "../../../../lang" }
+arch-satellite-lang = { path = "../../../../lang" }
 bytemuck = {version = "1.4.0", features = ["derive", "min_const_generics"]}
 
 [dev-dependencies]

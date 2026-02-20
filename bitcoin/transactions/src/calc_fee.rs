@@ -3,8 +3,8 @@ use std::cmp::min;
 use crate::mempool::MempoolInfo;
 use arch_program::{input_to_sign::InputToSign, msg};
 use bitcoin::{Amount, ScriptBuf, Transaction, TxOut, Weight};
-use satellite_collections::generic::push_pop::{PushPopCollection, PushPopError};
-use satellite_math::{safe_add, safe_sub};
+use arch_satellite_collections::generic::push_pop::{PushPopCollection, PushPopError};
+use arch_satellite_math::{safe_add, safe_sub};
 
 use crate::{
     constants::DUST_LIMIT,
@@ -328,7 +328,7 @@ mod tests {
         transaction::Version, Address, Amount, OutPoint, ScriptBuf, Sequence, Transaction, TxIn,
         TxOut, Witness,
     };
-    use satellite_collections::generic::push_pop::PushPopError;
+    use arch_satellite_collections::generic::push_pop::PushPopError;
     use std::str::FromStr;
 
     enum AddressType {

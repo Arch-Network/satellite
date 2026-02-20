@@ -10,7 +10,7 @@ use syn::parse_macro_input;
 /// # Example
 ///
 /// ```ignore
-/// use satellite_lang::prelude::*;
+/// use arch_satellite_lang::prelude::*;
 ///
 /// #[program]
 /// mod errors {

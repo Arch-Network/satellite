@@ -1,8 +1,8 @@
 [package]
-name = "satellite-derive-accounts"
+name = "arch-satellite-derive-accounts"
 version.workspace = true
-authors = ["Satellite Maintainers <contact@saturnbtc.io>"]
-repository = "https://github.com/saturnbtc/satellite"
+authors = ["Arch Network <contact@arch.network>", "Saturn BTC <contact@saturnbtc.io>"]
+repository = "https://github.com/Arch-Network/satellite"
 license = "Apache-2.0"
 description = "Satellite Derive macro for accounts"
 edition.workspace = true
@@ -11,12 +11,12 @@ edition.workspace = true
 proc-macro = true
 
 [features]
-allow-missing-optionals = ["satellite-syn/allow-missing-optionals"]
-satellite-debug = ["satellite-syn/satellite-debug"]
-idl-build = ["satellite-syn/idl-build"]
-init-if-needed = ["satellite-syn/init-if-needed"]
+allow-missing-optionals = ["arch-satellite-syn/allow-missing-optionals"]
+satellite-debug = ["arch-satellite-syn/satellite-debug"]
+idl-build = ["arch-satellite-syn/idl-build"]
+init-if-needed = ["arch-satellite-syn/init-if-needed"]
 
 [dependencies]
-satellite-syn = { workspace = true }
+arch-satellite-syn = { workspace = true }
 quote = "1"
 syn = { version = "1", features = ["full"] }

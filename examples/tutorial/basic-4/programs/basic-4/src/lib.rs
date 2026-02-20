@@ -1,4 +1,4 @@
-use satellite_lang::prelude::*;
+use arch_satellite_lang::prelude::*;
 use std::ops::DerefMut;
 
 declare_id!("CwrqeMj2U8tFr1Rhkgwc84tpAsqbt9pTt2a4taoTADPr");

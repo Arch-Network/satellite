@@ -5,7 +5,7 @@ use std::{env, fs, path::PathBuf};
 
 use anyhow::anyhow;
 use quote::{quote, ToTokens};
-use satellite_lang_idl::{convert::convert_idl, types::Idl};
+use arch_satellite_lang_idl::{convert::convert_idl, types::Idl};
 use syn::parse::{Parse, ParseStream};
 
 use common::gen_docs;
@@ -75,7 +75,7 @@ fn gen_program(idl: &Idl, name: &syn::Ident) -> proc_macro2::TokenStream {
     quote! {
         #docs
         pub mod #name {
-            use satellite_lang::prelude::*;
+            use arch_satellite_lang::prelude::*;
             use accounts::*;
             use events::*;
             use types::*;

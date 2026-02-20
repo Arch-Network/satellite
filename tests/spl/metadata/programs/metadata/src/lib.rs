@@ -1,7 +1,7 @@
 //! Build-only test exercising metadata account constraints.
 
-use satellite_apl::metadata::{ArchTokenMetadataAccount, ArchTokenMetadataAttributesAccount};
-use satellite_lang::prelude::*;
+use arch_satellite_apl::metadata::{ArchTokenMetadataAccount, ArchTokenMetadataAttributesAccount};
+use arch_satellite_lang::prelude::*;
 
 declare_id!("054a752fa3ef8be54b17ca4e6a0ca5595bf8a64d43b5df4cee58af7800000000");
 

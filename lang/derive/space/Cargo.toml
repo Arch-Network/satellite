@@ -1,8 +1,8 @@
 [package]
-name = "satellite-derive-space"
+name = "arch-satellite-derive-space"
 version.workspace = true
-authors = ["Satellite Maintainers <contact@saturnbtc.io>"]
-repository = "https://github.com/saturnbtc/satellite"
+authors = ["Arch Network <contact@arch.network>", "Saturn BTC <contact@saturnbtc.io>"]
+repository = "https://github.com/Arch-Network/satellite"
 license = "Apache-2.0"
 description = "Satellite Derive macro to automatically calculate the size of a structure or an enum"
 edition.workspace = true

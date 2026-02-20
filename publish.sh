@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script to publish all Satellite workspace crates to crates.io in dependency order
-# Excludes borsh-derive-internal-satellite (has fixed version)
+# Excludes arch-satellite-borsh-derive-internal (has fixed version)
 
 # Don't use set -e since we want to continue on errors and just warn
 
@@ -86,48 +86,48 @@ echo ""
 
 # Tier 1: No workspace dependencies
 info "=== Tier 1: Publishing crates with no workspace dependencies ==="
-publish_crate "satellite-serde" || warn "satellite-serde failed or already published"
-publish_crate "satellite-math" || warn "satellite-math failed or already published"
-publish_crate "satellite-collections" || warn "satellite-collections failed or already published"
-publish_crate "satellite-lang-idl-spec" || warn "satellite-lang-idl-spec failed or already published"
-publish_crate "satellite-syn" || warn "satellite-syn failed or already published"
+publish_crate "arch-satellite-serde" || warn "arch-satellite-serde failed or already published"
+publish_crate "arch-satellite-math" || warn "arch-satellite-math failed or already published"
+publish_crate "arch-satellite-collections" || warn "arch-satellite-collections failed or already published"
+publish_crate "arch-satellite-lang-idl-spec" || warn "arch-satellite-lang-idl-spec failed or already published"
+publish_crate "arch-satellite-syn" || warn "arch-satellite-syn failed or already published"
 
 echo ""
 
 # Tier 2: Depend on Tier 1
 info "=== Tier 2: Publishing crates that depend on Tier 1 ==="
-publish_crate "satellite-bitcoin-transactions" || warn "satellite-bitcoin-transactions failed or already published"
+publish_crate "arch-satellite-bitcoin-transactions" || warn "arch-satellite-bitcoin-transactions failed or already published"
 
 # Publish all attribute crates
 info "Publishing lang attribute crates..."
-publish_crate "satellite-attribute-access-control" || warn "satellite-attribute-access-control failed or already published"
-publish_crate "satellite-attribute-account" || warn "satellite-attribute-account failed or already published"
-publish_crate "satellite-attribute-constant" || warn "satellite-attribute-constant failed or already published"
-publish_crate "satellite-attribute-error" || warn "satellite-attribute-error failed or already published"
-publish_crate "satellite-attribute-event" || warn "satellite-attribute-event failed or already published"
-publish_crate "satellite-attribute-program" || warn "satellite-attribute-program failed or already published"
+publish_crate "arch-satellite-attribute-access-control" || warn "arch-satellite-attribute-access-control failed or already published"
+publish_crate "arch-satellite-attribute-account" || warn "arch-satellite-attribute-account failed or already published"
+publish_crate "arch-satellite-attribute-constant" || warn "arch-satellite-attribute-constant failed or already published"
+publish_crate "arch-satellite-attribute-error" || warn "arch-satellite-attribute-error failed or already published"
+publish_crate "arch-satellite-attribute-event" || warn "arch-satellite-attribute-event failed or already published"
+publish_crate "arch-satellite-attribute-program" || warn "arch-satellite-attribute-program failed or already published"
 
 # Publish all derive crates
 info "Publishing lang derive crates..."
-publish_crate "satellite-derive-accounts" || warn "satellite-derive-accounts failed or already published"
-publish_crate "satellite-derive-serde" || warn "satellite-derive-serde failed or already published"
-publish_crate "satellite-derive-space" || warn "satellite-derive-space failed or already published"
+publish_crate "arch-satellite-derive-accounts" || warn "arch-satellite-derive-accounts failed or already published"
+publish_crate "arch-satellite-derive-serde" || warn "arch-satellite-derive-serde failed or already published"
+publish_crate "arch-satellite-derive-space" || warn "arch-satellite-derive-space failed or already published"
 
 echo ""
 
 # Tier 3: Depend on Tier 2
 info "=== Tier 3: Publishing crates that depend on Tier 2 ==="
-publish_crate "satellite-bitcoin" || warn "satellite-bitcoin failed or already published"
-publish_crate "satellite-lang-idl" || warn "satellite-lang-idl failed or already published"
-publish_crate "satellite-lang" || warn "satellite-lang failed or already published"
+publish_crate "arch-satellite-bitcoin" || warn "arch-satellite-bitcoin failed or already published"
+publish_crate "arch-satellite-lang-idl" || warn "arch-satellite-lang-idl failed or already published"
+publish_crate "arch-satellite-lang" || warn "arch-satellite-lang failed or already published"
 
 echo ""
 
 # Tier 4: Depend on Tier 3
 info "=== Tier 4: Publishing crates that depend on Tier 3 ==="
-publish_crate "satellite-shard" || warn "satellite-shard failed or already published"
+publish_crate "arch-satellite-shard" || warn "arch-satellite-shard failed or already published"
 # publish_crate "anchor-client" || warn "anchor-client failed or already published"
-publish_crate "satellite-apl" || warn "satellite-apl failed or already published"
+publish_crate "arch-satellite-apl" || warn "arch-satellite-apl failed or already published"
 # publish_crate "avm" || warn "avm failed or already published"
 
 echo ""

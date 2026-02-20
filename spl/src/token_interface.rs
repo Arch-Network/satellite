@@ -1,6 +1,6 @@
-use satellite_lang::__private::bytemuck::Pod;
-use satellite_lang::arch_program::program_pack::Pack;
-use satellite_lang::arch_program::pubkey::Pubkey;
+use arch_satellite_lang::__private::bytemuck::Pod;
+use arch_satellite_lang::arch_program::program_pack::Pack;
+use arch_satellite_lang::arch_program::pubkey::Pubkey;
 use spl_token_2022::extension::ExtensionType;
 use spl_token_2022::extension::{BaseStateWithExtensions, Extension, StateWithExtensions};
 use std::ops::Deref;
@@ -14,8 +14,8 @@ static IDS: [Pubkey; 2] = [apl_token::id(), spl_token_2022::ID];
 #[derive(Clone, Debug, Default, PartialEq, Copy)]
 pub struct TokenAccount(spl_token_2022::state::Account);
 
-impl satellite_lang::AccountDeserialize for TokenAccount {
-    fn try_deserialize_unchecked(buf: &mut &[u8]) -> satellite_lang::Result<Self> {
+impl arch_satellite_lang::AccountDeserialize for TokenAccount {
+    fn try_deserialize_unchecked(buf: &mut &[u8]) -> arch_satellite_lang::Result<Self> {
         spl_token_2022::extension::StateWithExtensions::<spl_token_2022::state::Account>::unpack(
             buf,
         )
@@ -24,9 +24,9 @@ impl satellite_lang::AccountDeserialize for TokenAccount {
     }
 }
 
-impl satellite_lang::AccountSerialize for TokenAccount {}
+impl arch_satellite_lang::AccountSerialize for TokenAccount {}
 
-impl satellite_lang::Owners for TokenAccount {
+impl arch_satellite_lang::Owners for TokenAccount {
     fn owners() -> &'static [Pubkey] {
         &IDS
     }
@@ -43,17 +43,17 @@ impl Deref for TokenAccount {
 #[derive(Clone, Debug, Default, PartialEq, Copy)]
 pub struct Mint(spl_token_2022::state::Mint);
 
-impl satellite_lang::AccountDeserialize for Mint {
-    fn try_deserialize_unchecked(buf: &mut &[u8]) -> satellite_lang::Result<Self> {
+impl arch_satellite_lang::AccountDeserialize for Mint {
+    fn try_deserialize_unchecked(buf: &mut &[u8]) -> arch_satellite_lang::Result<Self> {
         spl_token_2022::extension::StateWithExtensions::<spl_token_2022::state::Mint>::unpack(buf)
             .map(|t| Mint(t.base))
             .map_err(Into::into)
     }
 }
 
-impl satellite_lang::AccountSerialize for Mint {}
+impl arch_satellite_lang::AccountSerialize for Mint {}
 
-impl satellite_lang::Owners for Mint {
+impl arch_satellite_lang::Owners for Mint {
     fn owners() -> &'static [Pubkey] {
         &IDS
     }
@@ -70,7 +70,7 @@ impl Deref for Mint {
 #[derive(Clone)]
 pub struct TokenInterface;
 
-impl satellite_lang::Ids for TokenInterface {
+impl arch_satellite_lang::Ids for TokenInterface {
     fn ids() -> &'static [Pubkey] {
         &IDS
     }
@@ -78,7 +78,7 @@ impl satellite_lang::Ids for TokenInterface {
 
 pub type ExtensionsVec = Vec<ExtensionType>;
 
-pub fn find_mint_account_size(extensions: Option<&ExtensionsVec>) -> satellite_lang::Result<usize> {
+pub fn find_mint_account_size(extensions: Option<&ExtensionsVec>) -> arch_satellite_lang::Result<usize> {
     if let Some(extensions) = extensions {
         Ok(ExtensionType::try_calculate_account_len::<
             spl_token_2022::state::Mint,
@@ -89,8 +89,8 @@ pub fn find_mint_account_size(extensions: Option<&ExtensionsVec>) -> satellite_l
 }
 
 pub fn get_mint_extension_data<T: Extension + Pod>(
-    account: &satellite_lang::arch_program::account::AccountInfo,
-) -> satellite_lang::Result<T> {
+    account: &arch_satellite_lang::arch_program::account::AccountInfo,
+) -> arch_satellite_lang::Result<T> {
     let mint_data = account.data.borrow();
     let mint_with_extension =
         StateWithExtensions::<spl_token_2022::state::Mint>::unpack(&mint_data)?;

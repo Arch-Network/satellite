@@ -1,9 +1,9 @@
 use core::str::FromStr;
 
-use satellite_lang::arch_program::pubkey::Pubkey;
+use arch_satellite_lang::arch_program::pubkey::Pubkey;
 
 mod id {
-    satellite_lang::declare_id!("da075cb2ff5ec6817613de530b692a8735477769da47430cbd8154335c4a8327");
+    arch_satellite_lang::declare_id!("da075cb2ff5ec6817613de530b692a8735477769da47430cbd8154335c4a8327");
 }
 
 #[test]
@@ -19,8 +19,8 @@ fn test_declare_id() {
 }
 
 mod pk {
-    pub(super) const PUBKEY: satellite_lang::arch_program::pubkey::Pubkey =
-        satellite_lang::pubkey!("878286028318ef2d8d21a207310b3e3bc5cf2510ddd832ab9031fece1da42c6d");
+    pub(super) const PUBKEY: arch_satellite_lang::arch_program::pubkey::Pubkey =
+        arch_satellite_lang::pubkey!("878286028318ef2d8d21a207310b3e3bc5cf2510ddd832ab9031fece1da42c6d");
 }
 
 #[test]

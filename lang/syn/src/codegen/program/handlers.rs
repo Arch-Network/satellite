@@ -20,64 +20,64 @@ pub fn generate(program: &Program) -> proc_macro2::TokenStream {
             // on chain.
             #[inline(never)]
             #[cfg(not(feature = "no-idl"))]
-            pub fn __idl_dispatch<'info>(program_id: &Pubkey, accounts: &'info [AccountInfo<'info>], idl_ix_data: &[u8]) -> satellite_lang::Result<()> {
+            pub fn __idl_dispatch<'info>(program_id: &Pubkey, accounts: &'info [AccountInfo<'info>], idl_ix_data: &[u8]) -> arch_satellite_lang::Result<()> {
                 let mut accounts = accounts;
                 let mut data: &[u8] = idl_ix_data;
 
-                let ix = satellite_lang::idl::IdlInstruction::deserialize(&mut data)
-                    .map_err(|_| satellite_lang::error::ErrorCode::InstructionDidNotDeserialize)?;
+                let ix = arch_satellite_lang::idl::IdlInstruction::deserialize(&mut data)
+                    .map_err(|_| arch_satellite_lang::error::ErrorCode::InstructionDidNotDeserialize)?;
 
                 match ix {
-                    satellite_lang::idl::IdlInstruction::Create { data_len } => {
-                        let mut bumps = <IdlCreateAccounts as satellite_lang::Bumps>::Bumps::default();
+                    arch_satellite_lang::idl::IdlInstruction::Create { data_len } => {
+                        let mut bumps = <IdlCreateAccounts as arch_satellite_lang::Bumps>::Bumps::default();
                         let mut reallocs = std::collections::BTreeSet::new();
                         let mut accounts =
                             IdlCreateAccounts::try_accounts(program_id, &mut accounts, &[], &mut bumps, &mut reallocs)?;
                         __idl_create_account(program_id, &mut accounts, data_len)?;
                         accounts.exit(program_id)?;
                     },
-                    satellite_lang::idl::IdlInstruction::Resize { data_len } => {
-                        let mut bumps = <IdlResizeAccount as satellite_lang::Bumps>::Bumps::default();
+                    arch_satellite_lang::idl::IdlInstruction::Resize { data_len } => {
+                        let mut bumps = <IdlResizeAccount as arch_satellite_lang::Bumps>::Bumps::default();
                         let mut reallocs = std::collections::BTreeSet::new();
                         let mut accounts =
                             IdlResizeAccount::try_accounts(program_id, &mut accounts, &[], &mut bumps, &mut reallocs)?;
                         __idl_resize_account(program_id, &mut accounts, data_len)?;
                         accounts.exit(program_id)?;
                     },
-                    satellite_lang::idl::IdlInstruction::Close => {
-                        let mut bumps = <IdlCloseAccount as satellite_lang::Bumps>::Bumps::default();
+                    arch_satellite_lang::idl::IdlInstruction::Close => {
+                        let mut bumps = <IdlCloseAccount as arch_satellite_lang::Bumps>::Bumps::default();
                         let mut reallocs = std::collections::BTreeSet::new();
                         let mut accounts =
                             IdlCloseAccount::try_accounts(program_id, &mut accounts, &[], &mut bumps, &mut reallocs)?;
                         __idl_close_account(program_id, &mut accounts)?;
                         accounts.exit(program_id)?;
                     },
-                    satellite_lang::idl::IdlInstruction::CreateBuffer => {
-                        let mut bumps = <IdlCreateBuffer as satellite_lang::Bumps>::Bumps::default();
+                    arch_satellite_lang::idl::IdlInstruction::CreateBuffer => {
+                        let mut bumps = <IdlCreateBuffer as arch_satellite_lang::Bumps>::Bumps::default();
                         let mut reallocs = std::collections::BTreeSet::new();
                         let mut accounts =
                             IdlCreateBuffer::try_accounts(program_id, &mut accounts, &[], &mut bumps, &mut reallocs)?;
                         __idl_create_buffer(program_id, &mut accounts)?;
                         accounts.exit(program_id)?;
                     },
-                    satellite_lang::idl::IdlInstruction::Write { data } => {
-                        let mut bumps = <IdlAccounts as satellite_lang::Bumps>::Bumps::default();
+                    arch_satellite_lang::idl::IdlInstruction::Write { data } => {
+                        let mut bumps = <IdlAccounts as arch_satellite_lang::Bumps>::Bumps::default();
                         let mut reallocs = std::collections::BTreeSet::new();
                         let mut accounts =
                             IdlAccounts::try_accounts(program_id, &mut accounts, &[], &mut bumps, &mut reallocs)?;
                         __idl_write(program_id, &mut accounts, data)?;
                         accounts.exit(program_id)?;
                     },
-                    satellite_lang::idl::IdlInstruction::SetAuthority { new_authority } => {
-                        let mut bumps = <IdlAccounts as satellite_lang::Bumps>::Bumps::default();
+                    arch_satellite_lang::idl::IdlInstruction::SetAuthority { new_authority } => {
+                        let mut bumps = <IdlAccounts as arch_satellite_lang::Bumps>::Bumps::default();
                         let mut reallocs = std::collections::BTreeSet::new();
                         let mut accounts =
                             IdlAccounts::try_accounts(program_id, &mut accounts, &[], &mut bumps, &mut reallocs)?;
                         __idl_set_authority(program_id, &mut accounts, new_authority)?;
                         accounts.exit(program_id)?;
                     },
-                    satellite_lang::idl::IdlInstruction::SetBuffer => {
-                        let mut bumps = <IdlSetBuffer as satellite_lang::Bumps>::Bumps::default();
+                    arch_satellite_lang::idl::IdlInstruction::SetBuffer => {
+                        let mut bumps = <IdlSetBuffer as arch_satellite_lang::Bumps>::Bumps::default();
                         let mut reallocs = std::collections::BTreeSet::new();
                         let mut accounts =
                             IdlSetBuffer::try_accounts(program_id, &mut accounts, &[], &mut bumps, &mut reallocs)?;
@@ -111,7 +111,7 @@ pub fn generate(program: &Program) -> proc_macro2::TokenStream {
                 _ => quote! {
                     let mut return_data = Vec::with_capacity(256);
                     result.serialize(&mut return_data).unwrap();
-                    satellite_lang::arch_program::program::set_return_data(&return_data);
+                    arch_satellite_lang::arch_program::program::set_return_data(&return_data);
                 },
             };
 
@@ -122,17 +122,17 @@ pub fn generate(program: &Program) -> proc_macro2::TokenStream {
                     __program_id: &Pubkey,
                     __accounts: &'info[AccountInfo<'info>],
                     __ix_data: &[u8],
-                ) -> satellite_lang::Result<()> {
+                ) -> arch_satellite_lang::Result<()> {
                     #[cfg(not(feature = "no-log-ix-name"))]
-                    satellite_lang::prelude::msg!(#ix_name_log);
+                    arch_satellite_lang::prelude::msg!(#ix_name_log);
 
                     // Deserialize data.
                     let ix = instruction::#ix_name::deserialize(&mut &__ix_data[..])
-                        .map_err(|_| satellite_lang::error::ErrorCode::InstructionDidNotDeserialize)?;
+                        .map_err(|_| arch_satellite_lang::error::ErrorCode::InstructionDidNotDeserialize)?;
                     let instruction::#variant_arm = ix;
 
                     // Bump collector.
-                    let mut __bumps = <#anchor as satellite_lang::Bumps>::Bumps::default();
+                    let mut __bumps = <#anchor as arch_satellite_lang::Bumps>::Bumps::default();
 
                     let mut __reallocs = std::collections::BTreeSet::new();
 
@@ -148,7 +148,7 @@ pub fn generate(program: &Program) -> proc_macro2::TokenStream {
 
                     // Invoke user defined handler.
                     let result = #program_name::#ix_method_name(
-                        satellite_lang::context::Context::new(
+                        arch_satellite_lang::context::Context::new(
                             __program_id,
                             &mut __accounts,
                             __remaining_accounts,
@@ -211,11 +211,11 @@ fn generate_event_cpi_mod() -> proc_macro2::TokenStream {
                     program_id: &Pubkey,
                     accounts: &[AccountInfo],
                     event_data: &[u8],
-                ) -> satellite_lang::Result<()> {
+                ) -> arch_satellite_lang::Result<()> {
                     let given_event_authority = next_account_info(&mut accounts.iter())?;
                     if !given_event_authority.is_signer {
-                        return Err(satellite_lang::error::Error::from(
-                            satellite_lang::error::ErrorCode::ConstraintSigner,
+                        return Err(arch_satellite_lang::error::Error::from(
+                            arch_satellite_lang::error::ErrorCode::ConstraintSigner,
                         )
                         .with_account_name(#authority_name));
                     }
@@ -223,8 +223,8 @@ fn generate_event_cpi_mod() -> proc_macro2::TokenStream {
                     let (expected_event_authority, _) =
                         Pubkey::find_program_address(&[#authority_seeds], &program_id);
                     if given_event_authority.key() != expected_event_authority {
-                        return Err(satellite_lang::error::Error::from(
-                            satellite_lang::error::ErrorCode::ConstraintSeeds,
+                        return Err(arch_satellite_lang::error::Error::from(
+                            arch_satellite_lang::error::ErrorCode::ConstraintSeeds,
                         )
                         .with_account_name(#authority_name)
                         .with_pubkeys((given_event_authority.key(), expected_event_authority)));

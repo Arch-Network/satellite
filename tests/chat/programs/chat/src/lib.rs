@@ -1,6 +1,6 @@
 //! A simple chat program using a ring buffer to store messages.
 
-use satellite_lang::prelude::*;
+use arch_satellite_lang::prelude::*;
 
 declare_id!("da075cb2ff5ec6817613de530b692a8735477769da47430cbd8154335c4a8327");
 

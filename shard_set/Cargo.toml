@@ -1,10 +1,10 @@
 [package]
-name = "satellite-shard"
+name = "arch-satellite-shard"
 version.workspace = true
 edition.workspace = true
 description = "Shard management for Arch programs"
 license = "MIT"
-repository = "https://github.com/saturnbtc/satellite"
+repository = "https://github.com/Arch-Network/satellite"
 keywords = ["satellite", "shard"]
 categories = ["cryptography::cryptocurrencies"]
 
@@ -12,13 +12,13 @@ categories = ["cryptography::cryptocurrencies"]
 arch_program = { version = "0.6.2" }
 bitcoin = "0.32.5"
 bytemuck = "1.14"
-satellite-bitcoin = { workspace = true }
-satellite-lang = { workspace = true }
+arch-satellite-bitcoin = { workspace = true }
+arch-satellite-lang = { workspace = true }
 ordinals = { version = "0.0.14", optional = true }
 
 [features]
 default = ["runes", "utxo-consolidation"]
-runes = ["satellite-bitcoin/runes", "ordinals"]
-utxo-consolidation = ["satellite-bitcoin/utxo-consolidation"]
-utoipa = ["satellite-bitcoin/utoipa"]
-serde = ["satellite-bitcoin/serde"]
+runes = ["arch-satellite-bitcoin/runes", "ordinals"]
+utxo-consolidation = ["arch-satellite-bitcoin/utxo-consolidation"]
+utoipa = ["arch-satellite-bitcoin/utoipa"]
+serde = ["arch-satellite-bitcoin/serde"]

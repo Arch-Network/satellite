@@ -1,6 +1,6 @@
 use arch_program::{account::AccountInfo, program::get_account_script_pubkey};
 use bitcoin::Transaction;
-use satellite_collections::generic::fixed_list::{FixedList, FixedListError};
+use arch_satellite_collections::generic::fixed_list::{FixedList, FixedListError};
 
 /// Get the indexes of writable accounts ("used shards").
 ///
@@ -14,8 +14,8 @@ use satellite_collections::generic::fixed_list::{FixedList, FixedListError};
 /// # Example
 ///
 /// ```ignore
-/// use satellite_bitcoin_transactions::util::get_used_shards_in_transaction;
-/// use satellite_collections::generic::fixed_list::FixedList;
+/// use arch_satellite_bitcoin_transactions::util::get_used_shards_in_transaction;
+/// use arch_satellite_collections::generic::fixed_list::FixedList;
 /// use arch_program::account::AccountInfo;
 ///
 /// # let accounts: Vec<AccountInfo> = Vec::new();
@@ -62,7 +62,7 @@ pub fn get_used_shards_in_transaction<'a, const SIZE: usize>(
 /// # Example
 ///
 /// ```ignore
-/// use satellite_collections::generic::fixed_list::FixedList;
+/// use arch_satellite_collections::generic::fixed_list::FixedList;
 /// use bitcoin::{Transaction, absolute::LockTime, transaction::Version};
 ///
 /// # let tx = Transaction { version: Version::TWO, lock_time: LockTime::ZERO, input: vec![], output: vec![] };

@@ -1,7 +1,7 @@
-//! This example demonstrates the use of the `satellite_apl::token` CPI client.
+//! This example demonstrates the use of the `arch_satellite_apl::token` CPI client.
 
-use satellite_lang::prelude::*;
-use satellite_apl::{
+use arch_satellite_lang::prelude::*;
+use arch_satellite_apl::{
     associated_token::AssociatedToken,
     token_2022::spl_token_2022,
     token_interface::{

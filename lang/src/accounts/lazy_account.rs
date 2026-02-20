@@ -57,7 +57,7 @@ use crate::{
 /// # Example
 ///
 /// ```
-/// use satellite_lang::prelude::*;
+/// use arch_satellite_lang::prelude::*;
 ///
 /// declare_id!("LazyAccount11111111111111111111111111111111");
 ///

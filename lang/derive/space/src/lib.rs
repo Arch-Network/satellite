@@ -49,7 +49,7 @@ pub fn derive_init_space(item: TokenStream) -> TokenStream {
 
         quote! {
             #[automatically_derived]
-            impl #impl_generics satellite_lang::Space for #name #ty_generics #where_clause {
+            impl #impl_generics arch_satellite_lang::Space for #name #ty_generics #where_clause {
                 const INIT_SPACE: usize = 0 #(+ #recurse)*;
             }
         }
@@ -61,7 +61,7 @@ pub fn derive_init_space(item: TokenStream) -> TokenStream {
             Fields::Unnamed(unnamed) => process_struct_fields(unnamed.unnamed),
             Fields::Unit => quote! {
                 #[automatically_derived]
-                impl #impl_generics satellite_lang::Space for #name #ty_generics #where_clause {
+                impl #impl_generics arch_satellite_lang::Space for #name #ty_generics #where_clause {
                     const INIT_SPACE: usize = 0;
                 }
             },
@@ -82,7 +82,7 @@ pub fn derive_init_space(item: TokenStream) -> TokenStream {
 
             quote! {
                 #[automatically_derived]
-                impl satellite_lang::Space for #name {
+                impl arch_satellite_lang::Space for #name {
                     const INIT_SPACE: usize = 1 + #max;
                 }
             }
@@ -96,7 +96,7 @@ pub fn derive_init_space(item: TokenStream) -> TokenStream {
 fn gen_max<T: Iterator<Item = TokenStream2>>(mut iter: T) -> TokenStream2 {
     if let Some(item) = iter.next() {
         let next_item = gen_max(iter);
-        quote!(satellite_lang::__private::max(#item, #next_item))
+        quote!(arch_satellite_lang::__private::max(#item, #next_item))
     } else {
         quote!(0)
     }
@@ -147,7 +147,7 @@ fn len_from_type(ty: Type, attrs: &mut Option<VecDeque<TokenStream2>>) -> TokenS
                 }
                 _ => {
                     let ty = &ty_path.path;
-                    quote!(<#ty as satellite_lang::Space>::INIT_SPACE)
+                    quote!(<#ty as arch_satellite_lang::Space>::INIT_SPACE)
                 }
             }
         }

@@ -3,7 +3,7 @@ use borsh::{BorshDeserialize, BorshSerialize};
 
 /// Maximum script length accepted by the protocol.
 pub const MAX_BTC_SCRIPT_BYTES: usize =
-    satellite_bitcoin_transactions::constants::MAX_BTC_SCRIPT_BYTES;
+    arch_satellite_bitcoin_transactions::constants::MAX_BTC_SCRIPT_BYTES;
 
 /// Strongly-typed Bitcoin script pubkey with length validation.
 #[derive(Debug, Clone, PartialEq, Eq)]

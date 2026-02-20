@@ -8,10 +8,10 @@ A cheat sheet for migrating Anchor programs to Satellite.
 
 ```rust
 // BEFORE (Anchor)                    // AFTER (Satellite)
-use anchor_lang::prelude::*;          use satellite_lang::prelude::*;
-use anchor_lang::system_program;      use satellite_lang::system_program;
-use anchor_spl::token::*;             use satellite_apl::token::*;
-use anchor_spl::associated_token::*;  use satellite_apl::associated_token::*;
+use anchor_lang::prelude::*;          use arch_satellite_lang::prelude::*;
+use anchor_lang::system_program;      use arch_satellite_lang::system_program;
+use anchor_spl::token::*;             use arch_satellite_apl::token::*;
+use anchor_spl::associated_token::*;  use arch_satellite_apl::associated_token::*;
 use solana_program::*;                use arch_program::*;
 ```
 
@@ -59,8 +59,8 @@ anchor-spl = { version = "0.31.0", features = ["token"] }
 
 # Satellite
 [dependencies]
-satellite-lang = { path = "../satellite/lang", features = ["derive"] }
-satellite-apl = { path = "../satellite/spl", features = ["token", "associated_token"] }
+arch-satellite-lang = { path = "../satellite/lang", features = ["derive"] }
+arch-satellite-apl = { path = "../satellite/spl", features = ["token", "associated_token"] }
 
 # Optional features
 # "init-if-needed" - for init_if_needed constraint
@@ -87,7 +87,7 @@ mint::token_program = token_program
 **to.try_borrow_mut_lamports()? += amount;
 
 // DO use CPI pattern:
-use satellite_lang::system_program::{transfer, Transfer};
+use arch_satellite_lang::system_program::{transfer, Transfer};
 
 let cpi_ctx = CpiContext::new(
     ctx.accounts.system_program.to_account_info(),
@@ -187,7 +187,7 @@ let valid = arch_validate_utxo_ownership(utxo, owner)?;
 | "program id must be 64 hex chars" | Convert base58 to hex |
 | "cannot find value `ID`" | Check declare_id! format |
 | "init_if_needed requires feature" | Add `"init-if-needed"` feature |
-| "unresolved import `anchor_lang`" | Change to `satellite_lang` |
+| "unresolved import `anchor_lang`" | Change to `arch_satellite_lang` |
 | "InterfaceAccount" type error | Use `Account` instead |
 | "linking failed" / "undefined symbol" | Use `cargo check` not `cargo build` |
 
@@ -196,7 +196,7 @@ let valid = arch_validate_utxo_ownership(utxo, owner)?;
 ## Minimal Working Program
 
 ```rust
-use satellite_lang::prelude::*;
+use arch_satellite_lang::prelude::*;
 
 declare_id!("0000000000000000000000000000000000000000000000000000000000000001");
 

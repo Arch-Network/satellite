@@ -75,7 +75,7 @@ where
 /// ```ignore
 /// // Callee Program
 ///
-/// use satellite_lang::prelude::*;
+/// use arch_satellite_lang::prelude::*;
 ///
 /// declare_id!("da075cb2ff5ec6817613de530b692a8735477769da47430cbd8154335c4a8327");
 ///
@@ -118,7 +118,7 @@ where
 ///
 /// // Caller Program
 ///
-/// use satellite_lang::prelude::*;
+/// use arch_satellite_lang::prelude::*;
 /// use callee::{self, program::Callee};
 ///
 /// declare_id!("06a678b1181d2f79fd9d249178cb1afbedf05d3f8a012f5f9a1e8f2a469fba81");

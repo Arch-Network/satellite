@@ -1,5 +1,5 @@
 use arch_program::{program::get_runes_from_output, program_error::ProgramError, rune::RuneAmount, utxo::UtxoMeta};
-use satellite_collections::generic::fixed_set::FixedCapacitySet;
+use arch_satellite_collections::generic::fixed_set::FixedCapacitySet;
 
 use crate::error::BitcoinTxError;
 

@@ -13,8 +13,8 @@ no-entrypoint = []
 no-idl = []
 cpi = ["no-entrypoint"]
 default = []
-idl-build = ["satellite-lang/idl-build"]
+idl-build = ["arch-satellite-lang/idl-build"]
 
 [dependencies]
-satellite-lang = { path = "../../../../lang" }
+arch-satellite-lang = { path = "../../../../lang" }
 external = { path = "../external", features = ["no-entrypoint"] }

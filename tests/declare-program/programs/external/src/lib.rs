@@ -1,6 +1,6 @@
 #![allow(unused_variables)]
 
-use satellite_lang::prelude::*;
+use arch_satellite_lang::prelude::*;
 
 declare_id!("0393bf05afd1dc0aaacb4c3a453b2f05c25771c4b797a6b37c1b27f000000000");
 

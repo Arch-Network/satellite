@@ -4,7 +4,7 @@
 //!
 //! This module is **purely functional**: it contains algorithms that *calculate*
 //! balanced allocations or *extend* the in-flight
-//! [`satellite_bitcoin::TransactionBuilder`].  *It never mutates the
+//! [`arch_satellite_bitcoin::TransactionBuilder`].  *It never mutates the
 //! on-chain shard accounts directly.*  State changes are ultimately carried
 //! out by the higher-level wrappers on [`ShardSet`] which borrow the underlying
 //! [`AccountLoader`]s only for the minimum time required.
@@ -34,11 +34,11 @@
 //!
 //! Error semantics
 //! ---------------
-//! * **Arithmetic overflow / underflow** ⇒ [`satellite_bitcoin::MathError`]
+//! * **Arithmetic overflow / underflow** ⇒ [`arch_satellite_bitcoin::MathError`]
 //! * **Rune-specific validation errors** ⇒ [`crate::StateShardError`]
 //!
 //! All algorithms are `no_std`-compatible and rely on the fixed-size
-//! collections from `satellite_bitcoin`, keeping worst-case memory usage
+//! collections from `arch_satellite_bitcoin`, keeping worst-case memory usage
 //! bounded at compile time.
 use std::cell::Ref;
 
@@ -48,11 +48,11 @@ use arch_program::{
     utxo::UtxoMeta,
 };
 use bitcoin::{Amount, ScriptBuf, TxOut};
-use satellite_bitcoin::generic::fixed_set::FixedCapacitySet;
-use satellite_bitcoin::{
+use arch_satellite_bitcoin::generic::fixed_set::FixedCapacitySet;
+use arch_satellite_bitcoin::{
     constants::DUST_LIMIT, fee_rate::FeeRate, utxo_info::UtxoInfoTrait, TransactionBuilder,
 };
-use satellite_bitcoin::{safe_add, safe_div, safe_mul, safe_sub, MathError};
+use arch_satellite_bitcoin::{safe_add, safe_div, safe_mul, safe_sub, MathError};
 
 use super::error::StateShardError;
 use super::StateShard;
@@ -60,8 +60,8 @@ use super::StateShard;
 #[cfg(feature = "runes")]
 use ordinals::Edict;
 
-use satellite_lang::prelude::Owner;
-use satellite_lang::ZeroCopy;
+use arch_satellite_lang::prelude::Owner;
+use arch_satellite_lang::ZeroCopy;
 
 /// Errors specific to distribution and dust handling logic in this module.
 #[derive(Debug, PartialEq)]
@@ -885,12 +885,12 @@ mod tests_loader {
     };
     use super::*;
     // use crate::shard_set::ShardSet;
-    use satellite_bitcoin::utxo_info::SingleRuneSet;
-    use satellite_lang::prelude::AccountLoader;
+    use arch_satellite_bitcoin::utxo_info::SingleRuneSet;
+    use arch_satellite_lang::prelude::AccountLoader;
     use std::cell::Ref;
 
     // Re-export for macro reuse
-    use satellite_bitcoin::TransactionBuilder as TB;
+    use arch_satellite_bitcoin::TransactionBuilder as TB;
 
     #[allow(unused_macros)]
     macro_rules! new_tb {
@@ -915,7 +915,7 @@ mod tests_loader {
         use super::super::super::split;
 
         use super::*;
-        use satellite_bitcoin::{constants::DUST_LIMIT, utxo_info::SingleRuneSet};
+        use arch_satellite_bitcoin::{constants::DUST_LIMIT, utxo_info::SingleRuneSet};
         use split::plan_btc_distribution_among_shards;
 
         #[test]
@@ -935,7 +935,7 @@ mod tests_loader {
                 MAX_MODIFIED_ACCOUNTS,
                 MAX_INPUTS_TO_SIGN,
                 SingleRuneSet,
-                satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+                arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
                 MockShardZc,
             >(&tx_builder, &shard_refs, 150u128);
             assert!(matches!(dist, Err(DistributionError::TotalBelowDustLimit)));
@@ -955,7 +955,7 @@ mod tests_loader {
                 MAX_MODIFIED_ACCOUNTS,
                 MAX_INPUTS_TO_SIGN,
                 SingleRuneSet,
-                satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+                arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
                 MockShardZc,
             >(&tx_builder, &shard_refs, 0u128)
             .unwrap();
@@ -976,7 +976,7 @@ mod tests_loader {
                 MAX_MODIFIED_ACCOUNTS,
                 MAX_INPUTS_TO_SIGN,
                 SingleRuneSet,
-                satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+                arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
                 MockShardZc,
             >(&tx_builder, &shard_refs, 1_000u128)
             .unwrap();
@@ -998,7 +998,7 @@ mod tests_loader {
                 MAX_MODIFIED_ACCOUNTS,
                 MAX_INPUTS_TO_SIGN,
                 SingleRuneSet,
-                satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+                arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
                 MockShardZc,
             >(&tx_builder, &shard_refs, 1_500u128)
             .unwrap();
@@ -1021,7 +1021,7 @@ mod tests_loader {
                 MAX_MODIFIED_ACCOUNTS,
                 MAX_INPUTS_TO_SIGN,
                 SingleRuneSet,
-                satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+                arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
                 MockShardZc,
             >(&tx_builder, &shard_refs, amount)
             .unwrap();
@@ -1061,7 +1061,7 @@ mod tests_loader {
                 MAX_MODIFIED_ACCOUNTS,
                 MAX_INPUTS_TO_SIGN,
                 SingleRuneSet,
-                satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+                arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
                 MockShardZc,
             >(&tx_builder, &shard_refs, 1_000u128)
             .unwrap();
@@ -1088,7 +1088,7 @@ mod tests_loader {
                 MAX_MODIFIED_ACCOUNTS,
                 MAX_INPUTS_TO_SIGN,
                 SingleRuneSet,
-                satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+                arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
                 MockShardZc,
             >(&tx_builder, &shard_refs, 2_000u128)
             .unwrap();
@@ -1111,7 +1111,7 @@ mod tests_loader {
                 MAX_MODIFIED_ACCOUNTS,
                 MAX_INPUTS_TO_SIGN,
                 SingleRuneSet,
-                satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+                arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
                 MockShardZc,
             >(&tx_builder, &shard_refs, 1_000u128)
             .unwrap();
@@ -1134,7 +1134,7 @@ mod tests_loader {
                 MAX_MODIFIED_ACCOUNTS,
                 MAX_INPUTS_TO_SIGN,
                 SingleRuneSet,
-                satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+                arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
                 MockShardZc,
             >(&tx_builder, &shard_refs, 2_041u128)
             .unwrap();
@@ -1146,7 +1146,7 @@ mod tests_loader {
                 MAX_MODIFIED_ACCOUNTS,
                 MAX_INPUTS_TO_SIGN,
                 SingleRuneSet,
-                satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+                arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
                 MockShardZc,
             >(&tx_builder, &shard_refs, 2_000u128)
             .unwrap();
@@ -1167,7 +1167,7 @@ mod tests_loader {
                 MAX_MODIFIED_ACCOUNTS,
                 MAX_INPUTS_TO_SIGN,
                 SingleRuneSet,
-                satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+                arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
                 MockShardZc,
             >(&tx_builder, &shard_refs, 2_041u128)
             .unwrap();
@@ -1190,7 +1190,7 @@ mod tests_loader {
                 MAX_MODIFIED_ACCOUNTS,
                 MAX_INPUTS_TO_SIGN,
                 SingleRuneSet,
-                satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+                arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
                 MockShardZc,
             >(&tx_builder, &shard_refs, (DUST_LIMIT as u128) - 1u128);
             assert!(matches!(dist, Err(DistributionError::TotalBelowDustLimit)));
@@ -1210,7 +1210,7 @@ mod tests_loader {
                 MAX_MODIFIED_ACCOUNTS,
                 MAX_INPUTS_TO_SIGN,
                 SingleRuneSet,
-                satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+                arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
                 MockShardZc,
             >(&tx_builder, &shard_refs, DUST_LIMIT as u128)
             .unwrap();
@@ -1233,7 +1233,7 @@ mod tests_loader {
                 MAX_MODIFIED_ACCOUNTS,
                 MAX_INPUTS_TO_SIGN,
                 SingleRuneSet,
-                satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+                arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
                 MockShardZc,
             >(&tx_builder, &shard_refs, amount)
             .unwrap();
@@ -1256,7 +1256,7 @@ mod tests_loader {
                 MAX_MODIFIED_ACCOUNTS,
                 MAX_INPUTS_TO_SIGN,
                 SingleRuneSet,
-                satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+                arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
                 MockShardZc,
             >(&tx_builder, &shard_refs, amount)
             .unwrap();
@@ -1272,7 +1272,7 @@ mod tests_loader {
         use super::super::compute_unsettled_btc_in_shards;
         use super::*;
         use bitcoin::{OutPoint, ScriptBuf, Sequence, TxIn, Witness};
-        use satellite_bitcoin::fee_rate::FeeRate;
+        use arch_satellite_bitcoin::fee_rate::FeeRate;
 
         #[test]
         fn basic_unsettled_calculation() {
@@ -1303,7 +1303,7 @@ mod tests_loader {
                 MAX_MODIFIED_ACCOUNTS,
                 MAX_INPUTS_TO_SIGN,
                 SingleRuneSet,
-                satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+                arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
                 MockShardZc,
             >(&tx_builder, &shard_refs, 1_000, &FeeRate(1.0))
             .unwrap();
@@ -1325,9 +1325,9 @@ mod tests_loader {
         };
         use super::*;
         use bitcoin::{OutPoint, ScriptBuf, Sequence, TxIn, Witness};
-        use satellite_bitcoin::MathError;
-        use satellite_bitcoin::{constants::DUST_LIMIT, fee_rate::FeeRate};
-        use satellite_lang::prelude::AccountLoader;
+        use arch_satellite_bitcoin::MathError;
+        use arch_satellite_bitcoin::{constants::DUST_LIMIT, fee_rate::FeeRate};
+        use arch_satellite_lang::prelude::AccountLoader;
 
         // ---- redistribute_sub_dust_values tests ----
         #[test]
@@ -1380,7 +1380,7 @@ mod tests_loader {
                 MAX_MODIFIED_ACCOUNTS,
                 MAX_INPUTS_TO_SIGN,
                 SingleRuneSet,
-                satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+                arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
                 MockShardZc,
             >(&tx_builder, &shard_refs, 1_000u128);
 
@@ -1419,7 +1419,7 @@ mod tests_loader {
                 MAX_MODIFIED_ACCOUNTS,
                 MAX_INPUTS_TO_SIGN,
                 SingleRuneSet,
-                satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+                arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
                 MockShardZc,
             >(&tx_builder, &shard_refs, 10_000u128)
             .unwrap();
@@ -1443,7 +1443,7 @@ mod tests_loader {
                 MAX_MODIFIED_ACCOUNTS,
                 MAX_INPUTS_TO_SIGN,
                 SingleRuneSet,
-                satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+                arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
                 MockShardZc,
             >(&tx_builder, &shard_refs, amount)
             .unwrap();
@@ -1467,7 +1467,7 @@ mod tests_loader {
                 MAX_MODIFIED_ACCOUNTS,
                 MAX_INPUTS_TO_SIGN,
                 SingleRuneSet,
-                satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+                arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
                 MockShardZc,
             >(&tx_builder, &shard_refs, amount)
             .unwrap();
@@ -1512,7 +1512,7 @@ mod tests_loader {
                 MAX_MODIFIED_ACCOUNTS,
                 MAX_INPUTS_TO_SIGN,
                 SingleRuneSet,
-                satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+                arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
                 MockShardZc,
             >(&tx_builder, &shard_refs, 0, &FeeRate(1.0))
             .unwrap();
@@ -1542,7 +1542,7 @@ mod tests_loader {
                 MAX_MODIFIED_ACCOUNTS,
                 MAX_INPUTS_TO_SIGN,
                 SingleRuneSet,
-                satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+                arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
                 MockShardZc,
             >(&tx_builder, &shard_refs, &rune_amount);
 
@@ -1569,7 +1569,7 @@ mod tests_loader {
                 MAX_MODIFIED_ACCOUNTS,
                 MAX_INPUTS_TO_SIGN,
                 SingleRuneSet,
-                satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+                arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
                 MockShardZc,
             >(
                 &mut tx_builder,
@@ -1609,7 +1609,7 @@ mod tests_loader {
                 MAX_MODIFIED_ACCOUNTS,
                 MAX_INPUTS_TO_SIGN,
                 SingleRuneSet,
-                satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+                arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
                 MockShardZc,
             >(&tx_builder, &shard_refs, &rune_amount);
 
@@ -1649,7 +1649,7 @@ mod tests_loader {
                 MAX_MODIFIED_ACCOUNTS,
                 MAX_INPUTS_TO_SIGN,
                 SingleRuneSet,
-                satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+                arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
                 MockShardZc,
             >(
                 &mut tx_builder,
@@ -1684,8 +1684,8 @@ mod rune_tests_loader {
     };
     use arch_program::rune::{RuneAmount, RuneId};
     use bitcoin::ScriptBuf;
-    use satellite_bitcoin::utxo_info::SingleRuneSet;
-    use satellite_bitcoin::TransactionBuilder as TB;
+    use arch_satellite_bitcoin::utxo_info::SingleRuneSet;
+    use arch_satellite_bitcoin::TransactionBuilder as TB;
 
     #[allow(unused_macros)]
     macro_rules! new_tb {
@@ -1714,7 +1714,7 @@ mod rune_tests_loader {
 
         let unsettled = crate::split::compute_unsettled_rune_in_shards::<
             SingleRuneSet,
-            satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+            arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
             MockShardZc,
         >(&shard_refs, SingleRuneSet::default())
         .unwrap();
@@ -1757,7 +1757,7 @@ mod rune_tests_loader {
             MAX_MODIFIED_ACCOUNTS,
             MAX_INPUTS_TO_SIGN,
             SingleRuneSet,
-            satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+            arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
             MockShardZc,
         >(&mut tx_builder, &shard_refs, &target)
         .unwrap();
@@ -1802,7 +1802,7 @@ mod rune_tests_loader {
             MAX_MODIFIED_ACCOUNTS,
             MAX_INPUTS_TO_SIGN,
             SingleRuneSet,
-            satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+            arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
             MockShardZc,
         >(&mut tx_builder, &shard_refs, &target)
         .unwrap();
@@ -1847,7 +1847,7 @@ mod rune_tests_loader {
             MAX_MODIFIED_ACCOUNTS,
             MAX_INPUTS_TO_SIGN,
             SingleRuneSet,
-            satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+            arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
             MockShardZc,
         >(&mut tx_builder, &shard_refs, &target)
         .unwrap();
@@ -1899,7 +1899,7 @@ mod rune_tests_loader {
             MAX_MODIFIED_ACCOUNTS,
             MAX_INPUTS_TO_SIGN,
             SingleRuneSet,
-            satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+            arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
             MockShardZc,
         >(&mut tx_builder, &mut shard_refs, removed, ScriptBuf::new())
         .unwrap();

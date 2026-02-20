@@ -3,9 +3,9 @@ extern crate proc_macro;
 use proc_macro::TokenStream;
 use quote::quote;
 
-use satellite_syn::codegen;
-use satellite_syn::parser::error::{self as error_parser, ErrorInput};
-use satellite_syn::ErrorArgs;
+use arch_satellite_syn::codegen;
+use arch_satellite_syn::parser::error::{self as error_parser, ErrorInput};
+use arch_satellite_syn::ErrorArgs;
 use syn::{parse_macro_input, Expr};
 
 /// Generates `Error` and `type Result<T> = Result<T, Error>` types to be
@@ -18,7 +18,7 @@ use syn::{parse_macro_input, Expr};
 /// # Example
 ///
 /// ```ignore
-/// use satellite_lang::prelude::*;
+/// use arch_satellite_lang::prelude::*;
 ///
 /// #[program]
 /// mod errors {
@@ -63,7 +63,7 @@ pub fn error_code(
     proc_macro::TokenStream::from(error)
 }
 
-/// Generates an [`Error::AnchorError`](../../satellite_lang/error/enum.Error.html) that includes file and line information.
+/// Generates an [`Error::AnchorError`](../../arch_satellite_lang/error/enum.Error.html) that includes file and line information.
 ///
 /// # Example
 /// ```rust,ignore
@@ -92,10 +92,10 @@ fn create_error(error_code: Expr, source: bool, account_name: Option<Expr>) -> T
     let error_origin = match (source, account_name) {
         (false, None) => quote! { None },
         (false, Some(account_name)) => quote! {
-            Some(satellite_lang::error::ErrorOrigin::AccountName(#account_name.to_string()))
+            Some(arch_satellite_lang::error::ErrorOrigin::AccountName(#account_name.to_string()))
         },
         (true, _) => quote! {
-            Some(satellite_lang::error::ErrorOrigin::Source(satellite_lang::error::Source {
+            Some(arch_satellite_lang::error::ErrorOrigin::Source(arch_satellite_lang::error::Source {
                 filename: file!(),
                 line: line!()
             }))
@@ -103,8 +103,8 @@ fn create_error(error_code: Expr, source: bool, account_name: Option<Expr>) -> T
     };
 
     TokenStream::from(quote! {
-        satellite_lang::error::Error::from(
-            satellite_lang::error::AnchorError {
+        arch_satellite_lang::error::Error::from(
+            arch_satellite_lang::error::AnchorError {
                 error_name: #error_code.name(),
                 error_code_number: #error_code.into(),
                 error_msg: #error_code.to_string(),

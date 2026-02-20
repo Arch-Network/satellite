@@ -1,4 +1,4 @@
-use satellite_lang::prelude::*;
+use arch_satellite_lang::prelude::*;
 
 declare_id!("058c198865762e9bbc887304c1ee24dc8d59eb2026b98238b9ed7b8000000000");
 
@@ -419,9 +419,9 @@ mod wrapped {
     use super::*;
 
     #[cfg(feature = "idl-build")]
-    use satellite_lang::idl::types::*;
+    use arch_satellite_lang::idl::types::*;
 
-    pub struct Feature(satellite_lang::solana_program::feature::Feature);
+    pub struct Feature(arch_satellite_lang::solana_program::feature::Feature);
 
     impl AnchorSerialize for Feature {
         fn serialize<W: std::io::prelude::Write>(&self, writer: &mut W) -> std::io::Result<()> {
@@ -432,7 +432,7 @@ mod wrapped {
 
     impl AnchorDeserialize for Feature {
         fn deserialize_reader<R: std::io::prelude::Read>(reader: &mut R) -> std::io::Result<Self> {
-            Ok(Self(satellite_lang::solana_program::feature::Feature {
+            Ok(Self(arch_satellite_lang::solana_program::feature::Feature {
                 activated_at: AnchorDeserialize::deserialize_reader(reader)?,
             }))
         }
@@ -440,7 +440,7 @@ mod wrapped {
 
     impl Clone for Feature {
         fn clone(&self) -> Self {
-            Self(satellite_lang::solana_program::feature::Feature {
+            Self(arch_satellite_lang::solana_program::feature::Feature {
                 activated_at: self.0.activated_at.clone(),
             })
         }

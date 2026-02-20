@@ -6,8 +6,8 @@
 //! <https://spl.solana.com/token-2022/extensions#transfer-hook>
 
 use {
-    satellite_lang::prelude::*,
-    satellite_apl::{
+    arch_satellite_lang::prelude::*,
+    arch_satellite_apl::{
         token_2022::{
             spl_token_2022::{
                 extension::{

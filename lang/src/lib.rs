@@ -23,7 +23,7 @@
 //!
 //! Presented here are the Rust primitives for building on Solana.
 
-extern crate self as satellite_lang;
+extern crate self as arch_satellite_lang;
 
 use arch_program::account::AccountInfo;
 use arch_program::account::AccountMeta;
@@ -48,15 +48,15 @@ mod vec;
 #[cfg(feature = "lazy-account")]
 mod lazy;
 
-pub use satellite_attribute_access_control::access_control;
-pub use satellite_attribute_account::{account, declare_id, pubkey, zero_copy};
-pub use satellite_attribute_constant::constant;
-pub use satellite_attribute_error::*;
-pub use satellite_attribute_event::{emit, event};
-pub use satellite_attribute_program::{declare_program, instruction, program};
-pub use satellite_derive_accounts::Accounts;
-pub use satellite_derive_serde::{AnchorDeserialize, AnchorSerialize};
-pub use satellite_derive_space::InitSpace;
+pub use arch_satellite_attribute_access_control::access_control;
+pub use arch_satellite_attribute_account::{account, declare_id, pubkey, zero_copy};
+pub use arch_satellite_attribute_constant::constant;
+pub use arch_satellite_attribute_error::*;
+pub use arch_satellite_attribute_event::{emit, event};
+pub use arch_satellite_attribute_program::{declare_program, instruction, program};
+pub use arch_satellite_derive_accounts::Accounts;
+pub use arch_satellite_derive_serde::{AnchorDeserialize, AnchorSerialize};
+pub use arch_satellite_derive_space::InitSpace;
 
 pub use arch_program;
 /// Borsh is the default serialization format for instructions and accounts.
@@ -64,13 +64,13 @@ pub use borsh::de::BorshDeserialize as AnchorDeserialize;
 pub use borsh::ser::BorshSerialize as AnchorSerialize;
 
 #[cfg(feature = "event-cpi")]
-pub use satellite_attribute_event::{emit_cpi, event_cpi};
+pub use arch_satellite_attribute_event::{emit_cpi, event_cpi};
 
 #[cfg(feature = "idl-build")]
 pub use idl::IdlBuild;
 
 #[cfg(feature = "interface-instructions")]
-pub use satellite_attribute_program::interface;
+pub use arch_satellite_attribute_program::interface;
 
 pub type Result<T> = std::result::Result<T, error::Error>;
 
@@ -397,7 +397,7 @@ impl Key for Pubkey {
 }
 
 /// The prelude contains all commonly used components of the crate.
-/// All programs should include it via `satellite_lang::prelude::*;`.
+/// All programs should include it via `arch_satellite_lang::prelude::*;`.
 pub mod prelude {
     pub use super::{
         access_control, account, accounts::account::Account,
@@ -420,7 +420,7 @@ pub mod prelude {
     pub use arch_program::pubkey::Pubkey;
     pub use borsh;
     pub use error::*;
-    pub use satellite_attribute_error::*;
+    pub use arch_satellite_attribute_error::*;
     pub use thiserror;
 
     #[cfg(feature = "event-cpi")]
@@ -441,7 +441,7 @@ pub mod prelude {
 pub mod __private {
     pub use base64;
     pub use bytemuck;
-    pub use satellite_attribute_account::ZeroCopyAccessor;
+    pub use arch_satellite_attribute_account::ZeroCopyAccessor;
 
     pub use crate::{bpf_writer::BpfWriter, common::is_closed};
 
@@ -474,7 +474,7 @@ pub mod __private {
     #[cfg(feature = "lazy-account")]
     pub use crate::lazy::Lazy;
     #[cfg(feature = "lazy-account")]
-    pub use satellite_derive_serde::Lazy;
+    pub use arch_satellite_derive_serde::Lazy;
 }
 
 /// Ensures a condition is true, otherwise returns with the given error.
@@ -514,12 +514,12 @@ pub mod __private {
 macro_rules! require {
     ($invariant:expr, $error:tt $(,)?) => {
         if !($invariant) {
-            return Err(satellite_lang::error!($crate::ErrorCode::$error));
+            return Err(arch_satellite_lang::error!($crate::ErrorCode::$error));
         }
     };
     ($invariant:expr, $error:expr $(,)?) => {
         if !($invariant) {
-            return Err(satellite_lang::error!($error));
+            return Err(arch_satellite_lang::error!($error));
         }
     };
 }
@@ -548,7 +548,7 @@ macro_rules! require_eq {
     };
     ($value1: expr, $value2: expr $(,)?) => {
         if $value1 != $value2 {
-            return Err(error!(satellite_lang::error::ErrorCode::RequireEqViolated)
+            return Err(error!(arch_satellite_lang::error::ErrorCode::RequireEqViolated)
                 .with_values(($value1, $value2)));
         }
     };
@@ -578,7 +578,7 @@ macro_rules! require_neq {
     };
     ($value1: expr, $value2: expr $(,)?) => {
         if $value1 == $value2 {
-            return Err(error!(satellite_lang::error::ErrorCode::RequireNeqViolated)
+            return Err(error!(arch_satellite_lang::error::ErrorCode::RequireNeqViolated)
                 .with_values(($value1, $value2)));
         }
     };
@@ -609,7 +609,7 @@ macro_rules! require_keys_eq {
     ($value1: expr, $value2: expr $(,)?) => {
         if $value1 != $value2 {
             return Err(
-                error!(satellite_lang::error::ErrorCode::RequireKeysEqViolated)
+                error!(arch_satellite_lang::error::ErrorCode::RequireKeysEqViolated)
                     .with_pubkeys(($value1, $value2)),
             );
         }
@@ -641,7 +641,7 @@ macro_rules! require_keys_neq {
     ($value1: expr, $value2: expr $(,)?) => {
         if $value1 == $value2 {
             return Err(
-                error!(satellite_lang::error::ErrorCode::RequireKeysNeqViolated)
+                error!(arch_satellite_lang::error::ErrorCode::RequireKeysNeqViolated)
                     .with_pubkeys(($value1, $value2)),
             );
         }
@@ -672,7 +672,7 @@ macro_rules! require_gt {
     };
     ($value1: expr, $value2: expr $(,)?) => {
         if $value1 <= $value2 {
-            return Err(error!(satellite_lang::error::ErrorCode::RequireGtViolated)
+            return Err(error!(arch_satellite_lang::error::ErrorCode::RequireGtViolated)
                 .with_values(($value1, $value2)));
         }
     };
@@ -700,7 +700,7 @@ macro_rules! require_gte {
     };
     ($value1: expr, $value2: expr $(,)?) => {
         if $value1 < $value2 {
-            return Err(error!(satellite_lang::error::ErrorCode::RequireGteViolated)
+            return Err(error!(arch_satellite_lang::error::ErrorCode::RequireGteViolated)
                 .with_values(($value1, $value2)));
         }
     };
@@ -725,10 +725,10 @@ macro_rules! require_gte {
 #[macro_export]
 macro_rules! err {
     ($error:tt $(,)?) => {
-        Err(satellite_lang::error!($crate::ErrorCode::$error))
+        Err(arch_satellite_lang::error!($crate::ErrorCode::$error))
     };
     ($error:expr $(,)?) => {
-        Err(satellite_lang::error!($error))
+        Err(arch_satellite_lang::error!($error))
     };
 }
 
@@ -736,7 +736,7 @@ macro_rules! err {
 #[macro_export]
 macro_rules! source {
     () => {
-        satellite_lang::error::Source {
+        arch_satellite_lang::error::Source {
             filename: file!(),
             line: line!(),
         }

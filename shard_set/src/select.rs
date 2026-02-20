@@ -7,8 +7,8 @@
 //! ## Usage Example
 //!
 //! ```rust,ignore
-//! # use satellite_lang::prelude::*;
-//! # use satellite_lang::ZeroCopy;
+//! # use arch_satellite_lang::prelude::*;
+//! # use arch_satellite_lang::ZeroCopy;
 //! # use crate::load::load_shards;
 //! # use crate::select::*;
 //! #
@@ -16,8 +16,8 @@
 //! # struct MyShard { balance: u64 }
 //! # unsafe impl ZeroCopy for MyShard {}
 //! # impl Owner for MyShard {
-//! #     const OWNER: satellite_lang::solana_program::pubkey::Pubkey =
-//! #         satellite_lang::solana_program::pubkey::Pubkey::new_from_array([0u8; 32]);
+//! #     const OWNER: arch_satellite_lang::solana_program::pubkey::Pubkey =
+//! #         arch_satellite_lang::solana_program::pubkey::Pubkey::new_from_array([0u8; 32]);
 //! # }
 //! # let loaders: &[AccountLoader<MyShard>] = &[];
 //!
@@ -44,10 +44,10 @@
 
 use core::cell::Ref;
 use core::cmp::Reverse;
-use satellite_bitcoin::generic::fixed_list::FixedList;
-use satellite_bitcoin::generic::fixed_list_unchecked::FixedRefList;
-use satellite_lang::prelude::Owner;
-use satellite_lang::ZeroCopy;
+use arch_satellite_bitcoin::generic::fixed_list::FixedList;
+use arch_satellite_bitcoin::generic::fixed_list_unchecked::FixedRefList;
+use arch_satellite_lang::prelude::Owner;
+use arch_satellite_lang::ZeroCopy;
 
 use super::error::StateShardError;
 use super::shard_indices::IntoShardIndices;

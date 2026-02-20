@@ -1,7 +1,8 @@
 [package]
 name = "anchor-client"
+publish = false
 version.workspace = true
-authors = ["Anchor Maintainers <accounts@200ms.io>"]
+authors = ["Arch Network <contact@arch.network>", "Anchor Maintainers <accounts@200ms.io>"]
 edition.workspace = true
 license = "Apache-2.0"
 description = "An RPC client to interact with Anchor programs"
@@ -16,7 +17,7 @@ debug = []
 mock = []
 
 [dependencies]
-satellite-lang = { workspace = true }
+arch-satellite-lang = { workspace = true }
 anyhow = "1"
 futures = "0.3"
 regex = "1"

@@ -32,7 +32,7 @@
 //! ### Using FixedList
 //!
 //! ```rust
-//! use satellite_bitcoin::generic::fixed_list::FixedList;
+//! use arch_satellite_collections::generic::fixed_list::FixedList;
 //!
 //! // A list that can hold up to 4 `u32`s without heap allocation
 //! let mut list: FixedList<u32, 4> = FixedList::new();
@@ -46,7 +46,7 @@
 //! ### Using FixedSet
 //!
 //! ```rust
-//! use satellite_bitcoin::generic::fixed_set::FixedSet;
+//! use arch_satellite_collections::generic::fixed_set::FixedSet;
 //!
 //! let mut set: FixedSet<u32, 8> = FixedSet::new();
 //!
@@ -59,7 +59,7 @@
 //! ### Using FixedBitSet
 //!
 //! ```rust
-//! use satellite_bitcoin::generic::fixed_bitset::FixedBitSet;
+//! use arch_satellite_collections::generic::fixed_bitset::FixedBitSet;
 //!
 //! let mut bitset: FixedBitSet<16> = FixedBitSet::new();
 //!
@@ -72,7 +72,7 @@
 //! ### Using declare_fixed_array!
 //!
 //! ```rust
-//! use satellite_bitcoin::declare_fixed_array;
+//! use arch_satellite_collections::declare_fixed_array;
 //!
 //! // Create a wrapper that can store up to 16 `u64`s in a zero-copy buffer
 //! declare_fixed_array!(U64Array16, u64, 16);
@@ -86,11 +86,11 @@
 //! ### Using declare_fixed_option!
 //!
 //! ```rust
-//! use satellite_bitcoin::declare_fixed_option;
+//! use arch_satellite_collections::declare_fixed_option;
 //! use bytemuck::{Pod, Zeroable};
 //!
 //! #[repr(C)]
-//! #[derive(Clone, Copy, Debug, Pod, Zeroable)]
+//! #[derive(Clone, Copy, Debug, PartialEq, Pod, Zeroable)]
 //! struct Price(u64);
 //!
 //! // Wrapper with deterministic layout for on-chain storage
@@ -104,7 +104,7 @@
 //! ### Using declare_fixed_set!
 //!
 //! ```rust,ignore
-//! use satellite_bitcoin::declare_fixed_set;
+//! use arch_satellite_collections::declare_fixed_set;
 //! use bytemuck::{Pod, Zeroable};
 //!
 //! #[repr(C)]

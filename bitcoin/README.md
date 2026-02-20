@@ -44,7 +44,7 @@ let mut builder: TransactionBuilder<MAX_MODIFIED_ACCOUNTS, MAX_INPUTS_TO_SIGN> =
 Below is the canonical flow for composing an instruction‐level Bitcoin TX.
 
 ```rust,ignore
-use satellite_bitcoin::{TransactionBuilder, fee_rate::FeeRate, constants::DUST_LIMIT};
+use arch_satellite_bitcoin::{TransactionBuilder, fee_rate::FeeRate, constants::DUST_LIMIT};
 use bitcoin::{TxOut, Amount, ScriptBuf};
 
 // 1. Instantiate the builder -------------------------------------------------
@@ -133,7 +133,7 @@ Use `?` to propagate them upward from your instruction implementation.
 Sometimes reading snippets is not enough. If you prefer a full, runnable demonstration open:
 
 ```text
-crates/saturn-bitcoin-transactions/examples/zero_to_one_swap.rs
+crates/arch-satellite-bitcoin-transactions/examples/zero_to_one_swap.rs
 ```
 
 The file walks through, step-by-step, how to:

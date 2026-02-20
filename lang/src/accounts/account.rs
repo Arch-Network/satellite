@@ -39,7 +39,7 @@ use std::ops::{Deref, DerefMut};
 ///
 /// # Example
 /// ```ignore
-/// use satellite_lang::prelude::*;
+/// use arch_satellite_lang::prelude::*;
 /// use other_program::Auth;
 ///
 /// declare_id!("da075cb2ff5ec6817613de530b692a8735477769da47430cbd8154335c4a8327");
@@ -96,8 +96,8 @@ use std::ops::{Deref, DerefMut};
 /// #[derive(Clone)]
 /// pub struct Mint(spl_token::state::Mint);
 ///
-/// // This is necessary so we can use "satellite_apl::token::Mint::LEN"
-/// // because rust does not resolve "satellite_apl::token::Mint::LEN" to
+/// // This is necessary so we can use "arch_satellite_apl::token::Mint::LEN"
+/// // because rust does not resolve "arch_satellite_apl::token::Mint::LEN" to
 /// // "spl_token::state::Mint::LEN" automatically
 /// impl Mint {
 ///     pub const LEN: usize = spl_token::state::Mint::LEN;
@@ -107,7 +107,7 @@ use std::ops::{Deref, DerefMut};
 /// // from this trait. It delegates to
 /// // "try_deserialize_unchecked" by default which is what we want here
 /// // because non-anchor accounts don't have a discriminator to check
-/// impl satellite_lang::AccountDeserialize for Mint {
+/// impl arch_satellite_lang::AccountDeserialize for Mint {
 ///     fn try_deserialize_unchecked(buf: &mut &[u8]) -> Result<Self> {
 ///         spl_token::state::Mint::unpack(buf).map(Mint)
 ///     }
@@ -115,9 +115,9 @@ use std::ops::{Deref, DerefMut};
 /// // AccountSerialize defaults to a no-op which is what we want here
 /// // because it's a foreign program, so our program does not
 /// // have permission to write to the foreign program's accounts anyway
-/// impl satellite_lang::AccountSerialize for Mint {}
+/// impl arch_satellite_lang::AccountSerialize for Mint {}
 ///
-/// impl satellite_lang::Owner for Mint {
+/// impl arch_satellite_lang::Owner for Mint {
 ///     fn owner() -> Pubkey {
 ///         // pub use spl_token::ID is used at the top of the file
 ///         ID
@@ -153,7 +153,7 @@ use std::ops::{Deref, DerefMut};
 ///
 /// # Example
 /// ```ignore
-/// use satellite_lang::prelude::*;
+/// use arch_satellite_lang::prelude::*;
 /// use crate::program::MyProgram;
 ///
 /// declare_id!("b0f4aeb6df39397d75c91fd50927cfd464ad58fc3deb599c3556045a10fbbfdb");
@@ -206,7 +206,7 @@ use std::ops::{Deref, DerefMut};
 ///
 /// Anchor provides wrapper types to access accounts owned by the token program. Use
 /// ```ignore
-/// use satellite_apl::token::TokenAccount;
+/// use arch_satellite_apl::token::TokenAccount;
 ///
 /// #[derive(Accounts)]
 /// pub struct Example {
@@ -215,7 +215,7 @@ use std::ops::{Deref, DerefMut};
 /// ```
 /// to access token accounts and
 /// ```ignore
-/// use satellite_apl::token::Mint;
+/// use arch_satellite_apl::token::Mint;
 ///
 /// #[derive(Accounts)]
 /// pub struct Example {

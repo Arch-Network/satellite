@@ -5,7 +5,7 @@ use clap::{Parser, ValueEnum};
 use dirs::home_dir;
 use heck::ToSnakeCase;
 use reqwest::Url;
-use satellite_lang_idl::types::Idl;
+use arch_satellite_lang_idl::types::Idl;
 use serde::de::{self, MapAccess, Visitor};
 use serde::ser::SerializeMap;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};

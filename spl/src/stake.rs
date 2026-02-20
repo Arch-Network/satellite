@@ -1,4 +1,4 @@
-use satellite_lang::{
+use arch_satellite_lang::{
     arch_program::{
         account::AccountInfo,
         pubkey::Pubkey,
@@ -35,7 +35,7 @@ pub fn authorize<'info>(
     // if let Some(c) = custodian {
     //     account_infos.push(c);
     // }
-    satellite_lang::arch_program::program::invoke_signed(&ix, &account_infos, ctx.signer_seeds)
+    arch_satellite_lang::arch_program::program::invoke_signed(&ix, &account_infos, ctx.signer_seeds)
         .map_err(Into::into)
 }
 
@@ -61,7 +61,7 @@ pub fn withdraw<'info>(
     // if let Some(c) = custodian {
     //     account_infos.push(c);
     // }
-    satellite_lang::arch_program::program::invoke_signed(&ix, &account_infos, ctx.signer_seeds)
+    arch_satellite_lang::arch_program::program::invoke_signed(&ix, &account_infos, ctx.signer_seeds)
         .map_err(Into::into)
 }
 
@@ -69,7 +69,7 @@ pub fn deactivate_stake<'info>(
     ctx: CpiContext<'_, '_, '_, 'info, DeactivateStake<'info>>,
 ) -> Result<()> {
     let ix = stake::instruction::deactivate_stake(ctx.accounts.stake.key, ctx.accounts.staker.key);
-    satellite_lang::arch_program::program::invoke_signed(
+    arch_satellite_lang::arch_program::program::invoke_signed(
         &ix,
         &[ctx.accounts.stake, ctx.accounts.staker],
         ctx.signer_seeds,
@@ -126,15 +126,15 @@ pub struct DeactivateStake<'info> {
 #[derive(Clone)]
 pub struct StakeAccount(StakeState);
 
-impl satellite_lang::AccountDeserialize for StakeAccount {
-    fn try_deserialize(buf: &mut &[u8]) -> satellite_lang::Result<Self> {
+impl arch_satellite_lang::AccountDeserialize for StakeAccount {
+    fn try_deserialize(buf: &mut &[u8]) -> arch_satellite_lang::Result<Self> {
         Self::try_deserialize_unchecked(buf)
     }
 
-    fn try_deserialize_unchecked(buf: &mut &[u8]) -> satellite_lang::Result<Self> {
+    fn try_deserialize_unchecked(buf: &mut &[u8]) -> arch_satellite_lang::Result<Self> {
         let needed = StakeState::size_of();
         if buf.len() < needed {
-            return Err(satellite_lang::error::ErrorCode::AccountDidNotDeserialize.into());
+            return Err(arch_satellite_lang::error::ErrorCode::AccountDidNotDeserialize.into());
         }
         let head = &buf[..needed];
         // SAFETY: We rely on the stake program using a fixed, on-chain binary
@@ -145,9 +145,9 @@ impl satellite_lang::AccountDeserialize for StakeAccount {
     }
 }
 
-impl satellite_lang::AccountSerialize for StakeAccount {}
+impl arch_satellite_lang::AccountSerialize for StakeAccount {}
 
-impl satellite_lang::Owner for StakeAccount {
+impl arch_satellite_lang::Owner for StakeAccount {
     fn owner() -> Pubkey {
         STAKE_PROGRAM_ID
     }
@@ -164,7 +164,7 @@ impl Deref for StakeAccount {
 #[derive(Clone)]
 pub struct Stake;
 
-impl satellite_lang::Id for Stake {
+impl arch_satellite_lang::Id for Stake {
     fn id() -> Pubkey {
         STAKE_PROGRAM_ID
     }

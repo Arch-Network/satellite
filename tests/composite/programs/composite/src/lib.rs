@@ -1,7 +1,7 @@
 //! This example demonstrates the ability to compose together multiple
 //! structs deriving `Accounts`. See `CompositeUpdate`, below.
 
-use satellite_lang::prelude::*;
+use arch_satellite_lang::prelude::*;
 
 declare_id!("c57bb0250886348a9353b75fd16f4867a4c23698857127ab712f6f22a6c8a8f1");
 
