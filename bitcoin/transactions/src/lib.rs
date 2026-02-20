@@ -416,7 +416,8 @@ pub struct NewPotentialInputsAndOutputs {
 /// # use satellite_bitcoin_transactions::utxo_info::UtxoInfo;
 /// # use arch_program::rune::RuneAmount;
 /// # let mut builder: TransactionBuilder<8, 4, satellite_bitcoin_transactions::utxo_info::SingleRuneSet> = TransactionBuilder::new();
-/// # let rune_utxo: UtxoInfo<_> = unsafe { std::mem::zeroed() };
+/// # use satellite_bitcoin_transactions::utxo_info::SingleRuneSet;
+/// # let rune_utxo: UtxoInfo<SingleRuneSet> = unsafe { std::mem::zeroed() };
 /// // Rune inputs are automatically tracked when adding UTXOs
 /// // The builder maintains total_rune_inputs and runestone data
 ///
@@ -802,7 +803,7 @@ impl<
             let utxo = user_utxos.iter().find(|utxo| utxo.meta == utxo_meta);
             if let Some(utxo) = utxo {
                 for rune in utxo.runes.as_slice() {
-                    add_rune_input(&mut total_rune_inputs, *rune)?;
+                    add_rune_input(&mut total_rune_inputs, rune.clone())?;
                 }
             } else {
                 return Err(BitcoinTxError::UtxoNotFoundInUserUtxos);
@@ -1023,7 +1024,7 @@ impl<
         #[cfg(feature = "runes")]
         {
             for rune in utxo.runes.as_slice() {
-                self.add_rune_input(*rune)?;
+                self.add_rune_input(rune.clone())?;
             }
         }
 
@@ -1052,7 +1053,7 @@ impl<
         #[cfg(feature = "runes")]
         {
             for rune in utxo.runes.as_slice() {
-                self.add_rune_input(*rune)?;
+                self.add_rune_input(rune.clone())?;
             }
         }
 
@@ -1129,7 +1130,7 @@ impl<
         #[cfg(feature = "runes")]
         {
             for rune in utxo.runes.as_slice() {
-                self.add_rune_input(*rune)?;
+                self.add_rune_input(rune.clone())?;
             }
         }
 
@@ -1184,7 +1185,7 @@ impl<
         #[cfg(feature = "runes")]
         {
             for rune in utxo.runes.as_slice() {
-                self.add_rune_input(*rune)?;
+                self.add_rune_input(rune.clone())?;
             }
         }
 
@@ -1644,13 +1645,16 @@ pub fn add_rune_input<RuneSet: FixedCapacitySet<Item = RuneAmount> + Default>(
     total_rune_inputs: &mut RuneSet,
     rune: RuneAmount,
 ) -> Result<(), BitcoinTxError> {
-    total_rune_inputs.insert_or_modify::<BitcoinTxError, _>(rune, |rune_input| {
-        rune_input.amount = rune_input
+    if let Some(existing) = total_rune_inputs.find_mut(&rune.id) {
+        existing.amount = existing
             .amount
             .checked_add(rune.amount)
             .ok_or(BitcoinTxError::RuneAdditionOverflow)?;
-        Ok(())
-    })?;
+    } else {
+        total_rune_inputs
+            .insert(rune)
+            .map_err(|_| BitcoinTxError::RuneInputListFull)?;
+    }
 
     Ok(())
 }
@@ -1903,13 +1907,10 @@ mod tests {
 
             assert_eq!(builder.total_rune_inputs.len(), 1);
             assert_eq!(
-                builder.total_rune_inputs.find(&RuneAmount {
-                    id: RuneId::new(1, 1),
-                    amount: 1000,
-                }),
+                builder.total_rune_inputs.find(&RuneId::new(1, 1)),
                 Some(&RuneAmount {
                     id: RuneId::new(1, 1),
-                    amount: 1000,
+                    amount: 1250,
                 })
             );
         }

@@ -276,9 +276,9 @@ checksum = "e16d2d3311acee920a9eb8d33b8cbc1787ce4a264e85f964c2404b969bdcd487"
 
 [[package]]
 name = "apl-associated-token-account"
-version = "0.5.13"
+version = "0.6.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "06254f65e16196eaf98e1c64e9ab624369a07d03c7aa9f78ed8cb2a840f56c9d"
+checksum = "df957ef6232c2cda134b9c87b129203b5da519da94992d58d6fdea6aa18c194f"
 dependencies = [
  "apl-token",
  "arch_program",
@@ -295,9 +295,9 @@ dependencies = [
 
 [[package]]
 name = "apl-token"
-version = "0.5.13"
+version = "0.6.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "df29fca88b5da09c1bb3eabbd6d2cdf9a7ccb02ba058585900e9a85321354cc8"
+checksum = "52573f97472acd71e0491bc17f5a9f190c6591903d30bf804f7516dc4b8de664"
 dependencies = [
  "arch_program",
  "arrayref",
@@ -313,9 +313,9 @@ dependencies = [
 
 [[package]]
 name = "apl-token-metadata"
-version = "0.5.13"
+version = "0.6.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "21dc6f75b54a8d4f0a5867e302424edc22b9e8314554732968ad964d21a37de2"
+checksum = "31cd0b626ecf1624c0327bf367f93de740ead3040983600707691c9314d4d81d"
 dependencies = [
  "apl-token",
  "arch_program",
@@ -327,9 +327,9 @@ dependencies = [
 
 [[package]]
 name = "arch_program"
-version = "0.5.15"
+version = "0.6.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f7ce0c4ff38788e0af531ea64093121c45451e0da79d35b5bf511aff680d58cb"
+checksum = "a8e5090cf30dc736990b591cd4b9845c80b45de5aee52cd2bbd8807efeef2b19"
 dependencies = [
  "base64 0.22.1",
  "bincode",
@@ -340,6 +340,7 @@ dependencies = [
  "borsh 1.5.7",
  "bs58",
  "bytemuck",
+ "five8_const 1.0.0",
  "hex",
  "memoffset",
  "num-derive",
@@ -353,6 +354,7 @@ dependencies = [
  "sha3",
  "solana-sanitize",
  "thiserror 1.0.66",
+ "titan-types-core",
 ]
 
 [[package]]
@@ -1887,6 +1889,15 @@ name = "five8_const"
 version = "0.1.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "26dec3da8bc3ef08f2c04f61eab298c3ab334523e55f076354d6d6f613799a7b"
+dependencies = [
+ "five8_core",
+]
+
+[[package]]
+name = "five8_const"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1a0f1728185f277989ca573a402716ae0beaaea3f76a8ff87ef9dd8fb19436c5"
 dependencies = [
  "five8_core",
 ]
@@ -6104,7 +6115,7 @@ dependencies = [
  "bytemuck",
  "bytemuck_derive",
  "curve25519-dalek 4.1.3",
- "five8_const",
+ "five8_const 0.1.4",
  "getrandom 0.2.10",
  "js-sys",
  "num-traits",
@@ -7755,6 +7766,21 @@ name = "tinyvec_macros"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1f3ccbac311fea05f86f61904b462b55fb3df8837a366dfc601a0161d0532f20"
+
+[[package]]
+name = "titan-types-core"
+version = "1.3.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9aa5665a2e6ba9f63d79548abb5ee70f0e389910d6beb7d5969f8d6c2c2e8b53"
+dependencies = [
+ "bitcoin 0.32.5",
+ "bitcoin-io",
+ "borsh 1.5.7",
+ "bytemuck",
+ "hex",
+ "serde",
+ "thiserror 2.0.12",
+]
 
 [[package]]
 name = "tokio"

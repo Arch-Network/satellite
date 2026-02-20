@@ -628,7 +628,7 @@ fn redistribute_sub_dust_values(
 ///
 /// # Implementation Details
 /// * Iterates through each shard exactly once to gather all Rune holdings
-/// * Uses `insert_or_modify` to aggregate amounts for Runes with identical IDs
+/// * Uses `find_mut` by `RuneId` to aggregate amounts for Runes with identical IDs
 /// * Performs safe subtraction to account for already-removed tokens
 /// * Maintains type safety through the Rune set's fixed capacity constraints
 #[cfg(feature = "runes")]
@@ -647,17 +647,15 @@ where
         // Traverse rune amounts directly without allocating an intermediate Vec.
         if let Some(utxo) = shard.rune_utxo() {
             for rune in utxo.runes().iter() {
-                let _ = total_rune_amount.insert_or_modify::<StateShardError, _>(
-                    RuneAmount {
+                if let Some(existing) = total_rune_amount.find_mut(&rune.id) {
+                    existing.amount = safe_add(existing.amount, rune.amount)
+                        .map_err(|_| StateShardError::RuneAmountAdditionOverflow)?;
+                } else {
+                    let _ = total_rune_amount.insert(RuneAmount {
                         id: rune.id,
                         amount: rune.amount,
-                    },
-                    |r| {
-                        r.amount = safe_add(r.amount, rune.amount)
-                            .map_err(|_| StateShardError::RuneAmountAdditionOverflow)?;
-                        Ok(())
-                    },
-                );
+                    });
+                }
             }
         };
     }
@@ -747,17 +745,17 @@ where
             .map_err(|_| StateShardError::MathErrorInBalanceAmountAcrossShards)?;
 
         for (i, amount) in allocs.iter().enumerate() {
-            result[i].insert_or_modify::<StateShardError, _>(
-                RuneAmount {
-                    id: rune_amount.id,
-                    amount: *amount,
-                },
-                |r| {
-                    r.amount = safe_add(r.amount, *amount)
-                        .map_err(|_| StateShardError::RuneAmountAdditionOverflow)?;
-                    Ok(())
-                },
-            )?;
+            if let Some(existing) = result[i].find_mut(&rune_amount.id) {
+                existing.amount = safe_add(existing.amount, *amount)
+                    .map_err(|_| StateShardError::RuneAmountAdditionOverflow)?;
+            } else {
+                result[i]
+                    .insert(RuneAmount {
+                        id: rune_amount.id,
+                        amount: *amount,
+                    })
+                    .map_err(|_| StateShardError::RuneAmountAdditionOverflow)?;
+            }
         }
     }
 

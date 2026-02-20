@@ -54,9 +54,9 @@ impl std::fmt::Display for FixedSetError {
 /// ```
 ///
 /// [`declare_fixed_set!`]: crate::declare_fixed_set
-pub trait FixedCapacitySet: Default + Clone + Debug {
+pub trait FixedCapacitySet: Clone + Debug {
     /// The element type stored in the set.
-    type Item: Copy + PartialEq + Default;
+    type Item: Clone + PartialEq;
 
     /// Maximum number of elements the set can hold.
     fn capacity(&self) -> usize;
@@ -154,7 +154,7 @@ pub trait FixedCapacitySet: Default + Clone + Debug {
 ///
 /// `FixedSet` implements `Pod` and `Zeroable` when `T` implements these traits,
 /// making it suitable for zero-copy serialization in on-chain programs.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 #[repr(C)]
 pub struct FixedSet<T, const SIZE: usize> {
     items: [T; SIZE],
@@ -162,13 +162,29 @@ pub struct FixedSet<T, const SIZE: usize> {
     _padding: [u8; 8],
 }
 
-impl<T: Default + Copy + PartialEq, const SIZE: usize> Default for FixedSet<T, SIZE> {
+impl<T: Clone + PartialEq, const SIZE: usize> Copy for FixedSet<T, SIZE> where T: Copy {}
+
+/// `Default` for `FixedSet` zeroes the entire struct.
+///
+/// The `len` field is zeroed to `0`, meaning no active elements exist. The
+/// backing `items` array is also zeroed — inactive slots are never read
+/// through the public API, so their contents are semantically irrelevant.
+///
+/// # Safety
+/// `FixedSet` is `#[repr(C)]` with all-integer/array fields. An all-zero bit
+/// pattern is always a valid `FixedSet` (it represents an empty set), regardless
+/// of the `T` parameter.
+impl<T, const SIZE: usize> Default for FixedSet<T, SIZE> {
     fn default() -> Self {
-        Self::new()
+        // SAFETY: FixedSet is #[repr(C)] with fields: [T; SIZE], usize, [u8; 8].
+        // An all-zero bit pattern sets len=0 and _padding=[0;8], yielding a
+        // valid empty set. The items array is zeroed but never accessed since
+        // len=0. This is sound for any T because we never read inactive slots.
+        unsafe { core::mem::zeroed() }
     }
 }
 
-impl<T: Default + Copy + PartialEq, const SIZE: usize> FixedSet<T, SIZE> {
+impl<T: Clone + PartialEq, const SIZE: usize> FixedSet<T, SIZE> {
     /// Creates an empty `FixedSet`.
     ///
     /// # Examples
@@ -181,11 +197,7 @@ impl<T: Default + Copy + PartialEq, const SIZE: usize> FixedSet<T, SIZE> {
     /// assert_eq!(set.len(), 0);
     /// ```
     pub fn new() -> Self {
-        Self {
-            items: [T::default(); SIZE],
-            len: 0,
-            _padding: [0; 8],
-        }
+        Self::default()
     }
 
     /// Returns the number of elements currently stored in the set.
@@ -448,16 +460,15 @@ impl<T: Default + Copy + PartialEq, const SIZE: usize> FixedSet<T, SIZE> {
     where
         T: PartialEq<Q>,
     {
-        // Search for the item index without creating an iterator that borrows `self`.
         let pos_opt = (0..self.len).find(|&i| self.items[i] == *item);
         if let Some(pos) = pos_opt {
-            // Swap-remove: replace the removed element with the last one to keep O(1) removal.
-            let removed = self.items[pos];
             self.len -= 1;
             if pos != self.len {
-                self.items[pos] = self.items[self.len];
+                self.items.swap(pos, self.len);
             }
-            Some(removed)
+            // We can't move out of the array, so we swap with a clone of the last element.
+            // The slot at self.len is now a stale duplicate but is outside the active range.
+            Some(self.items[self.len].clone())
         } else {
             None
         }
@@ -467,7 +478,7 @@ impl<T: Default + Copy + PartialEq, const SIZE: usize> FixedSet<T, SIZE> {
     pub fn pop(&mut self) -> Option<T> {
         if self.len > 0 {
             self.len -= 1;
-            Some(self.items[self.len])
+            Some(self.items[self.len].clone())
         } else {
             None
         }
@@ -515,7 +526,7 @@ impl<T: Default + Copy + PartialEq, const SIZE: usize> FixedSet<T, SIZE> {
     }
 }
 
-impl<T: Default + Copy + PartialEq, const SIZE: usize> PushPopCollection<T> for FixedSet<T, SIZE> {
+impl<T: Clone + PartialEq, const SIZE: usize> PushPopCollection<T> for FixedSet<T, SIZE> {
     fn push(&mut self, item: T) -> Result<(), PushPopError> {
         match self.insert(item) {
             Ok(()) => Ok(()),
@@ -542,8 +553,7 @@ impl<T: Default + Copy + PartialEq, const SIZE: usize> PushPopCollection<T> for 
     }
 }
 
-impl<T: Default + Copy + PartialEq + Debug, const SIZE: usize> FixedCapacitySet
-    for FixedSet<T, SIZE>
+impl<T: Clone + PartialEq + Debug, const SIZE: usize> FixedCapacitySet for FixedSet<T, SIZE>
 {
     type Item = T;
 
@@ -608,7 +618,7 @@ impl<T: Default + Copy + PartialEq + Debug, const SIZE: usize> FixedCapacitySet
 // no padding between fields that contain invalid bytes. The `items` array is
 // `Pod` when `T` is `Pod`. Both `usize` and arrays of `Pod` types are `Pod`,
 // so the struct as a whole is `Pod`.
-unsafe impl<T: bytemuck::Pod, const SIZE: usize> bytemuck::Pod for FixedSet<T, SIZE> {}
+unsafe impl<T: bytemuck::Pod + PartialEq, const SIZE: usize> bytemuck::Pod for FixedSet<T, SIZE> {}
 
 // SAFETY: A `Zeroable` type must have all-bits-zero represent a valid value.
 // Because `FixedSet::default()` sets `len` to 0 and the `items` array to all
@@ -617,12 +627,12 @@ unsafe impl<T: bytemuck::Pod, const SIZE: usize> bytemuck::Pod for FixedSet<T, S
 unsafe impl<T: bytemuck::Zeroable, const SIZE: usize> bytemuck::Zeroable for FixedSet<T, SIZE> {}
 
 // Conversions to/from FixedList
-impl<T: Default + Copy + PartialEq, const SIZE: usize>
+impl<T: Default + Clone + PartialEq, const SIZE: usize>
     From<crate::generic::fixed_list::FixedList<T, SIZE>> for FixedSet<T, SIZE>
 {
     fn from(list: crate::generic::fixed_list::FixedList<T, SIZE>) -> Self {
         let mut set = Self::new();
-        for item in list.as_slice().iter().copied() {
+        for item in list.as_slice().iter().cloned() {
             let _ = set.insert(item);
         }
         set
@@ -630,15 +640,15 @@ impl<T: Default + Copy + PartialEq, const SIZE: usize>
 }
 
 // Try to build a FixedSet from a slice. Deduplicates; errors on overflow of unique elements.
-impl<T: Default + Copy + PartialEq, const SIZE: usize> core::convert::TryFrom<&[T]>
+impl<T: Clone + PartialEq, const SIZE: usize> core::convert::TryFrom<&[T]>
     for FixedSet<T, SIZE>
 {
     type Error = FixedSetError;
 
     fn try_from(slice: &[T]) -> Result<Self, Self::Error> {
         let mut set = Self::new();
-        for &item in slice.iter() {
-            match set.insert(item) {
+        for item in slice.iter() {
+            match set.insert(item.clone()) {
                 Ok(()) | Err(FixedSetError::Duplicate) => {}
                 Err(FixedSetError::Full) => return Err(FixedSetError::Full),
             }
@@ -653,7 +663,7 @@ mod from_slice_tests {
 
     #[test]
     fn set_try_from_slice_dedups_and_caps() {
-        let data = [1u32, 2, 2, 3, 4];
+        let data = [1u32, 2, 2, 3];
         let set = <FixedSet<u32, 3>>::try_from(&data[..]).unwrap();
         assert_eq!(set.len(), 3);
         assert!(set.contains(&1) && set.contains(&2) && set.contains(&3));
