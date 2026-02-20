@@ -1,5 +1,5 @@
 use crate::account::*;
-use satellite_lang::prelude::*;
+use arch_satellite_lang::prelude::*;
 
 #[derive(Accounts)]
 pub struct Initialize<'info> {

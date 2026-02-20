@@ -1,7 +1,7 @@
-use satellite_lang::arch_program::account::AccountInfo;
-use satellite_lang::arch_program::pubkey::Pubkey;
-use satellite_lang::Result;
-use satellite_lang::{context::CpiContext, Accounts};
+use arch_satellite_lang::arch_program::account::AccountInfo;
+use arch_satellite_lang::arch_program::pubkey::Pubkey;
+use arch_satellite_lang::Result;
+use arch_satellite_lang::{context::CpiContext, Accounts};
 
 use spl_pod::optional_keys::OptionalNonZeroPubkey;
 use spl_token_metadata_interface::state::Field;
@@ -22,7 +22,7 @@ pub fn token_metadata_initialize<'info>(
         symbol,
         uri,
     );
-    satellite_lang::arch_program::program::invoke_signed(
+    arch_satellite_lang::arch_program::program::invoke_signed(
         &ix,
         &[
             ctx.accounts.program_id,
@@ -55,7 +55,7 @@ pub fn token_metadata_update_authority<'info>(
         ctx.accounts.current_authority.key,
         new_authority,
     );
-    satellite_lang::arch_program::program::invoke_signed(
+    arch_satellite_lang::arch_program::program::invoke_signed(
         &ix,
         &[
             ctx.accounts.program_id,
@@ -87,7 +87,7 @@ pub fn token_metadata_update_field<'info>(
         field,
         value,
     );
-    satellite_lang::arch_program::program::invoke_signed(
+    arch_satellite_lang::arch_program::program::invoke_signed(
         &ix,
         &[
             ctx.accounts.program_id,

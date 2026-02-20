@@ -1,10 +1,10 @@
 [package]
-name = "satellite-bitcoin-transactions"
+name = "arch-satellite-bitcoin-transactions"
 version.workspace = true
 edition.workspace = true
 description = "Bitcoin transaction utilities and UTXO management for Satellite."
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/saturnbtc/satellite"
+repository = "https://github.com/Arch-Network/satellite"
 keywords = ["bitcoin", "transactions", "utxo"]
 categories = ["cryptography::cryptocurrencies"]
 
@@ -12,8 +12,8 @@ categories = ["cryptography::cryptocurrencies"]
 arch_program = { version = "0.6.2" }
 bitcoin = { version = "0.32.5", features = ["serde"] }
 hex = "0.4.3"
-satellite-collections = { workspace = true }
-satellite-math = { workspace = true }
+arch-satellite-collections = { workspace = true }
+arch-satellite-math = { workspace = true }
 thiserror = "1.0.61"
 num-derive = { version = "0.4.0" }
 num-traits = { version = "0.2" }

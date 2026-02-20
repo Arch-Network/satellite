@@ -1,4 +1,4 @@
-use satellite_lang::prelude::*;
+use arch_satellite_lang::prelude::*;
 
 declare_id!("050438f18b61c2fc84fe9d76def0c7394111f93969e77554641ae8a000000000");
 
@@ -16,10 +16,10 @@ pub mod lamports {
             let pda_balance_before = pda.get_lamports();
 
             // Transfer to the PDA
-            satellite_lang::system_program::transfer(
+            arch_satellite_lang::system_program::transfer(
                 CpiContext::new(
                     ctx.accounts.system_program.to_account_info(),
-                    satellite_lang::system_program::Transfer {
+                    arch_satellite_lang::system_program::Transfer {
                         from: signer.to_account_info(),
                         to: pda.to_account_info(),
                     },

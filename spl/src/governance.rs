@@ -6,36 +6,36 @@ macro_rules! vote_weight_record {
         #[derive(Clone)]
         pub struct VoterWeightRecord(spl_governance_addin_api::voter_weight::VoterWeightRecord);
 
-        impl satellite_lang::AccountDeserialize for VoterWeightRecord {
-            fn try_deserialize(buf: &mut &[u8]) -> satellite_lang::Result<Self> {
+        impl arch_satellite_lang::AccountDeserialize for VoterWeightRecord {
+            fn try_deserialize(buf: &mut &[u8]) -> arch_satellite_lang::Result<Self> {
                 let mut data = buf;
                 let vwr: spl_governance_addin_api::voter_weight::VoterWeightRecord =
-                    satellite_lang::AnchorDeserialize::deserialize(&mut data)
-                        .map_err(|_| satellite_lang::error::ErrorCode::AccountDidNotDeserialize)?;
-                if !satellite_lang::arch_program::program_pack::IsInitialized::is_initialized(&vwr) {
-                    return Err(satellite_lang::error::ErrorCode::AccountDidNotSerialize.into());
+                    arch_satellite_lang::AnchorDeserialize::deserialize(&mut data)
+                        .map_err(|_| arch_satellite_lang::error::ErrorCode::AccountDidNotDeserialize)?;
+                if !arch_satellite_lang::arch_program::program_pack::IsInitialized::is_initialized(&vwr) {
+                    return Err(arch_satellite_lang::error::ErrorCode::AccountDidNotSerialize.into());
                 }
                 Ok(VoterWeightRecord(vwr))
             }
 
-            fn try_deserialize_unchecked(buf: &mut &[u8]) -> satellite_lang::Result<Self> {
+            fn try_deserialize_unchecked(buf: &mut &[u8]) -> arch_satellite_lang::Result<Self> {
                 let mut data = buf;
                 let vwr: spl_governance_addin_api::voter_weight::VoterWeightRecord =
-                    satellite_lang::AnchorDeserialize::deserialize(&mut data)
-                        .map_err(|_| satellite_lang::error::ErrorCode::AccountDidNotDeserialize)?;
+                    arch_satellite_lang::AnchorDeserialize::deserialize(&mut data)
+                        .map_err(|_| arch_satellite_lang::error::ErrorCode::AccountDidNotDeserialize)?;
                 Ok(VoterWeightRecord(vwr))
             }
         }
 
-        impl satellite_lang::AccountSerialize for VoterWeightRecord {
-            fn try_serialize<W: std::io::Write>(&self, writer: &mut W) -> satellite_lang::Result<()> {
-                satellite_lang::AnchorSerialize::serialize(&self.0, writer)
-                    .map_err(|_| satellite_lang::error::ErrorCode::AccountDidNotSerialize)?;
+        impl arch_satellite_lang::AccountSerialize for VoterWeightRecord {
+            fn try_serialize<W: std::io::Write>(&self, writer: &mut W) -> arch_satellite_lang::Result<()> {
+                arch_satellite_lang::AnchorSerialize::serialize(&self.0, writer)
+                    .map_err(|_| arch_satellite_lang::error::ErrorCode::AccountDidNotSerialize)?;
                 Ok(())
             }
         }
 
-        impl satellite_lang::Owner for VoterWeightRecord {
+        impl arch_satellite_lang::Owner for VoterWeightRecord {
             fn owner() -> Pubkey {
                 $id
             }
@@ -56,10 +56,10 @@ macro_rules! vote_weight_record {
         }
 
         #[cfg(feature = "idl-build")]
-        impl satellite_lang::IdlBuild for VoterWeightRecord {}
+        impl arch_satellite_lang::IdlBuild for VoterWeightRecord {}
 
         #[cfg(feature = "idl-build")]
-        impl satellite_lang::Discriminator for VoterWeightRecord {
+        impl arch_satellite_lang::Discriminator for VoterWeightRecord {
             const DISCRIMINATOR: &'static [u8] = &[];
         }
     };

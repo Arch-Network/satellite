@@ -1,4 +1,4 @@
-use satellite_lang::prelude::*;
+use arch_satellite_lang::prelude::*;
 
 declare_id!("033d7cfe950f3fb9a002c067c34f0a1bec11301c885fca41c6d1435740000000");
 

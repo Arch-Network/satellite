@@ -1,7 +1,7 @@
-use satellite_lang::arch_program::account::AccountInfo;
-use satellite_lang::arch_program::pubkey::Pubkey;
-use satellite_lang::Result;
-use satellite_lang::{context::CpiContext, Accounts};
+use arch_satellite_lang::arch_program::account::AccountInfo;
+use arch_satellite_lang::arch_program::pubkey::Pubkey;
+use arch_satellite_lang::Result;
+use arch_satellite_lang::{context::CpiContext, Accounts};
 
 pub fn cpi_guard_enable<'info>(ctx: CpiContext<'_, '_, '_, 'info, CpiGuard<'info>>) -> Result<()> {
     let ix = spl_token_2022::extension::cpi_guard::instruction::enable_cpi_guard(
@@ -10,7 +10,7 @@ pub fn cpi_guard_enable<'info>(ctx: CpiContext<'_, '_, '_, 'info, CpiGuard<'info
         ctx.accounts.account.owner,
         &[],
     )?;
-    satellite_lang::arch_program::program::invoke_signed(
+    arch_satellite_lang::arch_program::program::invoke_signed(
         &ix,
         &[
             ctx.accounts.token_program_id,
@@ -30,7 +30,7 @@ pub fn cpi_guard_disable<'info>(ctx: CpiContext<'_, '_, '_, 'info, CpiGuard<'inf
         &[],
     )?;
 
-    satellite_lang::arch_program::program::invoke_signed(
+    arch_satellite_lang::arch_program::program::invoke_signed(
         &ix,
         &[
             ctx.accounts.token_program_id,

@@ -1,8 +1,8 @@
 [package]
-name = "satellite-lang-idl"
+name = "arch-satellite-lang-idl"
 version.workspace = true
-authors = ["Anchor Maintainers <accounts@200ms.io>"]
-repository = "https://github.com/coral-xyz/anchor"
+authors = ["Arch Network <contact@arch.network>", "Anchor Maintainers <accounts@200ms.io>"]
+repository = "https://github.com/Arch-Network/satellite"
 edition.workspace = true
 license = "Apache-2.0"
 description = "Anchor framework IDL"
@@ -16,7 +16,7 @@ build = ["regex"]
 convert = ["heck", "sha2"]
 
 [dependencies]
-satellite-lang-idl-spec = { workspace = true }
+arch-satellite-lang-idl-spec = { workspace = true }
 anyhow = "1"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"

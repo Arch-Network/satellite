@@ -2,8 +2,8 @@ extern crate proc_macro;
 
 use quote::quote;
 #[cfg(feature = "event-cpi")]
-use satellite_syn::parser::accounts::event_cpi::{add_event_cpi_accounts, EventAuthority};
-use satellite_syn::{codegen::program::common::gen_discriminator, Overrides};
+use arch_satellite_syn::parser::accounts::event_cpi::{add_event_cpi_accounts, EventAuthority};
+use arch_satellite_syn::{codegen::program::common::gen_discriminator, Overrides};
 use syn::parse_macro_input;
 
 /// The event attribute allows a struct to be used with
@@ -45,7 +45,7 @@ pub fn event(
         #[derive(AnchorSerialize, AnchorDeserialize)]
         #event_strct
 
-        impl satellite_lang::Event for #event_name {
+        impl arch_satellite_lang::Event for #event_name {
             fn data(&self) -> Vec<u8> {
                 let mut data = Vec::with_capacity(256);
                 data.extend_from_slice(#event_name::DISCRIMINATOR);
@@ -54,14 +54,14 @@ pub fn event(
             }
         }
 
-        impl satellite_lang::Discriminator for #event_name {
+        impl arch_satellite_lang::Discriminator for #event_name {
             const DISCRIMINATOR: &'static [u8] = #discriminator;
         }
     };
 
     #[cfg(feature = "idl-build")]
     {
-        let idl_build = satellite_syn::idl::gen_idl_print_fn_event(&event_strct);
+        let idl_build = arch_satellite_syn::idl::gen_idl_print_fn_event(&event_strct);
         return proc_macro::TokenStream::from(quote! {
             #ret
             #idl_build
@@ -81,7 +81,7 @@ pub fn event(
 /// # Example
 ///
 /// ```rust,ignore
-/// use satellite_lang::prelude::*;
+/// use arch_satellite_lang::prelude::*;
 ///
 /// // handler function inside #[program]
 /// pub fn initialize(_ctx: Context<Initialize>) -> Result<()> {
@@ -103,7 +103,7 @@ pub fn emit(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let data: proc_macro2::TokenStream = input.into();
     proc_macro::TokenStream::from(quote! {
         {
-            satellite_lang::arch_program::log::sol_log_data(&[&satellite_lang::Event::data(&#data)]);
+            arch_satellite_lang::arch_program::log::sol_log_data(&[&arch_satellite_lang::Event::data(&#data)]);
         }
     })
 }
@@ -127,7 +127,7 @@ pub fn emit(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
 /// # Example
 ///
 /// ```ignore
-/// use satellite_lang::prelude::*;
+/// use arch_satellite_lang::prelude::*;
 ///
 /// #[program]
 /// pub mod my_program {
@@ -166,30 +166,30 @@ pub fn emit_cpi(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
             let authority_info = ctx.accounts.#authority_name.to_account_info();
             let authority_bump = ctx.bumps.#authority_name;
 
-            let disc = satellite_lang::event::EVENT_IX_TAG_LE;
-            let inner_data = satellite_lang::Event::data(&#event_struct);
+            let disc = arch_satellite_lang::event::EVENT_IX_TAG_LE;
+            let inner_data = arch_satellite_lang::Event::data(&#event_struct);
             let ix_data: Vec<u8> = disc
                 .into_iter()
                 .map(|b| *b)
                 .chain(inner_data.into_iter())
                 .collect();
 
-            let ix = satellite_lang::arch_program::instruction::Instruction {
+            let ix = arch_satellite_lang::arch_program::instruction::Instruction {
                 program_id: crate::ID,
                 accounts: vec![
-                    satellite_lang::arch_program::account::AccountMeta::new_readonly(
+                    arch_satellite_lang::arch_program::account::AccountMeta::new_readonly(
                         *authority_info.key,
                         true,
                     ),
                 ],
                   data: ix_data,
             };
-            satellite_lang::arch_program::program::invoke_signed(
+            arch_satellite_lang::arch_program::program::invoke_signed(
                 &ix,
                 &[authority_info],
                 &[&[#authority_seeds, &[authority_bump]]],
             )
-            .map_err(satellite_lang::error::Error::from)?;
+            .map_err(arch_satellite_lang::error::Error::from)?;
         }
     })
 }

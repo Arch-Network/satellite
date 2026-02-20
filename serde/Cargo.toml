@@ -1,10 +1,10 @@
 [package]
-name = "satellite-serde"
+name = "arch-satellite-serde"
 version.workspace = true
 edition.workspace = true
 description = "Serde utilities for the Satellite project."
 license = "MIT"
-repository = "https://github.com/saturnbtc/satellite"
+repository = "https://github.com/Arch-Network/satellite"
 keywords = ["satellite", "serde"]
 categories = ["cryptography::cryptocurrencies"]
 

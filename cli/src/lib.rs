@@ -17,10 +17,10 @@ use regex::{Regex, RegexBuilder};
 use reqwest::blocking::multipart::{Form, Part};
 use reqwest::blocking::Client;
 use rust_template::{ProgramTemplate, TestTemplate};
-use satellite_lang::idl::{IdlAccount, IdlInstruction, ERASED_AUTHORITY};
-use satellite_lang::{AccountDeserialize, AnchorDeserialize, AnchorSerialize, Discriminator};
-use satellite_lang_idl::convert::convert_idl;
-use satellite_lang_idl::types::{Idl, IdlArrayLen, IdlDefinedFields, IdlType, IdlTypeDefTy};
+use arch_satellite_lang::idl::{IdlAccount, IdlInstruction, ERASED_AUTHORITY};
+use arch_satellite_lang::{AccountDeserialize, AnchorDeserialize, AnchorSerialize, Discriminator};
+use arch_satellite_lang_idl::convert::convert_idl;
+use arch_satellite_lang_idl::types::{Idl, IdlArrayLen, IdlDefinedFields, IdlType, IdlTypeDefTy};
 use semver::{Version, VersionReq};
 use serde::Deserialize;
 use serde_json::{json, Map, Value as JsonValue};
@@ -2461,7 +2461,7 @@ fn idl_set_buffer(
                 AccountMeta::new(idl_address, false),
                 AccountMeta::new(idl_authority, true),
             ];
-            let mut data = satellite_lang::idl::IDL_IX_TAG.to_le_bytes().to_vec();
+            let mut data = arch_satellite_lang::idl::IDL_IX_TAG.to_le_bytes().to_vec();
             data.append(&mut IdlInstruction::SetBuffer.try_to_vec()?);
             Instruction {
                 program_id,
@@ -2577,7 +2577,7 @@ fn idl_set_authority(
 
         // Instruction data.
         let data =
-            serialize_idl_ix(satellite_lang::idl::IdlInstruction::SetAuthority { new_authority })?;
+            serialize_idl_ix(arch_satellite_lang::idl::IdlInstruction::SetAuthority { new_authority })?;
 
         // Instruction accounts.
         let accounts = vec![
@@ -2667,7 +2667,7 @@ fn idl_close_account(
     let ix = Instruction {
         program_id: *program_id,
         accounts,
-        data: { serialize_idl_ix(satellite_lang::idl::IdlInstruction::Close {})? },
+        data: { serialize_idl_ix(arch_satellite_lang::idl::IdlInstruction::Close {})? },
     };
 
     if print_only {
@@ -2722,7 +2722,7 @@ fn idl_write(
         let data = {
             let start = offset;
             let end = std::cmp::min(offset + MAX_WRITE_SIZE, idl_data.len());
-            serialize_idl_ix(satellite_lang::idl::IdlInstruction::Write {
+            serialize_idl_ix(arch_satellite_lang::idl::IdlInstruction::Write {
                 data: idl_data[start..end].to_vec(),
             })?
         };
@@ -2820,7 +2820,7 @@ fn generate_idl(
 ) -> Result<Idl> {
     check_idl_build_feature()?;
 
-    satellite_lang_idl::build::IdlBuilder::new()
+    arch_satellite_lang_idl::build::IdlBuilder::new()
         .resolution(cfg.features.resolution)
         .skip_lint(cfg.features.skip_lint || skip_lint)
         .no_docs(no_docs)
@@ -3988,7 +3988,7 @@ fn create_idl_account(
 
         let num_additional_instructions = data_len / 10000;
         let mut instructions = Vec::new();
-        let data = serialize_idl_ix(satellite_lang::idl::IdlInstruction::Create { data_len })?;
+        let data = serialize_idl_ix(arch_satellite_lang::idl::IdlInstruction::Create { data_len })?;
         let program_signer = Pubkey::find_program_address(&[], program_id).0;
         let accounts = vec![
             AccountMeta::new_readonly(keypair.pubkey(), true),
@@ -4004,7 +4004,7 @@ fn create_idl_account(
         });
 
         for _ in 0..num_additional_instructions {
-            let data = serialize_idl_ix(satellite_lang::idl::IdlInstruction::Resize { data_len })?;
+            let data = serialize_idl_ix(arch_satellite_lang::idl::IdlInstruction::Resize { data_len })?;
             instructions.push(Instruction {
                 program_id: *program_id,
                 accounts: vec![
@@ -4086,7 +4086,7 @@ fn create_idl_buffer(
             AccountMeta::new(buffer.pubkey(), false),
             AccountMeta::new_readonly(keypair.pubkey(), true),
         ];
-        let mut data = satellite_lang::idl::IDL_IX_TAG.to_le_bytes().to_vec();
+        let mut data = arch_satellite_lang::idl::IDL_IX_TAG.to_le_bytes().to_vec();
         data.append(&mut IdlInstruction::CreateBuffer.try_to_vec()?);
         Instruction {
             program_id: *program_id,
@@ -4134,9 +4134,9 @@ fn serialize_idl(idl: &Idl) -> Result<Vec<u8>> {
     e.finish().map_err(Into::into)
 }
 
-fn serialize_idl_ix(ix_inner: satellite_lang::idl::IdlInstruction) -> Result<Vec<u8>> {
+fn serialize_idl_ix(ix_inner: arch_satellite_lang::idl::IdlInstruction) -> Result<Vec<u8>> {
     let mut data = Vec::with_capacity(256);
-    data.extend_from_slice(&satellite_lang::idl::IDL_IX_TAG.to_le_bytes());
+    data.extend_from_slice(&arch_satellite_lang::idl::IDL_IX_TAG.to_le_bytes());
     ix_inner.serialize(&mut data)?;
     Ok(data)
 }

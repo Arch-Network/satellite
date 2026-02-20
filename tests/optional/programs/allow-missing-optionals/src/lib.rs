@@ -1,6 +1,6 @@
 //! This tests that the `allow-missing-optionals` feature works
 
-use satellite_lang::prelude::*;
+use arch_satellite_lang::prelude::*;
 
 declare_id!("cde56b864d8901814f3e6bcb8e41826c370c1ef69656b699eba1c2eb8670c755");
 

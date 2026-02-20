@@ -25,7 +25,7 @@ pub fn generate(accs: &AccountsStruct) -> proc_macro2::TokenStream {
                     quote! {
                         #[cfg(feature = "satellite-debug")]
                         ::arch_program::log::sol_log(stringify!(#name));
-                        let #name: #ty = satellite_lang::Accounts::try_accounts(__program_id, __accounts, __ix_data, &mut __bumps.#name, __reallocs)?;
+                        let #name: #ty = arch_satellite_lang::Accounts::try_accounts(__program_id, __accounts, __ix_data, &mut __bumps.#name, __reallocs)?;
                     }
                 }
                 AccountField::Field(f) => {
@@ -42,7 +42,7 @@ pub fn generate(accs: &AccountsStruct) -> proc_macro2::TokenStream {
                             let empty_behavior = if cfg!(feature = "allow-missing-optionals") {
                                 quote!{ None }
                             } else {
-                                quote!{ return Err(satellite_lang::error::ErrorCode::AccountNotEnoughKeys.into()); }
+                                quote!{ return Err(arch_satellite_lang::error::ErrorCode::AccountNotEnoughKeys.into()); }
                             };
                             quote! {
                                 let #name = if __accounts.is_empty() {
@@ -59,7 +59,7 @@ pub fn generate(accs: &AccountsStruct) -> proc_macro2::TokenStream {
                         } else {
                             quote!{
                                 if __accounts.is_empty() {
-                                    return Err(satellite_lang::error::ErrorCode::AccountNotEnoughKeys.into());
+                                    return Err(arch_satellite_lang::error::ErrorCode::AccountNotEnoughKeys.into());
                                 }
                                 let #name = &__accounts[0];
                                 *__accounts = &__accounts[1..];
@@ -71,7 +71,7 @@ pub fn generate(accs: &AccountsStruct) -> proc_macro2::TokenStream {
                         quote! {
                             #[cfg(feature = "satellite-debug")]
                             ::arch_program::log::sol_log(stringify!(#typed_name));
-                            let #typed_name = satellite_lang::Accounts::try_accounts(__program_id, __accounts, __ix_data, __bumps, __reallocs)
+                            let #typed_name = arch_satellite_lang::Accounts::try_accounts(__program_id, __accounts, __ix_data, __bumps, __reallocs)
                                 .map_err(|e| e.with_account_name(#name))?;
                         }
                     }
@@ -102,29 +102,29 @@ pub fn generate(accs: &AccountsStruct) -> proc_macro2::TokenStream {
                 .collect();
             quote! {
                 let mut __ix_data = __ix_data;
-                #[derive(satellite_lang::AnchorSerialize, satellite_lang::AnchorDeserialize)]
+                #[derive(arch_satellite_lang::AnchorSerialize, arch_satellite_lang::AnchorDeserialize)]
                 struct __Args {
                     #strct_inner
                 }
                 let __Args {
                     #(#field_names),*
                 } = __Args::deserialize(&mut __ix_data)
-                    .map_err(|_| satellite_lang::error::ErrorCode::InstructionDidNotDeserialize)?;
+                    .map_err(|_| arch_satellite_lang::error::ErrorCode::InstructionDidNotDeserialize)?;
             }
         }
     };
 
     quote! {
         #[automatically_derived]
-        impl<#combined_generics> satellite_lang::Accounts<#trait_generics, #bumps_struct_name> for #name<#struct_generics> #where_clause {
+        impl<#combined_generics> arch_satellite_lang::Accounts<#trait_generics, #bumps_struct_name> for #name<#struct_generics> #where_clause {
             #[inline(never)]
             fn try_accounts(
-                __program_id: &satellite_lang::arch_program::pubkey::Pubkey,
-                __accounts: &mut &#trait_generics [satellite_lang::arch_program::account::AccountInfo<#trait_generics>],
+                __program_id: &arch_satellite_lang::arch_program::pubkey::Pubkey,
+                __accounts: &mut &#trait_generics [arch_satellite_lang::arch_program::account::AccountInfo<#trait_generics>],
                 __ix_data: &[u8],
                 __bumps: &mut #bumps_struct_name,
-                __reallocs: &mut std::collections::BTreeSet<satellite_lang::arch_program::pubkey::Pubkey>,
-            ) -> satellite_lang::Result<Self> {
+                __reallocs: &mut std::collections::BTreeSet<arch_satellite_lang::arch_program::pubkey::Pubkey>,
+            ) -> arch_satellite_lang::Result<Self> {
                 // Deserialize instruction, if declared.
                 #ix_de
                 // Deserialize each account.

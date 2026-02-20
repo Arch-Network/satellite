@@ -1,11 +1,11 @@
 //! A relatively advanced example of a lockup program. If you're new to Anchor,
 //! it's suggested to start with the other examples.
 
-use satellite_lang::accounts::state::ProgramState;
-use satellite_lang::prelude::*;
-use satellite_lang::solana_program;
-use satellite_lang::solana_program::instruction::Instruction;
-use satellite_apl::token::{self, TokenAccount, Transfer};
+use arch_satellite_lang::accounts::state::ProgramState;
+use arch_satellite_lang::prelude::*;
+use arch_satellite_lang::solana_program;
+use arch_satellite_lang::solana_program::instruction::Instruction;
+use arch_satellite_apl::token::{self, TokenAccount, Transfer};
 
 mod calculator;
 

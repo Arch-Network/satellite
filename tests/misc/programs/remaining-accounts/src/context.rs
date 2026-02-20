@@ -1,6 +1,6 @@
 use crate::account::*;
-use satellite_lang::prelude::*;
-use satellite_apl::token::Token;
+use arch_satellite_lang::prelude::*;
+use arch_satellite_apl::token::Token;
 
 #[derive(Accounts)]
 pub struct TestInit<'info> {

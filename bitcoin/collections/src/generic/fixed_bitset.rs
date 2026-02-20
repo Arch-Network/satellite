@@ -15,7 +15,7 @@
 /// # Examples
 ///
 /// ```rust
-/// use satellite_bitcoin::generic::fixed_bitset::FixedBitSet;
+/// use arch_satellite_collections::generic::fixed_bitset::FixedBitSet;
 ///
 /// let mut bitset: FixedBitSet<16> = FixedBitSet::new();
 ///
@@ -58,7 +58,7 @@ impl<const SIZE: usize> FixedBitSet<SIZE> {
     /// # Examples
     ///
     /// ```rust
-    /// use satellite_bitcoin::generic::fixed_bitset::FixedBitSet;
+    /// use arch_satellite_collections::generic::fixed_bitset::FixedBitSet;
     ///
     /// let bitset: FixedBitSet<10> = FixedBitSet::new();
     /// assert!(bitset.is_empty());
@@ -74,7 +74,7 @@ impl<const SIZE: usize> FixedBitSet<SIZE> {
     /// # Examples
     ///
     /// ```rust
-    /// use satellite_bitcoin::generic::fixed_bitset::FixedBitSet;
+    /// use arch_satellite_collections::generic::fixed_bitset::FixedBitSet;
     ///
     /// let mut bitset: FixedBitSet<10> = FixedBitSet::new();
     /// assert_eq!(bitset.count(), 0);
@@ -92,7 +92,7 @@ impl<const SIZE: usize> FixedBitSet<SIZE> {
     /// # Examples
     ///
     /// ```rust
-    /// use satellite_bitcoin::generic::fixed_bitset::FixedBitSet;
+    /// use arch_satellite_collections::generic::fixed_bitset::FixedBitSet;
     ///
     /// let mut bitset: FixedBitSet<10> = FixedBitSet::new();
     /// assert!(bitset.is_empty());
@@ -111,7 +111,7 @@ impl<const SIZE: usize> FixedBitSet<SIZE> {
     /// # Examples
     ///
     /// ```rust
-    /// use satellite_bitcoin::generic::fixed_bitset::FixedBitSet;
+    /// use arch_satellite_collections::generic::fixed_bitset::FixedBitSet;
     ///
     /// let mut bitset: FixedBitSet<10> = FixedBitSet::new();
     /// assert!(!bitset.contains(3));
@@ -138,7 +138,7 @@ impl<const SIZE: usize> FixedBitSet<SIZE> {
     /// # Examples
     ///
     /// ```rust
-    /// use satellite_bitcoin::generic::fixed_bitset::FixedBitSet;
+    /// use arch_satellite_collections::generic::fixed_bitset::FixedBitSet;
     ///
     /// let mut bitset: FixedBitSet<10> = FixedBitSet::new();
     /// assert!(bitset.insert(3)); // Newly set
@@ -167,7 +167,7 @@ impl<const SIZE: usize> FixedBitSet<SIZE> {
     /// # Examples
     ///
     /// ```rust
-    /// use satellite_bitcoin::generic::fixed_bitset::FixedBitSet;
+    /// use arch_satellite_collections::generic::fixed_bitset::FixedBitSet;
     ///
     /// let mut bitset: FixedBitSet<10> = FixedBitSet::new();
     /// bitset.insert(3);
@@ -197,7 +197,7 @@ impl<const SIZE: usize> FixedBitSet<SIZE> {
     /// # Examples
     ///
     /// ```rust
-    /// use satellite_bitcoin::generic::fixed_bitset::FixedBitSet;
+    /// use arch_satellite_collections::generic::fixed_bitset::FixedBitSet;
     ///
     /// let mut bitset: FixedBitSet<10> = FixedBitSet::new();
     /// bitset.extend_from_slice(&[1, 3, 5, 3, 10]); // 3 is duplicate, 10 is out of bounds
@@ -221,7 +221,7 @@ impl<const SIZE: usize> FixedBitSet<SIZE> {
     /// # Examples
     ///
     /// ```rust
-    /// use satellite_bitcoin::generic::fixed_bitset::FixedBitSet;
+    /// use arch_satellite_collections::generic::fixed_bitset::FixedBitSet;
     ///
     /// let mut bitset: FixedBitSet<8> = FixedBitSet::new();
     /// bitset.insert(4);
@@ -250,7 +250,7 @@ impl<const SIZE: usize> FixedBitSet<SIZE> {
     /// # Examples
     ///
     /// ```rust
-    /// use satellite_bitcoin::generic::fixed_bitset::FixedBitSet;
+    /// use arch_satellite_collections::generic::fixed_bitset::FixedBitSet;
     ///
     /// let mut bitset: FixedBitSet<8> = FixedBitSet::new();
     /// bitset.insert(2);
@@ -284,7 +284,7 @@ impl<const SIZE: usize> FixedBitSet<SIZE> {
     /// # Examples
     ///
     /// ```rust
-    /// use satellite_bitcoin::generic::fixed_bitset::FixedBitSet;
+    /// use arch_satellite_collections::generic::fixed_bitset::FixedBitSet;
     ///
     /// let mut bitset: FixedBitSet<8> = FixedBitSet::new();
     /// bitset.insert(0);

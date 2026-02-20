@@ -148,6 +148,8 @@ version = "0.31.5"
 dependencies = [
  "anchor-client",
  "anyhow",
+ "arch-satellite-lang",
+ "arch-satellite-lang-idl",
  "base64 0.21.7",
  "bincode",
  "cargo_toml",
@@ -161,8 +163,6 @@ dependencies = [
  "portpicker",
  "regex",
  "reqwest",
- "satellite-lang",
- "satellite-lang-idl",
  "semver",
  "serde",
  "serde_json",
@@ -183,9 +183,9 @@ name = "anchor-client"
 version = "0.31.5"
 dependencies = [
  "anyhow",
+ "arch-satellite-lang",
  "futures",
  "regex",
- "satellite-lang",
  "serde",
  "solana-account-decoder",
  "solana-client",
@@ -322,6 +322,271 @@ dependencies = [
  "borsh 1.5.7",
  "num-derive",
  "num-traits",
+ "thiserror 1.0.66",
+]
+
+[[package]]
+name = "arch-satellite-apl"
+version = "0.31.5"
+dependencies = [
+ "apl-associated-token-account",
+ "apl-token",
+ "apl-token-metadata",
+ "arch-satellite-lang",
+ "borsh 0.10.4",
+]
+
+[[package]]
+name = "arch-satellite-attribute-access-control"
+version = "0.31.5"
+dependencies = [
+ "arch-satellite-syn",
+ "proc-macro2",
+ "quote",
+ "syn 1.0.109",
+]
+
+[[package]]
+name = "arch-satellite-attribute-account"
+version = "0.31.5"
+dependencies = [
+ "arch-satellite-syn",
+ "hex",
+ "proc-macro2",
+ "quote",
+ "syn 1.0.109",
+]
+
+[[package]]
+name = "arch-satellite-attribute-constant"
+version = "0.31.5"
+dependencies = [
+ "arch-satellite-syn",
+ "quote",
+ "syn 1.0.109",
+]
+
+[[package]]
+name = "arch-satellite-attribute-error"
+version = "0.31.5"
+dependencies = [
+ "arch-satellite-syn",
+ "quote",
+ "syn 1.0.109",
+]
+
+[[package]]
+name = "arch-satellite-attribute-event"
+version = "0.31.5"
+dependencies = [
+ "arch-satellite-syn",
+ "proc-macro2",
+ "quote",
+ "syn 1.0.109",
+]
+
+[[package]]
+name = "arch-satellite-attribute-program"
+version = "0.31.5"
+dependencies = [
+ "anyhow",
+ "arch-satellite-lang-idl",
+ "arch-satellite-syn",
+ "heck 0.3.3",
+ "hex",
+ "proc-macro2",
+ "quote",
+ "serde_json",
+ "syn 1.0.109",
+]
+
+[[package]]
+name = "arch-satellite-avm"
+version = "0.31.5"
+dependencies = [
+ "anyhow",
+ "cargo_toml",
+ "cfg-if",
+ "chrono",
+ "clap 4.5.17",
+ "clap_complete",
+ "dirs",
+ "reqwest",
+ "semver",
+ "serde",
+ "tempfile",
+]
+
+[[package]]
+name = "arch-satellite-bitcoin"
+version = "0.31.5"
+dependencies = [
+ "arch-satellite-bitcoin-transactions",
+ "arch-satellite-collections",
+ "arch-satellite-math",
+ "bitcoin 0.32.5",
+ "borsh 1.5.7",
+ "serde",
+]
+
+[[package]]
+name = "arch-satellite-bitcoin-transactions"
+version = "0.31.5"
+dependencies = [
+ "arch-satellite-collections",
+ "arch-satellite-math",
+ "arch_program",
+ "bitcoin 0.32.5",
+ "bytemuck",
+ "hex",
+ "num-derive",
+ "num-traits",
+ "ordinals",
+ "proptest",
+ "serde",
+ "serde_json",
+ "thiserror 1.0.66",
+ "utoipa",
+]
+
+[[package]]
+name = "arch-satellite-borsh-derive-internal"
+version = "0.11.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 1.0.109",
+]
+
+[[package]]
+name = "arch-satellite-collections"
+version = "0.31.5"
+dependencies = [
+ "borsh 1.5.7",
+ "bytemuck",
+ "proptest",
+ "serde",
+]
+
+[[package]]
+name = "arch-satellite-derive-accounts"
+version = "0.31.5"
+dependencies = [
+ "arch-satellite-syn",
+ "quote",
+ "syn 1.0.109",
+]
+
+[[package]]
+name = "arch-satellite-derive-serde"
+version = "0.31.5"
+dependencies = [
+ "arch-satellite-borsh-derive-internal",
+ "arch-satellite-syn",
+ "proc-macro2",
+ "quote",
+ "syn 1.0.109",
+]
+
+[[package]]
+name = "arch-satellite-derive-space"
+version = "0.31.5"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 1.0.109",
+]
+
+[[package]]
+name = "arch-satellite-lang"
+version = "0.31.5"
+dependencies = [
+ "arch-satellite-attribute-access-control",
+ "arch-satellite-attribute-account",
+ "arch-satellite-attribute-constant",
+ "arch-satellite-attribute-error",
+ "arch-satellite-attribute-event",
+ "arch-satellite-attribute-program",
+ "arch-satellite-derive-accounts",
+ "arch-satellite-derive-serde",
+ "arch-satellite-derive-space",
+ "arch-satellite-lang-idl",
+ "arch_program",
+ "base64 0.21.7",
+ "bincode",
+ "borsh 1.5.7",
+ "bytemuck",
+ "thiserror 1.0.66",
+]
+
+[[package]]
+name = "arch-satellite-lang-idl"
+version = "0.31.5"
+dependencies = [
+ "anyhow",
+ "arch-satellite-lang-idl-spec",
+ "heck 0.3.3",
+ "regex",
+ "serde",
+ "serde_json",
+ "sha2 0.10.8",
+]
+
+[[package]]
+name = "arch-satellite-lang-idl-spec"
+version = "0.31.5"
+dependencies = [
+ "anyhow",
+ "serde",
+]
+
+[[package]]
+name = "arch-satellite-math"
+version = "0.31.5"
+dependencies = [
+ "num 0.4.3",
+ "primitive-types",
+ "thiserror 1.0.66",
+]
+
+[[package]]
+name = "arch-satellite-serde"
+version = "0.31.5"
+dependencies = [
+ "arch_program",
+ "bitcoin 0.32.5",
+ "hex",
+ "primitive-types",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "arch-satellite-shard"
+version = "0.31.5"
+dependencies = [
+ "arch-satellite-bitcoin",
+ "arch-satellite-lang",
+ "arch_program",
+ "bitcoin 0.32.5",
+ "bytemuck",
+ "ordinals",
+]
+
+[[package]]
+name = "arch-satellite-syn"
+version = "0.31.5"
+dependencies = [
+ "anyhow",
+ "cargo_toml",
+ "heck 0.3.3",
+ "hex",
+ "proc-macro2",
+ "quote",
+ "serde",
+ "serde_json",
+ "sha2 0.10.8",
+ "syn 1.0.109",
  "thiserror 1.0.66",
 ]
 
@@ -602,23 +867,6 @@ name = "autocfg"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d468802bab17cbc0cc575e9b053f41e72aa36bfa6b7f55e3529ffa43161b97fa"
-
-[[package]]
-name = "avm"
-version = "0.31.5"
-dependencies = [
- "anyhow",
- "cargo_toml",
- "cfg-if",
- "chrono",
- "clap 4.5.17",
- "clap_complete",
- "dirs",
- "reqwest",
- "semver",
- "serde",
- "tempfile",
-]
 
 [[package]]
 name = "backtrace"
@@ -949,15 +1197,6 @@ name = "borsh-derive-internal"
 version = "0.10.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "65d6ba50644c98714aa2a70d13d7df3cd75cd2b523a2b452bf010443800976b3"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 1.0.109",
-]
-
-[[package]]
-name = "borsh-derive-internal-satellite"
-version = "0.11.0"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -4232,245 +4471,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "93fc1dc3aaa9bfed95e02e6eadabb4baf7e3078b0bd1b4d7b6b0b68378900502"
 dependencies = [
  "winapi-util",
-]
-
-[[package]]
-name = "satellite-apl"
-version = "0.31.5"
-dependencies = [
- "apl-associated-token-account",
- "apl-token",
- "apl-token-metadata",
- "borsh 0.10.4",
- "satellite-lang",
-]
-
-[[package]]
-name = "satellite-attribute-access-control"
-version = "0.31.5"
-dependencies = [
- "proc-macro2",
- "quote",
- "satellite-syn",
- "syn 1.0.109",
-]
-
-[[package]]
-name = "satellite-attribute-account"
-version = "0.31.5"
-dependencies = [
- "hex",
- "proc-macro2",
- "quote",
- "satellite-syn",
- "syn 1.0.109",
-]
-
-[[package]]
-name = "satellite-attribute-constant"
-version = "0.31.5"
-dependencies = [
- "quote",
- "satellite-syn",
- "syn 1.0.109",
-]
-
-[[package]]
-name = "satellite-attribute-error"
-version = "0.31.5"
-dependencies = [
- "quote",
- "satellite-syn",
- "syn 1.0.109",
-]
-
-[[package]]
-name = "satellite-attribute-event"
-version = "0.31.5"
-dependencies = [
- "proc-macro2",
- "quote",
- "satellite-syn",
- "syn 1.0.109",
-]
-
-[[package]]
-name = "satellite-attribute-program"
-version = "0.31.5"
-dependencies = [
- "anyhow",
- "heck 0.3.3",
- "hex",
- "proc-macro2",
- "quote",
- "satellite-lang-idl",
- "satellite-syn",
- "serde_json",
- "syn 1.0.109",
-]
-
-[[package]]
-name = "satellite-bitcoin"
-version = "0.31.5"
-dependencies = [
- "bitcoin 0.32.5",
- "borsh 1.5.7",
- "satellite-bitcoin-transactions",
- "satellite-collections",
- "satellite-math",
- "serde",
-]
-
-[[package]]
-name = "satellite-bitcoin-transactions"
-version = "0.31.5"
-dependencies = [
- "arch_program",
- "bitcoin 0.32.5",
- "bytemuck",
- "hex",
- "num-derive",
- "num-traits",
- "ordinals",
- "proptest",
- "satellite-collections",
- "satellite-math",
- "serde",
- "serde_json",
- "thiserror 1.0.66",
- "utoipa",
-]
-
-[[package]]
-name = "satellite-collections"
-version = "0.31.5"
-dependencies = [
- "borsh 1.5.7",
- "bytemuck",
- "proptest",
- "serde",
-]
-
-[[package]]
-name = "satellite-derive-accounts"
-version = "0.31.5"
-dependencies = [
- "quote",
- "satellite-syn",
- "syn 1.0.109",
-]
-
-[[package]]
-name = "satellite-derive-serde"
-version = "0.31.5"
-dependencies = [
- "borsh-derive-internal-satellite",
- "proc-macro2",
- "quote",
- "satellite-syn",
- "syn 1.0.109",
-]
-
-[[package]]
-name = "satellite-derive-space"
-version = "0.31.5"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 1.0.109",
-]
-
-[[package]]
-name = "satellite-lang"
-version = "0.31.5"
-dependencies = [
- "arch_program",
- "base64 0.21.7",
- "bincode",
- "borsh 1.5.7",
- "bytemuck",
- "satellite-attribute-access-control",
- "satellite-attribute-account",
- "satellite-attribute-constant",
- "satellite-attribute-error",
- "satellite-attribute-event",
- "satellite-attribute-program",
- "satellite-derive-accounts",
- "satellite-derive-serde",
- "satellite-derive-space",
- "satellite-lang-idl",
- "thiserror 1.0.66",
-]
-
-[[package]]
-name = "satellite-lang-idl"
-version = "0.31.5"
-dependencies = [
- "anyhow",
- "heck 0.3.3",
- "regex",
- "satellite-lang-idl-spec",
- "serde",
- "serde_json",
- "sha2 0.10.8",
-]
-
-[[package]]
-name = "satellite-lang-idl-spec"
-version = "0.31.5"
-dependencies = [
- "anyhow",
- "serde",
-]
-
-[[package]]
-name = "satellite-math"
-version = "0.31.5"
-dependencies = [
- "num 0.4.3",
- "primitive-types",
- "thiserror 1.0.66",
-]
-
-[[package]]
-name = "satellite-serde"
-version = "0.31.5"
-dependencies = [
- "arch_program",
- "bitcoin 0.32.5",
- "hex",
- "primitive-types",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "satellite-shard"
-version = "0.31.5"
-dependencies = [
- "arch_program",
- "bitcoin 0.32.5",
- "bytemuck",
- "ordinals",
- "satellite-bitcoin",
- "satellite-lang",
-]
-
-[[package]]
-name = "satellite-syn"
-version = "0.31.5"
-dependencies = [
- "anyhow",
- "cargo_toml",
- "heck 0.3.3",
- "hex",
- "proc-macro2",
- "quote",
- "serde",
- "serde_json",
- "sha2 0.10.8",
- "syn 1.0.109",
- "thiserror 1.0.66",
 ]
 
 [[package]]

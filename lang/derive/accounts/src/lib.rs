@@ -22,7 +22,7 @@ use syn::parse_macro_input;
 ///
 /// ```ignore
 /// ...
-/// pub fn initialize(ctx: Context<Create>, bump: u8, authority: Pubkey, data: u64) -> satellite_lang::Result<()> {
+/// pub fn initialize(ctx: Context<Create>, bump: u8, authority: Pubkey, data: u64) -> arch_satellite_lang::Result<()> {
 ///     ...
 ///     Ok(())
 /// }
@@ -488,7 +488,7 @@ use syn::parse_macro_input;
 ///                 <br><br>
 ///                 Example:
 ///                 <pre>
-/// use satellite_apl::{mint, token::{TokenAccount, Mint, Token}};
+/// use arch_satellite_apl::{mint, token::{TokenAccount, Mint, Token}};
 /// ...&#10;
 /// #[account(
 ///     init,
@@ -520,7 +520,7 @@ use syn::parse_macro_input;
 ///                 <br><br>
 ///                 Example:
 ///                 <pre>
-/// use satellite_apl::token::{Mint, Token};
+/// use arch_satellite_apl::token::{Mint, Token};
 /// ...&#10;
 /// #[account(
 ///     init,
@@ -556,7 +556,7 @@ use syn::parse_macro_input;
 ///                 <br><br>
 ///                 Example:
 ///                 <pre>
-/// use satellite_apl::{
+/// use arch_satellite_apl::{
 ///     associated_token::AssociatedToken,
 ///     mint,
 ///     token::{TokenAccount, Mint, Token}
@@ -592,7 +592,7 @@ use syn::parse_macro_input;
 ///                 <br><br>
 ///                 Example:
 ///                 <pre>
-/// use satellite_apl::token_interface::{TokenInterface, TokenAccount, Mint};
+/// use arch_satellite_apl::token_interface::{TokenInterface, TokenAccount, Mint};
 /// ...&#10;
 /// #[account(
 ///     mint::token_program = token_a_token_program,
@@ -630,7 +630,7 @@ use syn::parse_macro_input;
 /// </table>
 #[proc_macro_derive(Accounts, attributes(account, instruction))]
 pub fn derive_accounts(item: TokenStream) -> TokenStream {
-    parse_macro_input!(item as satellite_syn::AccountsStruct)
+    parse_macro_input!(item as arch_satellite_syn::AccountsStruct)
         .to_token_stream()
         .into()
 }

@@ -1,6 +1,6 @@
 //! Testing the extraction of doc comments from the IDL.
 
-use satellite_lang::prelude::*;
+use arch_satellite_lang::prelude::*;
 
 declare_id!("0347ae633db807e549346c69ea2ee34769729b788517b0789178ec0000000000");
 

@@ -9,12 +9,12 @@ use arch_program::program_pack::{Pack, Sealed};
 use arch_program::utxo;
 use arch_program::{account::AccountInfo, pubkey::Pubkey, utxo::UtxoMeta};
 use bytemuck::{Pod, Zeroable};
-use satellite_bitcoin::utxo_info::UtxoInfoTrait;
-use satellite_bitcoin::utxo_info::{SingleRuneSet, UtxoInfo};
-use satellite_lang::prelude::Owner;
-use satellite_lang::prelude::{AccountLoader, ProgramError};
-use satellite_lang::Discriminator;
-use satellite_lang::ZeroCopy;
+use arch_satellite_bitcoin::utxo_info::UtxoInfoTrait;
+use arch_satellite_bitcoin::utxo_info::{SingleRuneSet, UtxoInfo};
+use arch_satellite_lang::prelude::Owner;
+use arch_satellite_lang::prelude::{AccountLoader, ProgramError};
+use arch_satellite_lang::Discriminator;
+use arch_satellite_lang::ZeroCopy;
 
 // Increased capacity to comfortably cover edge-case tests that require up to
 // 5 UTXOs per shard × 10 shards. 64 is a convenient power-of-two that leaves
@@ -380,7 +380,7 @@ pub fn add_btc_utxos_bulk(shard: &mut MockShardZc, sats_values: &[u64]) {
 #[cfg(feature = "runes")]
 pub fn create_rune_utxo(amount: u128, vout: u32) -> UtxoInfo<SingleRuneSet> {
     use arch_program::rune::{RuneAmount, RuneId};
-    use satellite_bitcoin::constants::DUST_LIMIT;
+    use arch_satellite_bitcoin::constants::DUST_LIMIT;
 
     // Single-entry rune set (capacity = 1)
     let mut runes = SingleRuneSet::default();

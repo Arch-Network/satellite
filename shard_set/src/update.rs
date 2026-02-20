@@ -19,7 +19,7 @@
 //! # Intended Usage
 //! --------------
 //! 1. Build and sign a transaction with
-//!    [`satellite_bitcoin::TransactionBuilder`].
+//!    [`arch_satellite_bitcoin::TransactionBuilder`].
 //! 2. Call [`ShardSet::update_shards_after_transaction`] – a convenience wrapper
 //!    around [`update_shards_after_transaction`] – passing the same
 //!    `TransactionBuilder`, a `ShardSet` in the *Selected* state and the
@@ -79,24 +79,24 @@ use std::cell::RefMut;
 
 use arch_program::{input_to_sign::InputToSign, rune::RuneAmount, utxo::UtxoMeta};
 use bitcoin::{ScriptBuf, Transaction};
-use satellite_bitcoin::utxo_info::UtxoInfoTrait;
-use satellite_bitcoin::{fee_rate::FeeRate, TransactionBuilder};
+use arch_satellite_bitcoin::utxo_info::UtxoInfoTrait;
+use arch_satellite_bitcoin::{fee_rate::FeeRate, TransactionBuilder};
 
 #[cfg(feature = "runes")]
 use arch_program::rune::RuneId;
 #[cfg(feature = "runes")]
 use ordinals::Runestone;
-use satellite_bitcoin::generic::fixed_set::FixedCapacitySet;
+use arch_satellite_bitcoin::generic::fixed_set::FixedCapacitySet;
 
 #[cfg(feature = "utxo-consolidation")]
-use satellite_bitcoin::utxo_info::FixedOptionF64;
+use arch_satellite_bitcoin::utxo_info::FixedOptionF64;
 
 use super::error::StateShardError;
 
 use super::StateShard;
 
-use satellite_lang::prelude::Owner;
-use satellite_lang::ZeroCopy;
+use arch_satellite_lang::prelude::Owner;
+use arch_satellite_lang::ZeroCopy;
 
 /// Validates that each shard in `selected_shards` currently has a rune UTXO.
 ///
@@ -659,7 +659,7 @@ where
     RS: FixedCapacitySet<Item = RuneAmount> + Default,
     U: UtxoInfoTrait<RS>,
 {
-    use satellite_bitcoin::bytes::txid_to_bytes_big_endian;
+    use arch_satellite_bitcoin::bytes::txid_to_bytes_big_endian;
 
     let mut utxos_to_remove = Vec::with_capacity(inputs_to_sign.len());
     let mut program_outputs = Vec::with_capacity(transaction.output.len() / 2);
@@ -865,10 +865,10 @@ mod tests_loader {
     use super::super::tests::common::{
         add_btc_utxos_bulk, create_shard, leak_loaders_from_vec, MockShardZc, MAX_BTC_UTXOS,
     };
-    use satellite_bitcoin::utxo_info::{SingleRuneSet, UtxoInfo, UtxoInfoTrait};
+    use arch_satellite_bitcoin::utxo_info::{SingleRuneSet, UtxoInfo, UtxoInfoTrait};
 
     // Re-export for macro reuse – mirrors helper in split_loader tests.
-    use satellite_bitcoin::TransactionBuilder as TB;
+    use arch_satellite_bitcoin::TransactionBuilder as TB;
 
     #[allow(unused_macros)]
     macro_rules! new_tb {
@@ -882,7 +882,7 @@ mod tests_loader {
         value: u64,
         txid_byte: u8,
         vout: u32,
-    ) -> satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet> {
+    ) -> arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet> {
         let txid = [txid_byte; 32];
         let meta = UtxoMeta::from(txid, vout);
         let utxo_info = UtxoInfo::new(meta, value);
@@ -916,7 +916,7 @@ mod tests_loader {
 
             let best = super::super::select_best_shard_to_add_btc_to::<
                 SingleRuneSet,
-                satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+                arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
                 MockShardZc,
             >(&shard_refs);
 
@@ -942,7 +942,7 @@ mod tests_loader {
 
             let res = super::super::select_best_shard_to_add_btc_to::<
                 SingleRuneSet,
-                satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+                arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
                 MockShardZc,
             >(&shard_refs);
             assert_eq!(res, None);
@@ -965,7 +965,7 @@ mod tests_loader {
 
             let res = super::super::select_best_shard_to_add_btc_to::<
                 SingleRuneSet,
-                satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+                arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
                 MockShardZc,
             >(&shard_refs);
             assert_eq!(res, Some(1)); // second shard has spare capacity
@@ -981,7 +981,7 @@ mod tests_loader {
         fn setup_shard_loaders(
             shard0: MockShardZc,
             shard1: MockShardZc,
-        ) -> &'static [satellite_lang::prelude::AccountLoader<'static, MockShardZc>] {
+        ) -> &'static [arch_satellite_lang::prelude::AccountLoader<'static, MockShardZc>] {
             let shards_vec = vec![shard0, shard1];
             leak_loaders_from_vec(shards_vec)
         }
@@ -1001,7 +1001,7 @@ mod tests_loader {
                 .collect();
             let result = super::super::update_shards_utxos::<
                 SingleRuneSet,
-                satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+                arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
                 MockShardZc,
             >(
                 &mut shard_refs,
@@ -1046,7 +1046,7 @@ mod tests_loader {
                 .collect();
             let err = super::super::update_shards_utxos::<
                 SingleRuneSet,
-                satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+                arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
                 MockShardZc,
             >(
                 &mut shard_refs,
@@ -1087,7 +1087,7 @@ mod tests_loader {
                 .collect();
             super::super::update_shards_utxos::<
                 SingleRuneSet,
-                satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+                arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
                 MockShardZc,
             >(
                 &mut shard_refs,
@@ -1132,7 +1132,7 @@ mod tests_loader {
                 .collect();
             super::super::update_shards_utxos::<
                 SingleRuneSet,
-                satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+                arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
                 MockShardZc,
             >(
                 &mut shard_refs,
@@ -1173,7 +1173,7 @@ mod tests_loader {
                 .collect();
             super::super::update_shards_utxos::<
                 SingleRuneSet,
-                satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+                arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
                 MockShardZc,
             >(
                 &mut shard_refs,
@@ -1209,7 +1209,7 @@ mod tests_loader {
                 .collect();
             super::super::update_shards_utxos::<
                 SingleRuneSet,
-                satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+                arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
                 MockShardZc,
             >(
                 &mut shard_refs,
@@ -1246,7 +1246,7 @@ mod tests_loader {
                 .collect();
             super::super::update_shards_utxos::<
                 SingleRuneSet,
-                satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+                arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
                 MockShardZc,
             >(
                 &mut shard_refs,
@@ -1283,7 +1283,7 @@ mod tests_loader {
                 .collect();
             super::super::update_shards_utxos::<
                 SingleRuneSet,
-                satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+                arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
                 MockShardZc,
             >(&mut shard_refs, &[], vec![], vec![btc_utxo], &fee_rate())
             .unwrap();
@@ -1318,7 +1318,7 @@ mod tests_loader {
                 .collect();
             super::super::update_shards_utxos::<
                 SingleRuneSet,
-                satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+                arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
                 MockShardZc,
             >(
                 &mut shard_refs,
@@ -1354,7 +1354,7 @@ mod tests_loader {
                 .collect();
             super::super::update_shards_utxos::<
                 SingleRuneSet,
-                satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+                arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
                 MockShardZc,
             >(
                 &mut shard_refs,
@@ -1392,7 +1392,7 @@ mod tests_loader {
 
             // Mark all existing as Some(fee_rate)
             {
-                use satellite_bitcoin::utxo_info::FixedOptionF64;
+                use arch_satellite_bitcoin::utxo_info::FixedOptionF64;
                 let mut s = loaders[0].load_mut().unwrap();
                 for u in s.btc_utxos_mut().iter_mut() {
                     *u.needs_consolidation_mut() = FixedOptionF64::some(fee_rate().0);
@@ -1410,7 +1410,7 @@ mod tests_loader {
                 .collect();
             super::super::update_shards_utxos::<
                 SingleRuneSet,
-                satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+                arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
                 MockShardZc,
             >(
                 &mut shard_refs,
@@ -1465,7 +1465,7 @@ mod tests_loader {
                 .collect();
             super::super::update_shards_utxos::<
                 SingleRuneSet,
-                satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+                arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
                 MockShardZc,
             >(
                 &mut shard_refs,
@@ -1518,7 +1518,7 @@ mod tests_loader {
                 .collect();
             super::super::remove_utxos_from_shards::<
                 SingleRuneSet,
-                satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+                arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
                 MockShardZc,
             >(&mut shard_refs, &[meta_to_remove])
             .unwrap();
@@ -1550,7 +1550,7 @@ mod tests_loader {
                 .collect();
             super::super::remove_utxos_from_shards::<
                 SingleRuneSet,
-                satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+                arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
                 MockShardZc,
             >(&mut shard_refs, &[meta_to_remove])
             .unwrap();
@@ -1578,7 +1578,7 @@ mod tests_loader {
                 .collect();
             super::super::remove_utxos_from_shards::<
                 SingleRuneSet,
-                satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+                arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
                 MockShardZc,
             >(&mut shard_refs, &[])
             .unwrap();
@@ -1609,7 +1609,7 @@ mod tests_loader {
                 .collect();
             super::super::remove_utxos_from_shards::<
                 SingleRuneSet,
-                satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+                arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
                 MockShardZc,
             >(&mut shard_refs, &[meta])
             .unwrap();
@@ -1640,7 +1640,7 @@ mod tests_loader {
                 .collect();
             super::super::remove_utxos_from_shards::<
                 SingleRuneSet,
-                satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+                arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
                 MockShardZc,
             >(&mut shard_refs, &[*utxo_a.meta(), *utxo_b.meta()])
             .unwrap();
@@ -1689,10 +1689,10 @@ mod tests_loader {
 
             let (removed, added): (
                 Vec<UtxoMeta>,
-                Vec<satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>>,
+                Vec<arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>>,
             ) = super::super::get_modified_program_utxos_in_transaction::<
                 SingleRuneSet,
-                satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+                arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
             >(&script, &tx, &inputs);
 
             assert_eq!(removed.len(), 1);
@@ -1748,10 +1748,10 @@ mod tests_loader {
 
             let (removed, _added): (
                 Vec<UtxoMeta>,
-                Vec<satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>>,
+                Vec<arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>>,
             ) = super::super::get_modified_program_utxos_in_transaction::<
                 SingleRuneSet,
-                satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+                arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
             >(&script, &tx, &inputs);
 
             assert_eq!(removed.len(), 2);
@@ -1785,10 +1785,10 @@ mod tests_loader {
 
             let (_removed, added): (
                 Vec<UtxoMeta>,
-                Vec<satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>>,
+                Vec<arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>>,
             ) = super::super::get_modified_program_utxos_in_transaction::<
                 SingleRuneSet,
-                satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+                arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
             >(&script, &tx, &[]);
 
             assert_eq!(added.len(), 2);
@@ -1816,7 +1816,7 @@ mod tests_loader {
             const MAX_USER_UTXOS: usize = 4;
             const MAX_SHARDS_PER_PROGRAM: usize = 4;
 
-            let mut builder: satellite_bitcoin::TransactionBuilder<
+            let mut builder: arch_satellite_bitcoin::TransactionBuilder<
                 MAX_USER_UTXOS,
                 MAX_SHARDS_PER_PROGRAM,
                 SingleRuneSet,
@@ -1870,7 +1870,7 @@ mod tests_loader {
                 MAX_USER_UTXOS,
                 MAX_SHARDS_PER_PROGRAM,
                 SingleRuneSet,
-                satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+                arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
                 MockShardZc,
             >(&mut builder, &mut shard_refs, &program_script, &fee_rate())
             .unwrap();
@@ -1899,7 +1899,7 @@ mod tests_loader {
             const MAX_USER_UTXOS: usize = 4;
             const MAX_SHARDS_PER_PROGRAM: usize = 4;
 
-            let mut builder: satellite_bitcoin::TransactionBuilder<
+            let mut builder: arch_satellite_bitcoin::TransactionBuilder<
                 MAX_USER_UTXOS,
                 MAX_SHARDS_PER_PROGRAM,
                 SingleRuneSet,
@@ -1976,7 +1976,7 @@ mod tests_loader {
                 MAX_USER_UTXOS,
                 MAX_SHARDS_PER_PROGRAM,
                 SingleRuneSet,
-                satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+                arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
                 MockShardZc,
             >(&mut builder, &mut shard_refs, &program_script, &fee_rate())
             .unwrap();
@@ -2000,7 +2000,7 @@ mod tests_loader {
             const MAX_USER_UTXOS: usize = 4;
             const MAX_SHARDS_PER_PROGRAM: usize = 4;
 
-            let mut builder: satellite_bitcoin::TransactionBuilder<
+            let mut builder: arch_satellite_bitcoin::TransactionBuilder<
                 MAX_USER_UTXOS,
                 MAX_SHARDS_PER_PROGRAM,
                 SingleRuneSet,
@@ -2034,7 +2034,7 @@ mod tests_loader {
                 MAX_USER_UTXOS,
                 MAX_SHARDS_PER_PROGRAM,
                 SingleRuneSet,
-                satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+                arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
                 MockShardZc,
             >(
                 &mut builder,
@@ -2053,7 +2053,7 @@ mod tests_loader {
             const MAX_USER_UTXOS: usize = 4;
             const MAX_SHARDS_PER_PROGRAM: usize = 4;
 
-            let mut builder: satellite_bitcoin::TransactionBuilder<
+            let mut builder: arch_satellite_bitcoin::TransactionBuilder<
                 MAX_USER_UTXOS,
                 MAX_SHARDS_PER_PROGRAM,
                 SingleRuneSet,
@@ -2131,7 +2131,7 @@ mod tests_loader {
                 MAX_USER_UTXOS,
                 MAX_SHARDS_PER_PROGRAM,
                 SingleRuneSet,
-                satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+                arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
                 MockShardZc,
             >(
                 &mut builder,
@@ -2152,7 +2152,7 @@ mod tests_loader {
             const MAX_USER_UTXOS: usize = 4;
             const MAX_SHARDS_PER_PROGRAM: usize = 4;
 
-            let mut builder: satellite_bitcoin::TransactionBuilder<
+            let mut builder: arch_satellite_bitcoin::TransactionBuilder<
                 MAX_USER_UTXOS,
                 MAX_SHARDS_PER_PROGRAM,
                 SingleRuneSet,
@@ -2226,7 +2226,7 @@ mod tests_loader {
                 MAX_USER_UTXOS,
                 MAX_SHARDS_PER_PROGRAM,
                 SingleRuneSet,
-                satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+                arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
                 MockShardZc,
             >(
                 &mut builder,
@@ -2249,7 +2249,7 @@ mod tests_loader {
             const MAX_USER_UTXOS: usize = 4;
             const MAX_SHARDS_PER_PROGRAM: usize = 4;
 
-            let mut builder: satellite_bitcoin::TransactionBuilder<
+            let mut builder: arch_satellite_bitcoin::TransactionBuilder<
                 MAX_USER_UTXOS,
                 MAX_SHARDS_PER_PROGRAM,
                 SingleRuneSet,
@@ -2314,7 +2314,7 @@ mod tests_loader {
                 MAX_USER_UTXOS,
                 MAX_SHARDS_PER_PROGRAM,
                 SingleRuneSet,
-                satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+                arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
                 MockShardZc,
             >(
                 &mut builder,
@@ -2335,7 +2335,7 @@ mod tests_loader {
             const MAX_USER_UTXOS: usize = 4;
             const MAX_SHARDS_PER_PROGRAM: usize = 4;
 
-            let mut builder: satellite_bitcoin::TransactionBuilder<
+            let mut builder: arch_satellite_bitcoin::TransactionBuilder<
                 MAX_USER_UTXOS,
                 MAX_SHARDS_PER_PROGRAM,
                 SingleRuneSet,
@@ -2391,7 +2391,7 @@ mod tests_loader {
                 MAX_USER_UTXOS,
                 MAX_SHARDS_PER_PROGRAM,
                 SingleRuneSet,
-                satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+                arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
                 MockShardZc,
             >(
                 &mut builder,
@@ -2415,7 +2415,7 @@ mod tests_loader {
             const MAX_USER_UTXOS: usize = 4;
             const MAX_SHARDS_PER_PROGRAM: usize = 4;
 
-            let mut builder: satellite_bitcoin::TransactionBuilder<
+            let mut builder: arch_satellite_bitcoin::TransactionBuilder<
                 MAX_USER_UTXOS,
                 MAX_SHARDS_PER_PROGRAM,
                 SingleRuneSet,
@@ -2480,7 +2480,7 @@ mod tests_loader {
                 MAX_USER_UTXOS,
                 MAX_SHARDS_PER_PROGRAM,
                 SingleRuneSet,
-                satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+                arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
                 MockShardZc,
             >(
                 &mut builder,
@@ -2501,7 +2501,7 @@ mod tests_loader {
             const MAX_USER_UTXOS: usize = 4;
             const MAX_SHARDS_PER_PROGRAM: usize = 4;
 
-            let mut builder: satellite_bitcoin::TransactionBuilder<
+            let mut builder: arch_satellite_bitcoin::TransactionBuilder<
                 MAX_USER_UTXOS,
                 MAX_SHARDS_PER_PROGRAM,
                 SingleRuneSet,
@@ -2571,7 +2571,7 @@ mod tests_loader {
                 MAX_USER_UTXOS,
                 MAX_SHARDS_PER_PROGRAM,
                 SingleRuneSet,
-                satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+                arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
                 MockShardZc,
             >(
                 &mut builder,
@@ -2591,7 +2591,7 @@ mod tests_loader {
             const MAX_USER_UTXOS: usize = 4;
             const MAX_SHARDS_PER_PROGRAM: usize = 4;
 
-            let mut builder: satellite_bitcoin::TransactionBuilder<
+            let mut builder: arch_satellite_bitcoin::TransactionBuilder<
                 MAX_USER_UTXOS,
                 MAX_SHARDS_PER_PROGRAM,
                 SingleRuneSet,
@@ -2645,7 +2645,7 @@ mod tests_loader {
                 MAX_USER_UTXOS,
                 MAX_SHARDS_PER_PROGRAM,
                 SingleRuneSet,
-                satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
+                arch_satellite_bitcoin::utxo_info::UtxoInfo<SingleRuneSet>,
                 MockShardZc,
             >(
                 &mut builder,

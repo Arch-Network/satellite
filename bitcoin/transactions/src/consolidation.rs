@@ -7,7 +7,7 @@ use bitcoin::{Transaction, TxIn, TxOut};
 #[cfg(feature = "utxo-consolidation")]
 use crate::{btc_utxo_holder::BtcUtxoHolder, mempool::MempoolInfo};
 
-use satellite_collections::generic::push_pop::PushPopCollection;
+use arch_satellite_collections::generic::push_pop::PushPopCollection;
 
 #[cfg(feature = "utxo-consolidation")]
 use crate::{
@@ -197,7 +197,7 @@ mod tests {
     use super::*;
     use arch_program::utxo::UtxoMeta;
     use bitcoin::{Amount, OutPoint, ScriptBuf, Sequence, Transaction, TxIn, TxOut, Witness};
-    use satellite_collections::generic::push_pop::PushPopError;
+    use arch_satellite_collections::generic::push_pop::PushPopError;
     use std::str::FromStr;
 
     // Helper functions for creating test data

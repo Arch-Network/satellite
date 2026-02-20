@@ -1,7 +1,7 @@
-use satellite_lang::arch_program::account::AccountInfo;
-use satellite_lang::arch_program::pubkey::Pubkey;
-use satellite_lang::Result;
-use satellite_lang::{context::CpiContext, Accounts};
+use arch_satellite_lang::arch_program::account::AccountInfo;
+use arch_satellite_lang::arch_program::pubkey::Pubkey;
+use arch_satellite_lang::Result;
+use arch_satellite_lang::{context::CpiContext, Accounts};
 
 pub fn transfer_fee_initialize<'info>(
     ctx: CpiContext<'_, '_, '_, 'info, TransferFeeInitialize<'info>>,
@@ -18,7 +18,7 @@ pub fn transfer_fee_initialize<'info>(
         transfer_fee_basis_points,
         maximum_fee,
     )?;
-    satellite_lang::arch_program::program::invoke_signed(
+    arch_satellite_lang::arch_program::program::invoke_signed(
         &ix,
         &[ctx.accounts.token_program_id, ctx.accounts.mint],
         ctx.signer_seeds,
@@ -45,7 +45,7 @@ pub fn transfer_fee_set<'info>(
         transfer_fee_basis_points,
         maximum_fee,
     )?;
-    satellite_lang::arch_program::program::invoke_signed(
+    arch_satellite_lang::arch_program::program::invoke_signed(
         &ix,
         &[
             ctx.accounts.token_program_id,
@@ -81,7 +81,7 @@ pub fn transfer_checked_with_fee<'info>(
         decimals,
         fee,
     )?;
-    satellite_lang::arch_program::program::invoke_signed(
+    arch_satellite_lang::arch_program::program::invoke_signed(
         &ix,
         &[
             ctx.accounts.token_program_id,
@@ -117,7 +117,7 @@ pub fn harvest_withheld_tokens_to_mint<'info>(
     let mut account_infos = vec![ctx.accounts.token_program_id, ctx.accounts.mint];
     account_infos.extend_from_slice(&sources);
 
-    satellite_lang::arch_program::program::invoke_signed(&ix, &account_infos, ctx.signer_seeds)
+    arch_satellite_lang::arch_program::program::invoke_signed(&ix, &account_infos, ctx.signer_seeds)
         .map_err(Into::into)
 }
 
@@ -138,7 +138,7 @@ pub fn withdraw_withheld_tokens_from_mint<'info>(
             ctx.accounts.authority.key,
             &[],
         )?;
-    satellite_lang::arch_program::program::invoke_signed(
+    arch_satellite_lang::arch_program::program::invoke_signed(
         &ix,
         &[
             ctx.accounts.token_program_id,
@@ -180,7 +180,7 @@ pub fn withdraw_withheld_tokens_from_accounts<'info>(
     ];
     account_infos.extend_from_slice(&sources);
 
-    satellite_lang::arch_program::program::invoke_signed(&ix, &account_infos, ctx.signer_seeds)
+    arch_satellite_lang::arch_program::program::invoke_signed(&ix, &account_infos, ctx.signer_seeds)
         .map_err(Into::into)
 }
 

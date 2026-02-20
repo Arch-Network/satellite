@@ -1,6 +1,6 @@
 use arch_program::program_error::ProgramError;
-use satellite_bitcoin::generic::fixed_set::FixedSetError;
-use satellite_lang::error_code;
+use arch_satellite_bitcoin::generic::fixed_set::FixedSetError;
+use arch_satellite_lang::error_code;
 
 /// Errors that can occur when manipulating a set of `StateShard` instances.
 ///
@@ -77,7 +77,7 @@ impl From<FixedSetError> for StateShardError {
 // Allow using `?` to convert `StateShardError` into `ProgramError` directly.
 impl From<StateShardError> for ProgramError {
     fn from(e: StateShardError) -> Self {
-        satellite_lang::error::Error::from(e).into()
+        arch_satellite_lang::error::Error::from(e).into()
     }
 }
 

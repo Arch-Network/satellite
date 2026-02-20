@@ -13,11 +13,11 @@ no-entrypoint = []
 no-idl = []
 no-log-ix-name = []
 cpi = ["no-entrypoint"]
-idl-build = ["satellite-lang/idl-build", "satellite-apl/idl-build", "external/idl-build"]
+idl-build = ["arch-satellite-lang/idl-build", "arch-satellite-apl/idl-build", "external/idl-build"]
 default = []
 
 [dependencies]
-satellite-lang = { path = "../../../../lang" }
-satellite-apl = { path = "../../../../spl" }
+arch-satellite-lang = { path = "../../../../lang" }
+arch-satellite-apl = { path = "../../../../spl" }
 bytemuck = {version = "1.4.0", features = ["derive", "min_const_generics"] }
 external = { path = "../external", features = ["no-entrypoint"] }

@@ -40,7 +40,7 @@ impl std::fmt::Display for FixedSetError {
 /// # Examples
 ///
 /// ```rust
-/// use satellite_bitcoin::generic::fixed_set::{FixedSet, FixedCapacitySet};
+/// use arch_satellite_collections::generic::fixed_set::{FixedSet, FixedCapacitySet};
 ///
 /// fn work_with_set<S: FixedCapacitySet<Item = i32>>(set: &mut S) {
 ///     set.insert(42).unwrap();
@@ -127,7 +127,7 @@ pub trait FixedCapacitySet: Clone + Debug {
 /// # Examples
 ///
 /// ```rust
-/// use satellite_bitcoin::generic::fixed_set::FixedSet;
+/// use arch_satellite_collections::generic::fixed_set::FixedSet;
 ///
 /// let mut set: FixedSet<u32, 8> = FixedSet::new();
 ///
@@ -190,7 +190,7 @@ impl<T: Clone + PartialEq, const SIZE: usize> FixedSet<T, SIZE> {
     /// # Examples
     ///
     /// ```rust
-    /// use satellite_bitcoin::generic::fixed_set::FixedSet;
+    /// use arch_satellite_collections::generic::fixed_set::FixedSet;
     ///
     /// let set: FixedSet<u32, 10> = FixedSet::new();
     /// assert!(set.is_empty());
@@ -205,7 +205,7 @@ impl<T: Clone + PartialEq, const SIZE: usize> FixedSet<T, SIZE> {
     /// # Examples
     ///
     /// ```rust
-    /// use satellite_bitcoin::generic::fixed_set::FixedSet;
+    /// use arch_satellite_collections::generic::fixed_set::FixedSet;
     ///
     /// let mut set: FixedSet<u32, 10> = FixedSet::new();
     /// assert_eq!(set.len(), 0);
@@ -222,7 +222,7 @@ impl<T: Clone + PartialEq, const SIZE: usize> FixedSet<T, SIZE> {
     /// # Examples
     ///
     /// ```rust
-    /// use satellite_bitcoin::generic::fixed_set::FixedSet;
+    /// use arch_satellite_collections::generic::fixed_set::FixedSet;
     ///
     /// let mut set: FixedSet<u32, 10> = FixedSet::new();
     /// assert!(set.is_empty());
@@ -239,7 +239,7 @@ impl<T: Clone + PartialEq, const SIZE: usize> FixedSet<T, SIZE> {
     /// # Examples
     ///
     /// ```rust
-    /// use satellite_bitcoin::generic::fixed_set::FixedSet;
+    /// use arch_satellite_collections::generic::fixed_set::FixedSet;
     ///
     /// let mut set: FixedSet<u32, 10> = FixedSet::new();
     /// set.insert(1).unwrap();
@@ -259,7 +259,7 @@ impl<T: Clone + PartialEq, const SIZE: usize> FixedSet<T, SIZE> {
     /// # Examples
     ///
     /// ```rust
-    /// use satellite_bitcoin::generic::fixed_set::FixedSet;
+    /// use arch_satellite_collections::generic::fixed_set::FixedSet;
     ///
     /// let mut set: FixedSet<u32, 10> = FixedSet::new();
     /// set.insert(1).unwrap();
@@ -285,7 +285,7 @@ impl<T: Clone + PartialEq, const SIZE: usize> FixedSet<T, SIZE> {
     /// # Examples
     ///
     /// ```rust
-    /// use satellite_bitcoin::generic::fixed_set::{FixedSet, FixedSetError};
+    /// use arch_satellite_collections::generic::fixed_set::{FixedSet, FixedSetError};
     ///
     /// #[derive(Clone, Copy, Debug, Default)]
     /// struct Counter { id: u32, count: u32 }
@@ -345,7 +345,7 @@ impl<T: Clone + PartialEq, const SIZE: usize> FixedSet<T, SIZE> {
     /// # Examples
     ///
     /// ```rust
-    /// use satellite_bitcoin::generic::fixed_set::FixedSet;
+    /// use arch_satellite_collections::generic::fixed_set::FixedSet;
     ///
     /// let mut set: FixedSet<u32, 10> = FixedSet::new();
     /// assert!(!set.contains(&42));
@@ -368,7 +368,7 @@ impl<T: Clone + PartialEq, const SIZE: usize> FixedSet<T, SIZE> {
     /// # Examples
     ///
     /// ```rust
-    /// use satellite_bitcoin::generic::fixed_set::FixedSet;
+    /// use arch_satellite_collections::generic::fixed_set::FixedSet;
     ///
     /// let mut set: FixedSet<u32, 10> = FixedSet::new();
     /// set.insert(42).unwrap();
@@ -388,7 +388,7 @@ impl<T: Clone + PartialEq, const SIZE: usize> FixedSet<T, SIZE> {
     /// # Examples
     ///
     /// ```rust
-    /// use satellite_bitcoin::generic::fixed_set::FixedSet;
+    /// use arch_satellite_collections::generic::fixed_set::FixedSet;
     ///
     /// let mut set: FixedSet<u32, 10> = FixedSet::new();
     /// set.insert(42).unwrap();
@@ -417,7 +417,7 @@ impl<T: Clone + PartialEq, const SIZE: usize> FixedSet<T, SIZE> {
     /// # Examples
     ///
     /// ```rust
-    /// use satellite_bitcoin::generic::fixed_set::{FixedSet, FixedSetError};
+    /// use arch_satellite_collections::generic::fixed_set::{FixedSet, FixedSetError};
     ///
     /// let mut set: FixedSet<u32, 2> = FixedSet::new();
     /// assert!(set.insert(1).is_ok());
@@ -447,7 +447,7 @@ impl<T: Clone + PartialEq, const SIZE: usize> FixedSet<T, SIZE> {
     /// # Examples
     ///
     /// ```rust
-    /// use satellite_bitcoin::generic::fixed_set::FixedSet;
+    /// use arch_satellite_collections::generic::fixed_set::FixedSet;
     ///
     /// let mut set: FixedSet<u32, 10> = FixedSet::new();
     /// set.insert(42).unwrap();

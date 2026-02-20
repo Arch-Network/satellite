@@ -3,7 +3,7 @@ use std::str::FromStr;
 use arch_program::rune::RuneAmount;
 use arch_program::{rune::RuneId, utxo::UtxoMeta};
 use bitcoin::Txid;
-use satellite_collections::generic::fixed_set::{FixedCapacitySet, FixedSetError};
+use arch_satellite_collections::generic::fixed_set::{FixedCapacitySet, FixedSetError};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 #[cfg(feature = "utoipa")]

@@ -2,8 +2,8 @@
 //! https://docs.mango.markets/litepaper#token-sale.
 // #![warn(clippy::all)]
 
-use satellite_lang::prelude::*;
-use satellite_apl::token::{self, Burn, CloseAccount, Mint, MintTo, Token, TokenAccount, Transfer};
+use arch_satellite_lang::prelude::*;
+use arch_satellite_apl::token::{self, Burn, CloseAccount, Mint, MintTo, Token, TokenAccount, Transfer};
 
 use std::ops::Deref;
 

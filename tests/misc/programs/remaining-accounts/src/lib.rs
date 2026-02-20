@@ -1,8 +1,8 @@
 //! Testing of handling of remaining accounts with anchor Account structs
 
 use account::*;
-use satellite_lang::prelude::*;
-use satellite_apl::token::TokenAccount;
+use arch_satellite_lang::prelude::*;
+use arch_satellite_apl::token::TokenAccount;
 use context::*;
 
 mod account;

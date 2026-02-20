@@ -2,8 +2,8 @@
 
 use arch_program::pubkey::Pubkey;
 use borsh::{BorshDeserialize, BorshSerialize};
-use satellite_lang::prelude::borsh::io::Write;
-use satellite_lang::prelude::*;
+use arch_satellite_lang::prelude::borsh::io::Write;
+use arch_satellite_lang::prelude::*;
 
 // Needed to declare accounts.
 declare_id!("da075cb2ff5ec6817613de530b692a8735477769da47430cbd8154335c4a8327");

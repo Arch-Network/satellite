@@ -80,4 +80,4 @@ impl IdlAccount {
 }
 
 #[cfg(feature = "idl-build")]
-pub use satellite_lang_idl::{build::IdlBuild, *};
+pub use arch_satellite_lang_idl::{build::IdlBuild, *};

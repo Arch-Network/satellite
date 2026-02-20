@@ -28,7 +28,7 @@ pub enum FixedListError {
 /// # Examples
 ///
 /// ```rust
-/// use satellite_bitcoin::generic::fixed_list::FixedList;
+/// use arch_satellite_collections::generic::fixed_list::FixedList;
 ///
 /// let mut list: FixedList<u32, 4> = FixedList::new();
 ///
@@ -67,7 +67,7 @@ impl<T: Default + Clone, const SIZE: usize> FixedList<T, SIZE> {
     /// # Examples
     ///
     /// ```rust
-    /// use satellite_bitcoin::generic::fixed_list::FixedList;
+    /// use arch_satellite_collections::generic::fixed_list::FixedList;
     ///
     /// let list: FixedList<u32, 10> = FixedList::new();
     /// assert!(list.is_empty());
@@ -87,7 +87,7 @@ impl<T: Default + Clone, const SIZE: usize> FixedList<T, SIZE> {
     /// # Examples
     ///
     /// ```rust
-    /// use satellite_bitcoin::generic::fixed_list::FixedList;
+    /// use arch_satellite_collections::generic::fixed_list::FixedList;
     ///
     /// let data = [1, 2, 3];
     /// let list: FixedList<i32, 5> = FixedList::from_slice(&data);
@@ -105,7 +105,7 @@ impl<T: Default + Clone, const SIZE: usize> FixedList<T, SIZE> {
     /// # Examples
     ///
     /// ```rust
-    /// use satellite_bitcoin::generic::fixed_list::FixedList;
+    /// use arch_satellite_collections::generic::fixed_list::FixedList;
     ///
     /// let list: FixedList<u32, 3> = FixedList::from_iter(0..10);
     /// assert_eq!(list.len(), 3);
@@ -126,7 +126,7 @@ impl<T: Default + Clone, const SIZE: usize> FixedList<T, SIZE> {
     /// # Examples
     ///
     /// ```rust
-    /// use satellite_bitcoin::generic::fixed_list::FixedList;
+    /// use arch_satellite_collections::generic::fixed_list::FixedList;
     ///
     /// let mut list: FixedList<u32, 5> = FixedList::new();
     /// assert_eq!(list.len(), 0);
@@ -143,7 +143,7 @@ impl<T: Default + Clone, const SIZE: usize> FixedList<T, SIZE> {
     /// # Examples
     ///
     /// ```rust
-    /// use satellite_bitcoin::generic::fixed_list::FixedList;
+    /// use arch_satellite_collections::generic::fixed_list::FixedList;
     ///
     /// let mut list: FixedList<u32, 5> = FixedList::new();
     /// assert!(list.is_empty());
@@ -160,7 +160,7 @@ impl<T: Default + Clone, const SIZE: usize> FixedList<T, SIZE> {
     /// # Examples
     ///
     /// ```rust
-    /// use satellite_bitcoin::generic::fixed_list::FixedList;
+    /// use arch_satellite_collections::generic::fixed_list::FixedList;
     ///
     /// let mut list: FixedList<u32, 5> = FixedList::new();
     /// list.push(1).unwrap();
@@ -178,7 +178,7 @@ impl<T: Default + Clone, const SIZE: usize> FixedList<T, SIZE> {
     /// # Examples
     ///
     /// ```rust
-    /// use satellite_bitcoin::generic::fixed_list::FixedList;
+    /// use arch_satellite_collections::generic::fixed_list::FixedList;
     ///
     /// let mut list: FixedList<u32, 5> = FixedList::new();
     /// list.push(1).unwrap();
@@ -202,7 +202,7 @@ impl<T: Default + Clone, const SIZE: usize> FixedList<T, SIZE> {
     /// # Examples
     ///
     /// ```rust
-    /// use satellite_bitcoin::generic::fixed_list::FixedList;
+    /// use arch_satellite_collections::generic::fixed_list::FixedList;
     ///
     /// let mut list: FixedList<u32, 2> = FixedList::new();
     /// assert!(list.push(1).is_ok());
@@ -225,7 +225,7 @@ impl<T: Default + Clone, const SIZE: usize> FixedList<T, SIZE> {
     /// # Examples
     ///
     /// ```rust
-    /// use satellite_bitcoin::generic::fixed_list::FixedList;
+    /// use arch_satellite_collections::generic::fixed_list::FixedList;
     ///
     /// let mut list: FixedList<u32, 5> = FixedList::new();
     /// assert_eq!(list.pop(), None);
@@ -247,7 +247,7 @@ impl<T: Default + Clone, const SIZE: usize> FixedList<T, SIZE> {
     /// # Examples
     ///
     /// ```rust
-    /// use satellite_bitcoin::generic::fixed_list::FixedList;
+    /// use arch_satellite_collections::generic::fixed_list::FixedList;
     ///
     /// let mut list: FixedList<u32, 5> = FixedList::new();
     /// list.push(1).unwrap();
@@ -265,7 +265,7 @@ impl<T: Default + Clone, const SIZE: usize> FixedList<T, SIZE> {
     /// # Examples
     ///
     /// ```rust
-    /// use satellite_bitcoin::generic::fixed_list::FixedList;
+    /// use arch_satellite_collections::generic::fixed_list::FixedList;
     ///
     /// let mut list: FixedList<u32, 5> = FixedList::new();
     /// list.push(1).unwrap();
@@ -287,7 +287,7 @@ impl<T: Default + Clone, const SIZE: usize> FixedList<T, SIZE> {
     /// # Examples
     ///
     /// ```rust
-    /// use satellite_bitcoin::generic::fixed_list::FixedList;
+    /// use arch_satellite_collections::generic::fixed_list::FixedList;
     ///
     /// let mut list: FixedList<u32, 5> = FixedList::new();
     /// list.push(1).unwrap();
@@ -309,7 +309,7 @@ impl<T: Default + Clone, const SIZE: usize> FixedList<T, SIZE> {
     /// # Examples
     ///
     /// ```rust
-    /// use satellite_bitcoin::generic::fixed_list::FixedList;
+    /// use arch_satellite_collections::generic::fixed_list::FixedList;
     ///
     /// let mut list: FixedList<u32, 5> = FixedList::new();
     /// let data = [10, 20, 30];

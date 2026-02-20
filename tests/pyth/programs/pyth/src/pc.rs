@@ -1,5 +1,5 @@
 use crate::*;
-use satellite_lang::prelude::AccountInfo;
+use arch_satellite_lang::prelude::AccountInfo;
 use bytemuck::{cast_slice_mut, from_bytes_mut, try_cast_slice_mut, Pod, Zeroable};
 use std::cell::RefMut;
 

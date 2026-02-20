@@ -11,7 +11,7 @@ name = "allow_missing_optionals"
 [features]
 no-entrypoint = []
 cpi = ["no-entrypoint"]
-idl-build = ["satellite-lang/idl-build"]
+idl-build = ["arch-satellite-lang/idl-build"]
 
 [dependencies]
-satellite-lang = { path = "../../../../lang", features = ["allow-missing-optionals"] }
+arch-satellite-lang = { path = "../../../../lang", features = ["allow-missing-optionals"] }

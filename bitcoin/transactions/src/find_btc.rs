@@ -1,5 +1,5 @@
 use arch_program::pubkey::Pubkey;
-use satellite_collections::generic::fixed_list::FixedList;
+use arch_satellite_collections::generic::fixed_list::FixedList;
 
 use crate::btc_utxo_holder::BtcUtxoHolder;
 use crate::constants::DUST_LIMIT;
@@ -12,7 +12,7 @@ use super::TransactionBuilder;
 impl<'info, const MAX_MODIFIED_ACCOUNTS: usize, const MAX_INPUTS_TO_SIGN: usize, RuneSet>
     TransactionBuilder<'info, MAX_MODIFIED_ACCOUNTS, MAX_INPUTS_TO_SIGN, RuneSet>
 where
-    RuneSet: satellite_collections::generic::fixed_set::FixedCapacitySet<
+    RuneSet: arch_satellite_collections::generic::fixed_set::FixedCapacitySet<
             Item = arch_program::rune::RuneAmount,
         > + Default,
 {
@@ -245,7 +245,7 @@ where
         total_consolidation_input_amount: &mut u64,
     ) -> Result<u64, BitcoinTxError>
     where
-        RS: satellite_collections::generic::fixed_set::FixedCapacitySet<
+        RS: arch_satellite_collections::generic::fixed_set::FixedCapacitySet<
             Item = arch_program::rune::RuneAmount,
         >,
     {

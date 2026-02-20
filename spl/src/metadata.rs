@@ -1,8 +1,8 @@
-use satellite_lang::arch_program::program_pack::{IsInitialized, Pack};
-use satellite_lang::prelude::{
+use arch_satellite_lang::arch_program::program_pack::{IsInitialized, Pack};
+use arch_satellite_lang::prelude::{
     AccountInfo, AccountMeta, Accounts, CpiContext, Pubkey, Result, ToAccountInfos,
 };
-use satellite_lang::system_program::SYSTEM_PROGRAM_ID;
+use arch_satellite_lang::system_program::SYSTEM_PROGRAM_ID;
 
 pub use apl_token_metadata as arch_md;
 
@@ -27,7 +27,7 @@ pub fn create_metadata<'info>(
     }
     .pack();
 
-    let ix = satellite_lang::arch_program::instruction::Instruction {
+    let ix = arch_satellite_lang::arch_program::instruction::Instruction {
         program_id: arch_md::id(),
         accounts: vec![
             AccountMeta::new(*ctx.accounts.payer.key, true),
@@ -39,7 +39,7 @@ pub fn create_metadata<'info>(
         data: ix_data,
     };
 
-    satellite_lang::arch_program::program::invoke_signed(
+    arch_satellite_lang::arch_program::program::invoke_signed(
         &ix,
         &ToAccountInfos::to_account_infos(&ctx),
         ctx.signer_seeds,
@@ -63,7 +63,7 @@ pub fn update_metadata<'info>(
     }
     .pack();
 
-    let ix = satellite_lang::arch_program::instruction::Instruction {
+    let ix = arch_satellite_lang::arch_program::instruction::Instruction {
         program_id: arch_md::id(),
         accounts: vec![
             AccountMeta::new(*ctx.accounts.metadata.key, false),
@@ -72,7 +72,7 @@ pub fn update_metadata<'info>(
         data: ix_data,
     };
 
-    satellite_lang::arch_program::program::invoke_signed(
+    arch_satellite_lang::arch_program::program::invoke_signed(
         &ix,
         &ToAccountInfos::to_account_infos(&ctx),
         ctx.signer_seeds,
@@ -87,11 +87,11 @@ pub fn create_attributes<'info>(
 ) -> Result<()> {
     let ix_data = arch_md::instruction::MetadataInstruction::CreateAttributes { data }.pack();
 
-    let ix = satellite_lang::arch_program::instruction::Instruction {
+    let ix = arch_satellite_lang::arch_program::instruction::Instruction {
         program_id: arch_md::id(),
         accounts: vec![
             AccountMeta::new(*ctx.accounts.payer.key, true),
-            AccountMeta::new_readonly(satellite_lang::system_program::SYSTEM_PROGRAM_ID, false),
+            AccountMeta::new_readonly(arch_satellite_lang::system_program::SYSTEM_PROGRAM_ID, false),
             AccountMeta::new_readonly(*ctx.accounts.mint.key, false),
             AccountMeta::new(*ctx.accounts.attributes.key, false),
             AccountMeta::new_readonly(*ctx.accounts.update_authority.key, true),
@@ -100,7 +100,7 @@ pub fn create_attributes<'info>(
         data: ix_data,
     };
 
-    satellite_lang::arch_program::program::invoke_signed(
+    arch_satellite_lang::arch_program::program::invoke_signed(
         &ix,
         &ToAccountInfos::to_account_infos(&ctx),
         ctx.signer_seeds,
@@ -115,7 +115,7 @@ pub fn replace_attributes<'info>(
 ) -> Result<()> {
     let ix_data = arch_md::instruction::MetadataInstruction::ReplaceAttributes { data }.pack();
 
-    let ix = satellite_lang::arch_program::instruction::Instruction {
+    let ix = arch_satellite_lang::arch_program::instruction::Instruction {
         program_id: arch_md::id(),
         accounts: vec![
             AccountMeta::new(*ctx.accounts.attributes.key, false),
@@ -125,7 +125,7 @@ pub fn replace_attributes<'info>(
         data: ix_data,
     };
 
-    satellite_lang::arch_program::program::invoke_signed(
+    arch_satellite_lang::arch_program::program::invoke_signed(
         &ix,
         &ToAccountInfos::to_account_infos(&ctx),
         ctx.signer_seeds,
@@ -139,7 +139,7 @@ pub fn transfer_authority<'info>(
     new_authority: Pubkey,
 ) -> Result<()> {
     let ix_data = arch_md::instruction::MetadataInstruction::TransferAuthority { new_authority };
-    let ix = satellite_lang::arch_program::instruction::Instruction {
+    let ix = arch_satellite_lang::arch_program::instruction::Instruction {
         program_id: arch_md::id(),
         accounts: vec![
             AccountMeta::new(*ctx.accounts.metadata.key, false),
@@ -148,7 +148,7 @@ pub fn transfer_authority<'info>(
         data: ix_data.pack(),
     };
 
-    satellite_lang::arch_program::program::invoke_signed(
+    arch_satellite_lang::arch_program::program::invoke_signed(
         &ix,
         &ToAccountInfos::to_account_infos(&ctx),
         ctx.signer_seeds,
@@ -161,7 +161,7 @@ pub fn make_immutable<'info>(
     ctx: CpiContext<'_, '_, '_, 'info, MakeImmutable<'info>>,
 ) -> Result<()> {
     let ix_data = arch_md::instruction::MetadataInstruction::MakeImmutable.pack();
-    let ix = satellite_lang::arch_program::instruction::Instruction {
+    let ix = arch_satellite_lang::arch_program::instruction::Instruction {
         program_id: arch_md::id(),
         accounts: vec![
             AccountMeta::new(*ctx.accounts.metadata.key, false),
@@ -170,7 +170,7 @@ pub fn make_immutable<'info>(
         data: ix_data,
     };
 
-    satellite_lang::arch_program::program::invoke_signed(
+    arch_satellite_lang::arch_program::program::invoke_signed(
         &ix,
         &ToAccountInfos::to_account_infos(&ctx),
         ctx.signer_seeds,
@@ -225,7 +225,7 @@ pub struct MakeImmutable<'info> {
 #[derive(Clone)]
 pub struct ArchMetadata;
 
-impl satellite_lang::Id for ArchMetadata {
+impl arch_satellite_lang::Id for ArchMetadata {
     fn id() -> Pubkey {
         arch_md::id()
     }
@@ -234,14 +234,14 @@ impl satellite_lang::Id for ArchMetadata {
 // --------------------------------------------------------------------------------
 // Account wrappers for Arch Token Metadata state
 // --------------------------------------------------------------------------------
-use satellite_lang::error::ErrorCode;
+use arch_satellite_lang::error::ErrorCode;
 use std::ops::Deref;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct ArchTokenMetadataAccount(arch_md::state::TokenMetadata);
 
-impl satellite_lang::AccountDeserialize for ArchTokenMetadataAccount {
-    fn try_deserialize(buf: &mut &[u8]) -> satellite_lang::Result<Self> {
+impl arch_satellite_lang::AccountDeserialize for ArchTokenMetadataAccount {
+    fn try_deserialize(buf: &mut &[u8]) -> arch_satellite_lang::Result<Self> {
         let md = Self::try_deserialize_unchecked(buf)?;
         if !md.0.is_initialized() {
             return Err(ErrorCode::AccountNotInitialized.into());
@@ -249,16 +249,16 @@ impl satellite_lang::AccountDeserialize for ArchTokenMetadataAccount {
         Ok(md)
     }
 
-    fn try_deserialize_unchecked(buf: &mut &[u8]) -> satellite_lang::Result<Self> {
+    fn try_deserialize_unchecked(buf: &mut &[u8]) -> arch_satellite_lang::Result<Self> {
         let md = arch_md::state::TokenMetadata::unpack_from_slice(buf)
-            .map_err(satellite_lang::error::Error::from)?;
+            .map_err(arch_satellite_lang::error::Error::from)?;
         Ok(Self(md))
     }
 }
 
-impl satellite_lang::AccountSerialize for ArchTokenMetadataAccount {}
+impl arch_satellite_lang::AccountSerialize for ArchTokenMetadataAccount {}
 
-impl satellite_lang::Owner for ArchTokenMetadataAccount {
+impl arch_satellite_lang::Owner for ArchTokenMetadataAccount {
     fn owner() -> Pubkey {
         arch_md::id()
     }
@@ -274,8 +274,8 @@ impl Deref for ArchTokenMetadataAccount {
 #[derive(Clone, Debug, PartialEq)]
 pub struct ArchTokenMetadataAttributesAccount(arch_md::state::TokenMetadataAttributes);
 
-impl satellite_lang::AccountDeserialize for ArchTokenMetadataAttributesAccount {
-    fn try_deserialize(buf: &mut &[u8]) -> satellite_lang::Result<Self> {
+impl arch_satellite_lang::AccountDeserialize for ArchTokenMetadataAttributesAccount {
+    fn try_deserialize(buf: &mut &[u8]) -> arch_satellite_lang::Result<Self> {
         let acc = Self::try_deserialize_unchecked(buf)?;
         if !acc.0.is_initialized() {
             return Err(ErrorCode::AccountNotInitialized.into());
@@ -283,16 +283,16 @@ impl satellite_lang::AccountDeserialize for ArchTokenMetadataAttributesAccount {
         Ok(acc)
     }
 
-    fn try_deserialize_unchecked(buf: &mut &[u8]) -> satellite_lang::Result<Self> {
+    fn try_deserialize_unchecked(buf: &mut &[u8]) -> arch_satellite_lang::Result<Self> {
         let acc = arch_md::state::TokenMetadataAttributes::unpack_from_slice(buf)
-            .map_err(satellite_lang::error::Error::from)?;
+            .map_err(arch_satellite_lang::error::Error::from)?;
         Ok(Self(acc))
     }
 }
 
-impl satellite_lang::AccountSerialize for ArchTokenMetadataAttributesAccount {}
+impl arch_satellite_lang::AccountSerialize for ArchTokenMetadataAttributesAccount {}
 
-impl satellite_lang::Owner for ArchTokenMetadataAttributesAccount {
+impl arch_satellite_lang::Owner for ArchTokenMetadataAttributesAccount {
     fn owner() -> Pubkey {
         arch_md::id()
     }

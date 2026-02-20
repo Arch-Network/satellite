@@ -1,7 +1,7 @@
-use satellite_lang::arch_program::account::AccountInfo;
-use satellite_lang::arch_program::pubkey::Pubkey;
-use satellite_lang::Result;
-use satellite_lang::{context::CpiContext, Accounts};
+use arch_satellite_lang::arch_program::account::AccountInfo;
+use arch_satellite_lang::arch_program::pubkey::Pubkey;
+use arch_satellite_lang::Result;
+use arch_satellite_lang::{context::CpiContext, Accounts};
 
 pub fn token_group_initialize<'info>(
     ctx: CpiContext<'_, '_, '_, 'info, TokenGroupInitialize<'info>>,
@@ -16,7 +16,7 @@ pub fn token_group_initialize<'info>(
         update_authority,
         max_size,
     );
-    satellite_lang::arch_program::program::invoke_signed(
+    arch_satellite_lang::arch_program::program::invoke_signed(
         &ix,
         &[
             ctx.accounts.program_id,
@@ -48,7 +48,7 @@ pub fn token_member_initialize<'info>(
         ctx.accounts.group.key,
         ctx.accounts.group_update_authority.key,
     );
-    satellite_lang::arch_program::program::invoke_signed(
+    arch_satellite_lang::arch_program::program::invoke_signed(
         &ix,
         &[
             ctx.accounts.program_id,

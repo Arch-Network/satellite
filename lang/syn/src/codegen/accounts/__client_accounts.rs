@@ -97,8 +97,8 @@ pub fn generate(
                     true => quote! {true},
                 };
                 let meta = match f.constraints.is_mutable() {
-                    false => quote! { satellite_lang::arch_program::account::AccountMeta::new_readonly },
-                    true => quote! { satellite_lang::arch_program::account::AccountMeta::new },
+                    false => quote! { arch_satellite_lang::arch_program::account::AccountMeta::new_readonly },
+                    true => quote! { arch_satellite_lang::arch_program::account::AccountMeta::new },
                 };
                 let name = &f.ident;
                 if f.is_optional {
@@ -106,7 +106,7 @@ pub fn generate(
                         if let Some(#name) = &self.#name {
                             account_metas.push(#meta(*#name, #is_signer));
                         } else {
-                            account_metas.push(satellite_lang::arch_program::account::AccountMeta::new_readonly(#program_id, false));
+                            account_metas.push(arch_satellite_lang::arch_program::account::AccountMeta::new_readonly(#program_id, false));
                         }
                     }
                 } else {
@@ -164,18 +164,18 @@ pub fn generate(
         /// `accounts` module (also generated), which re-exports this.
         pub(crate) mod #account_mod_name {
             use super::*;
-            use satellite_lang::prelude::borsh;
+            use arch_satellite_lang::prelude::borsh;
             #(#re_exports)*
 
             #struct_doc
-            #[derive(satellite_lang::AnchorSerialize)]
+            #[derive(arch_satellite_lang::AnchorSerialize)]
             pub struct #name {
                 #(#account_struct_fields),*
             }
 
             #[automatically_derived]
-            impl satellite_lang::ToAccountMetas for #name {
-                fn to_account_metas(&self, is_signer: Option<bool>) -> Vec<satellite_lang::arch_program::account::AccountMeta> {
+            impl arch_satellite_lang::ToAccountMetas for #name {
+                fn to_account_metas(&self, is_signer: Option<bool>) -> Vec<arch_satellite_lang::arch_program::account::AccountMeta> {
                     let mut account_metas = vec![];
 
                     #(#account_struct_metas)*

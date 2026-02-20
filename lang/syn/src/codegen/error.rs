@@ -48,7 +48,7 @@ pub fn generate(error: Error) -> proc_macro2::TokenStream {
         .collect();
 
     let offset = match &error.args {
-        None => quote! { satellite_lang::error::ERROR_CODE_OFFSET},
+        None => quote! { arch_satellite_lang::error::ERROR_CODE_OFFSET},
         Some(args) => {
             let offset = &args.offset;
             quote! { #offset }
@@ -75,10 +75,10 @@ pub fn generate(error: Error) -> proc_macro2::TokenStream {
             }
         }
 
-        impl From<#enum_name> for satellite_lang::error::Error {
-            fn from(error_code: #enum_name) -> satellite_lang::error::Error {
-                satellite_lang::error::Error::from(
-                    satellite_lang::error::AnchorError {
+        impl From<#enum_name> for arch_satellite_lang::error::Error {
+            fn from(error_code: #enum_name) -> arch_satellite_lang::error::Error {
+                arch_satellite_lang::error::Error::from(
+                    arch_satellite_lang::error::AnchorError {
                         error_name: error_code.name(),
                         error_code_number: error_code.into(),
                         error_msg: error_code.to_string(),

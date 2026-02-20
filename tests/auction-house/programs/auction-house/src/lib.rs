@@ -2,14 +2,14 @@ pub mod utils;
 
 use {
     crate::utils::*,
-    satellite_lang::{
+    arch_satellite_lang::{
         prelude::*,
         solana_program::{
             program::{invoke, invoke_signed},
             system_instruction,
         },
     },
-    satellite_apl::{
+    arch_satellite_apl::{
         associated_token::{spl_associated_token_account, AssociatedToken},
         metadata::mpl_token_metadata,
         token::{

@@ -1,4 +1,4 @@
-use satellite_lang::declare_id;
+use arch_satellite_lang::declare_id;
 
 pub use srm::ID as SRM;
 mod srm {

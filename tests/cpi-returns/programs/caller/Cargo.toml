@@ -14,8 +14,8 @@ no-idl = []
 no-log-ix-name = []
 cpi = ["no-entrypoint"]
 default = []
-idl-build = ["satellite-lang/idl-build"]
+idl-build = ["arch-satellite-lang/idl-build"]
 
 [dependencies]
-satellite-lang = { path = "../../../../lang", features = ["init-if-needed"] }
+arch-satellite-lang = { path = "../../../../lang", features = ["init-if-needed"] }
 callee = { path = "../callee", features = ["cpi"] }

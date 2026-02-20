@@ -5,8 +5,8 @@ use arch_program::{
 };
 
 use bytemuck::{Pod, Zeroable};
-use satellite_collections::declare_fixed_option;
-use satellite_collections::generic::fixed_set::{FixedCapacitySet, FixedSet};
+use arch_satellite_collections::declare_fixed_option;
+use arch_satellite_collections::generic::fixed_set::{FixedCapacitySet, FixedSet};
 
 use crate::{bytes::txid_to_bytes_big_endian, error::BitcoinTxError};
 

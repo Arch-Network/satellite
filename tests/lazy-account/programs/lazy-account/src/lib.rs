@@ -5,7 +5,7 @@
 //!
 //! See the individual instructions for more documentation: [`Init`], [`Read`], [`Write`].
 
-use satellite_lang::prelude::*;
+use arch_satellite_lang::prelude::*;
 
 declare_id!("05047a8aabfe933061e8696002e17afa9398ff646567d446f4081eb500000000");
 

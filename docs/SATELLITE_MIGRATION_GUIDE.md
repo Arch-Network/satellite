@@ -34,8 +34,8 @@ A comprehensive guide for migrating Solana Anchor programs to Arch Network using
 
 | Anchor | Satellite | Reason |
 |--------|-----------|--------|
-| `anchor_lang` | `satellite_lang` | Namespace change |
-| `anchor_spl` | `satellite_apl` | Namespace change |
+| `anchor_lang` | `arch_satellite_lang` | Namespace change |
+| `anchor_spl` | `arch_satellite_apl` | Namespace change |
 | Base58 program IDs | Hex program IDs | Arch uses hex format |
 | `InterfaceAccount` | `Account` | Token Extensions removed |
 | `TokenInterface` | `Token` | Simplified token handling |
@@ -55,9 +55,9 @@ use anchor_spl::token::{Token, TokenAccount, Mint};
 use anchor_spl::associated_token::AssociatedToken;
 
 // Satellite
-use satellite_lang::prelude::*;
-use satellite_apl::token::{Token, TokenAccount, Mint};
-use satellite_apl::associated_token::AssociatedToken;
+use arch_satellite_lang::prelude::*;
+use arch_satellite_apl::token::{Token, TokenAccount, Mint};
+use arch_satellite_apl::associated_token::AssociatedToken;
 ```
 
 ### 2. Program ID Format
@@ -75,7 +75,7 @@ declare_id!("06ddf6e1d765a193d9cbe146ceeb79ac1cb485ed5f5b37913a8cf5857eff00a9");
 **Converting Base58 to Hex:**
 ```bash
 # Use the a2s tool (automatic)
-a2s convert --source ./my-anchor-program --output ./my-satellite-program
+a2s convert --source ./my-anchor-program --output ./my-arch-satellite-program
 
 # Or manually in Python
 import base58
@@ -99,7 +99,7 @@ pub struct MyAccounts<'info> {
 }
 
 // Satellite (simplified)
-use satellite_apl::token::{Mint, TokenAccount, Token};
+use arch_satellite_apl::token::{Mint, TokenAccount, Token};
 
 #[derive(Accounts)]
 pub struct MyAccounts<'info> {
@@ -128,7 +128,7 @@ pub fn my_instruction(ctx: Context<MyAccounts>) -> Result<()> {
 }
 
 // Satellite
-use satellite_lang::prelude::*;
+use arch_satellite_lang::prelude::*;
 
 #[derive(Accounts)]
 pub struct MyAccounts<'info> {
@@ -187,10 +187,10 @@ cargo build --release
 # Convert to a new directory
 ./target/release/a2s convert \
     --source /path/to/your/anchor-program \
-    --output /path/to/satellite-program
+    --output /path/to/arch-satellite-program
 
 # Update Cargo.toml paths
-# Edit the satellite-lang and satellite-apl paths to match your setup
+# Edit the arch-satellite-lang and arch-satellite-apl paths to match your setup
 ```
 
 ### Option 2: Manual Migration
@@ -198,14 +198,14 @@ cargo build --release
 1. **Update Cargo.toml:**
 ```toml
 [dependencies]
-satellite-lang = { path = "../satellite/lang", features = ["derive"] }
-satellite-apl = { path = "../satellite/spl", features = ["token", "associated_token"] }
+arch-satellite-lang = { path = "../satellite/lang", features = ["derive"] }
+arch-satellite-apl = { path = "../satellite/spl", features = ["token", "associated_token"] }
 ```
 
 2. **Update imports in your Rust files:**
 ```rust
-// Replace all anchor_lang with satellite_lang
-// Replace all anchor_spl with satellite_apl
+// Replace all anchor_lang with arch_satellite_lang
+// Replace all anchor_spl with arch_satellite_apl
 ```
 
 3. **Convert program ID to hex format**
@@ -235,11 +235,11 @@ idl-build = ["anchor-lang/idl-build", "anchor-spl/idl-build"]
 
 # After (Satellite)
 [dependencies]
-satellite-lang = { path = "../satellite/lang", features = ["derive"] }
-satellite-apl = { path = "../satellite/spl", features = ["token", "associated_token"] }
+arch-satellite-lang = { path = "../satellite/lang", features = ["derive"] }
+arch-satellite-apl = { path = "../satellite/spl", features = ["token", "associated_token"] }
 
 [features]
-idl-build = ["satellite-lang/idl-build", "satellite-apl/idl-build"]
+idl-build = ["arch-satellite-lang/idl-build", "arch-satellite-apl/idl-build"]
 ```
 
 ### Step 2: Source Files
@@ -248,10 +248,10 @@ Run search-and-replace across your codebase:
 
 | Find | Replace |
 |------|---------|
-| `use anchor_lang::prelude::*` | `use satellite_lang::prelude::*` |
-| `use anchor_lang::` | `use satellite_lang::` |
-| `use anchor_spl::` | `use satellite_apl::` |
-| `anchor_lang::solana_program::` | `satellite_lang::arch_program::` |
+| `use anchor_lang::prelude::*` | `use arch_satellite_lang::prelude::*` |
+| `use anchor_lang::` | `use arch_satellite_lang::` |
+| `use anchor_spl::` | `use arch_satellite_apl::` |
+| `anchor_lang::solana_program::` | `arch_satellite_lang::arch_program::` |
 | `InterfaceAccount<'info, Mint>` | `Account<'info, Mint>` |
 | `InterfaceAccount<'info, TokenAccount>` | `Account<'info, TokenAccount>` |
 | `Interface<'info, TokenInterface>` | `Program<'info, Token>` |
@@ -268,7 +268,7 @@ If your program uses direct lamport manipulation, convert to CPI:
 **ctx.accounts.to.try_borrow_mut_lamports()? += amount;
 
 // After (CPI pattern - supported)
-use satellite_lang::system_program::{transfer, Transfer};
+use arch_satellite_lang::system_program::{transfer, Transfer};
 
 let cpi_context = CpiContext::new(
     ctx.accounts.system_program.to_account_info(),
@@ -287,7 +287,7 @@ transfer(cpi_context, amount)?;
 cargo check
 
 # If using init_if_needed, enable the feature:
-# satellite-lang = { ..., features = ["derive", "init-if-needed"] }
+# arch-satellite-lang = { ..., features = ["derive", "init-if-needed"] }
 
 # Build for deployment
 cargo-build-sbf
@@ -302,7 +302,7 @@ Satellite programs can interact with Bitcoin through special syscalls:
 ### Available Syscalls
 
 ```rust
-use satellite_lang::arch_program::bitcoin;
+use arch_satellite_lang::arch_program::bitcoin;
 
 // Fetch a Bitcoin transaction by txid
 let btc_tx = arch_get_bitcoin_tx(txid)?;  // Costs 10,000 CU
@@ -320,7 +320,7 @@ let is_valid = arch_validate_utxo_ownership(utxo, owner)?;
 ### Bitcoin Transaction Builder
 
 ```rust
-use satellite_bitcoin::TransactionBuilder;
+use arch_satellite_bitcoin::TransactionBuilder;
 
 // Create a transaction builder with compile-time bounds
 let mut builder = TransactionBuilder::<8, 4>::new();  // max 8 accounts, 4 inputs
@@ -339,7 +339,7 @@ arch_set_transaction_to_sign(btc_tx)?;
 ### Rune Support
 
 ```rust
-use satellite_bitcoin::RuneAmount;
+use arch_satellite_bitcoin::RuneAmount;
 
 // Get runes from a UTXO output
 let runes = get_runes_from_output(txid, vout)?;
@@ -386,7 +386,7 @@ pub struct MyAccount {
 ### Token Transfers
 
 ```rust
-use satellite_apl::token::{transfer_checked, TransferChecked};
+use arch_satellite_apl::token::{transfer_checked, TransferChecked};
 
 pub fn transfer_tokens(ctx: Context<TransferTokens>, amount: u64) -> Result<()> {
     let cpi_accounts = TransferChecked {
@@ -430,7 +430,7 @@ pub fn transfer_from_pda(ctx: Context<PdaTransfer>, amount: u64) -> Result<()> {
 
 ## Feature Flags
 
-### satellite-lang Features
+### arch-satellite-lang Features
 
 | Feature | Description | Default |
 |---------|-------------|---------|
@@ -439,7 +439,7 @@ pub fn transfer_from_pda(ctx: Context<PdaTransfer>, amount: u64) -> Result<()> {
 | `idl-build` | Generate IDL during build | Off |
 | `event-cpi` | Emit events via CPI | Off |
 
-### satellite-apl Features
+### arch-satellite-apl Features
 
 | Feature | Description | Default |
 |---------|-------------|---------|
@@ -452,18 +452,18 @@ pub fn transfer_from_pda(ctx: Context<PdaTransfer>, amount: u64) -> Result<()> {
 
 ```toml
 [dependencies]
-satellite-lang = {
+arch-satellite-lang = {
     path = "../satellite/lang",
     features = ["derive", "init-if-needed"]
 }
-satellite-apl = {
+arch-satellite-apl = {
     path = "../satellite/spl",
     features = ["token", "associated_token"]
 }
 
 [features]
 default = []
-idl-build = ["satellite-lang/idl-build", "satellite-apl/idl-build"]
+idl-build = ["arch-satellite-lang/idl-build", "arch-satellite-apl/idl-build"]
 ```
 
 ---
@@ -473,7 +473,7 @@ idl-build = ["satellite-lang/idl-build", "satellite-apl/idl-build"]
 ### Minimal Program
 
 ```rust
-use satellite_lang::prelude::*;
+use arch_satellite_lang::prelude::*;
 
 declare_id!("0000000000000000000000000000000000000000000000000000000000000001");
 
@@ -494,7 +494,7 @@ pub struct Initialize {}
 ### Counter Program
 
 ```rust
-use satellite_lang::prelude::*;
+use arch_satellite_lang::prelude::*;
 
 declare_id!("your64charhexstringhere0000000000000000000000000000000000000000");
 

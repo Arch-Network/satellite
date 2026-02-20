@@ -109,7 +109,7 @@ pub fn check_deps(cfg: &WithPath<Config>) -> Result<()> {
                 "WARNING: Adding `solana-program` as a separate dependency might cause conflicts.\n\
                 To solve, remove the `solana-program` dependency and use the exported crate from \
                 `satellite-lang`.\n\
-                `use arch_program` becomes `use satellite_lang::arch_program`.\n\
+                `use arch_program` becomes `use arch_satellite_lang::arch_program`.\n\
                 Program name: `{}`\n",
                 man.package().name()
             )

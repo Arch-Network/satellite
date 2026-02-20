@@ -147,9 +147,9 @@ fn get_address(acc: &Field) -> TokenStream {
         Ty::Program(_) /*| Ty::Sysvar(_)*/ => {
             let ty = acc.account_ty();
             let id_trait = matches!(acc.ty, Ty::Program(_))
-                .then(|| quote!(satellite_lang::Id))
+                .then(|| quote!(arch_satellite_lang::Id))
                 .unwrap();
-                // .unwrap_or_else(|| quote!(satellite_lang::arch_program::sysvar::SysvarId));
+                // .unwrap_or_else(|| quote!(arch_satellite_lang::arch_program::sysvar::SysvarId));
             quote! { Some(<#ty as #id_trait>::id().to_string()) }
         }
         _ => acc
@@ -243,14 +243,14 @@ fn get_pda(acc: &Field, accounts: &AccountsStruct) -> TokenStream {
             let token_program = token_program
                 .as_ref()
                 .and_then(parse_ata)
-                .or_else(|| parse_expr(quote!(satellite_apl::token::ID)));
+                .or_else(|| parse_expr(quote!(arch_satellite_apl::token::ID)));
 
             let seeds = match (wallet, mint, token_program) {
                 (Some(w), Some(m), Some(tp)) => quote! { vec![#w, #tp, #m] },
                 _ => return None,
             };
 
-            let program = parse_expr(quote!(satellite_apl::associated_token::ID))
+            let program = parse_expr(quote!(arch_satellite_apl::associated_token::ID))
                 .map(|program| quote! { Some(#program) })
                 .unwrap();
 

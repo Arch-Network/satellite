@@ -1,6 +1,6 @@
-use satellite_lang::{prelude::*, arch_program::entrypoint::ProgramResult};
+use arch_satellite_lang::{prelude::*, arch_program::entrypoint::ProgramResult};
 
-use satellite_apl::{
+use arch_satellite_apl::{
     associated_token::AssociatedToken,
     token_2022::spl_token_2022::extension::{
         group_member_pointer::GroupMemberPointer, metadata_pointer::MetadataPointer,

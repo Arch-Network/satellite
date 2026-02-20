@@ -1,10 +1,10 @@
 [package]
-name = "satellite-collections"
+name = "arch-satellite-collections"
 version.workspace = true
 edition.workspace = true
 description = "Collection data structures and helpers for the Satellite Bitcoin project."
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/saturnbtc/satellite"
+repository = "https://github.com/Arch-Network/satellite"
 keywords = ["bitcoin", "collections"]
 categories = ["cryptography::cryptocurrencies", "data-structures"]
 

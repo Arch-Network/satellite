@@ -1,8 +1,8 @@
 [package]
-name = "satellite-attribute-constant"
+name = "arch-satellite-attribute-constant"
 version.workspace = true
-authors = ["Satellite Maintainers <contact@saturnbtc.io>"]
-repository = "https://github.com/saturnbtc/satellite"
+authors = ["Arch Network <contact@arch.network>", "Saturn BTC <contact@saturnbtc.io>"]
+repository = "https://github.com/Arch-Network/satellite"
 license = "Apache-2.0"
 description = "Satellite attribute macro for creating constant types"
 edition.workspace = true
@@ -11,10 +11,10 @@ edition.workspace = true
 proc-macro = true
 
 [features]
-satellite-debug = ["satellite-syn/satellite-debug"]
-idl-build = ["satellite-syn/idl-build"]
+satellite-debug = ["arch-satellite-syn/satellite-debug"]
+idl-build = ["arch-satellite-syn/idl-build"]
 
 [dependencies]
-satellite-syn = { workspace = true }
+arch-satellite-syn = { workspace = true }
 quote = "1"
 syn = { version = "1", features = ["full"] }

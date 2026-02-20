@@ -4,7 +4,7 @@
 //!
 //! <https://spl.solana.com/token-2022/extensions>
 
-use satellite_lang::prelude::*;
+use arch_satellite_lang::prelude::*;
 
 pub mod instructions;
 pub mod utils;

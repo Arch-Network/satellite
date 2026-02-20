@@ -1,7 +1,11 @@
 [package]
-name = "avm"
+name = "arch-satellite-avm"
 version.workspace = true
 edition.workspace = true
+
+[lib]
+name = "avm"
+path = "src/lib.rs"
 
 [[bin]]
 name = "avm"

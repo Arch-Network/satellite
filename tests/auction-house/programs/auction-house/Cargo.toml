@@ -14,10 +14,10 @@ no-entrypoint = []
 no-idl = []
 cpi = ["no-entrypoint"]
 default = []
-idl-build = ["satellite-lang/idl-build", "satellite-apl/idl-build"]
+idl-build = ["arch-satellite-lang/idl-build", "arch-satellite-apl/idl-build"]
 
 [dependencies]
-satellite-lang = { path = "../../../../lang" }
-satellite-apl = { path = "../../../../spl", features = ["metadata"] }
+arch-satellite-lang = { path = "../../../../lang" }
+arch-satellite-apl = { path = "../../../../spl", features = ["metadata"] }
 thiserror = "1.0"
 arrayref = "0.3.6"

@@ -1,7 +1,7 @@
-use satellite_lang::arch_program::account::AccountInfo;
-use satellite_lang::arch_program::pubkey::Pubkey;
-use satellite_lang::Result;
-use satellite_lang::{context::CpiContext, Accounts};
+use arch_satellite_lang::arch_program::account::AccountInfo;
+use arch_satellite_lang::arch_program::pubkey::Pubkey;
+use arch_satellite_lang::Result;
+use arch_satellite_lang::{context::CpiContext, Accounts};
 
 pub fn interest_bearing_mint_initialize<'info>(
     ctx: CpiContext<'_, '_, '_, 'info, InterestBearingMintInitialize<'info>>,
@@ -14,7 +14,7 @@ pub fn interest_bearing_mint_initialize<'info>(
         rate_authority,
         rate,
     )?;
-    satellite_lang::arch_program::program::invoke_signed(
+    arch_satellite_lang::arch_program::program::invoke_signed(
         &ix,
         &[ctx.accounts.token_program_id, ctx.accounts.mint],
         ctx.signer_seeds,
@@ -39,7 +39,7 @@ pub fn interest_bearing_mint_update_rate<'info>(
         &[],
         rate,
     )?;
-    satellite_lang::arch_program::program::invoke_signed(
+    arch_satellite_lang::arch_program::program::invoke_signed(
         &ix,
         &[
             ctx.accounts.token_program_id,

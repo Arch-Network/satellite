@@ -1,15 +1,15 @@
-/// Crate a default [`satellite_lang::IdlBuild`] implementation for the given type.
+/// Crate a default [`arch_satellite_lang::IdlBuild`] implementation for the given type.
 ///
 /// This is used in order to make wrapper accounts of `satellite-apl` work with `idl-build` feature.
 macro_rules! impl_idl_build {
     ($ty: ty) => {
-        impl satellite_lang::IdlBuild for $ty {}
+        impl arch_satellite_lang::IdlBuild for $ty {}
 
         // This is not used for the IDL generation since default `IdlBuild` impl doesn't include
         // the type in the IDL but it still needs to be added in order to make compilation work.
         //
         // TODO: Find a better way to handle discriminators of wrapped external accounts.
-        impl satellite_lang::Discriminator for $ty {
+        impl arch_satellite_lang::Discriminator for $ty {
             const DISCRIMINATOR: &'static [u8] = &[];
         }
     };

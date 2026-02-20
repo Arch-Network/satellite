@@ -1,5 +1,5 @@
-use satellite_lang::prelude::*;
-use satellite_apl::{token, token_interface};
+use arch_satellite_lang::prelude::*;
+use arch_satellite_apl::{token, token_interface};
 
 declare_id!("0aa984bc897d79b97e689f0319d67bf9cf8e178be59e7cd5c1ec6c0000000000");
 

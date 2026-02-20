@@ -1,8 +1,8 @@
 [package]
-name = "satellite-lang"
+name = "arch-satellite-lang"
 version.workspace = true
-authors = ["Satellite Maintainers <contact@saturnbtc.io>"]
-repository = "https://github.com/saturnbtc/satellite"
+authors = ["Arch Network <contact@arch.network>", "Saturn BTC <contact@saturnbtc.io>"]
+repository = "https://github.com/Arch-Network/satellite"
 edition.workspace = true
 license = "Apache-2.0"
 description = "Arch Network eDSL"
@@ -12,46 +12,46 @@ all-features = true
 rustdoc-args = ["--cfg", "docsrs"]
 
 [features]
-allow-missing-optionals = ["satellite-derive-accounts/allow-missing-optionals"]
+allow-missing-optionals = ["arch-satellite-derive-accounts/allow-missing-optionals"]
 satellite-debug = [
-	"satellite-attribute-access-control/satellite-debug",
-	"satellite-attribute-account/satellite-debug",
-	"satellite-attribute-constant/satellite-debug",
-	"satellite-attribute-error/satellite-debug",
-	"satellite-attribute-program/satellite-debug",
-	"satellite-derive-accounts/satellite-debug",
+	"arch-satellite-attribute-access-control/satellite-debug",
+	"arch-satellite-attribute-account/satellite-debug",
+	"arch-satellite-attribute-constant/satellite-debug",
+	"arch-satellite-attribute-error/satellite-debug",
+	"arch-satellite-attribute-program/satellite-debug",
+	"arch-satellite-derive-accounts/satellite-debug",
 ]
 derive = []
-event-cpi = ["satellite-attribute-event/event-cpi"]
+event-cpi = ["arch-satellite-attribute-event/event-cpi"]
 idl-build = [
-	"satellite-attribute-account/idl-build",
-	"satellite-attribute-constant/idl-build",
-	"satellite-attribute-error/idl-build",
-	"satellite-attribute-program/idl-build",
-	"satellite-derive-accounts/idl-build",
-	"satellite-derive-serde/idl-build",
-	"satellite-lang-idl/build",
+	"arch-satellite-attribute-account/idl-build",
+	"arch-satellite-attribute-constant/idl-build",
+	"arch-satellite-attribute-error/idl-build",
+	"arch-satellite-attribute-program/idl-build",
+	"arch-satellite-derive-accounts/idl-build",
+	"arch-satellite-derive-serde/idl-build",
+	"arch-satellite-lang-idl/build",
 ]
-init-if-needed = ["satellite-derive-accounts/init-if-needed"]
-interface-instructions = ["satellite-attribute-program/interface-instructions"]
+init-if-needed = ["arch-satellite-derive-accounts/init-if-needed"]
+interface-instructions = ["arch-satellite-attribute-program/interface-instructions"]
 lazy-account = [
-	"satellite-attribute-account/lazy-account",
-	"satellite-derive-serde/lazy-account",
+	"arch-satellite-attribute-account/lazy-account",
+	"arch-satellite-derive-serde/lazy-account",
 ]
 
 [dependencies]
-satellite-attribute-event = { workspace = true }
-satellite-attribute-access-control = { workspace = true }
-satellite-attribute-account = { workspace = true }
-satellite-attribute-constant = { workspace = true }
-satellite-attribute-error = { workspace = true }
-satellite-attribute-program = { workspace = true }
-satellite-derive-accounts = { workspace = true }
-satellite-derive-serde = { workspace = true }
-satellite-derive-space = { workspace = true }
+arch-satellite-attribute-event = { workspace = true }
+arch-satellite-attribute-access-control = { workspace = true }
+arch-satellite-attribute-account = { workspace = true }
+arch-satellite-attribute-constant = { workspace = true }
+arch-satellite-attribute-error = { workspace = true }
+arch-satellite-attribute-program = { workspace = true }
+arch-satellite-derive-accounts = { workspace = true }
+arch-satellite-derive-serde = { workspace = true }
+arch-satellite-derive-space = { workspace = true }
 
-# `satellite-lang-idl` should only be included with `idl-build` feature
-satellite-lang-idl = { workspace = true, optional = true }
+# `arch-satellite-lang-idl` should only be included with `idl-build` feature
+arch-satellite-lang-idl = { workspace = true, optional = true }
 
 base64 = "0.21"
 bincode = "1"

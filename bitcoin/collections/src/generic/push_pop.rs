@@ -21,7 +21,7 @@ pub enum PushPopError {
 /// # Examples
 ///
 /// ```rust
-/// use satellite_bitcoin::generic::{fixed_list::FixedList, push_pop::PushPopCollection};
+/// use arch_satellite_collections::generic::{fixed_list::FixedList, push_pop::PushPopCollection};
 ///
 /// fn work_with_collection<T: PushPopCollection<i32>>(collection: &mut T) {
 ///     collection.push(42).unwrap();
@@ -50,7 +50,7 @@ pub trait PushPopCollection<T> {
     /// # Examples
     ///
     /// ```rust
-    /// use satellite_bitcoin::generic::{fixed_list::FixedList, push_pop::PushPopCollection};
+    /// use arch_satellite_collections::generic::{fixed_list::FixedList, push_pop::PushPopCollection};
     ///
     /// let mut list = FixedList::<i32, 2>::new();
     /// assert!(list.push(1).is_ok());
@@ -64,7 +64,7 @@ pub trait PushPopCollection<T> {
     /// # Examples
     ///
     /// ```rust
-    /// use satellite_bitcoin::generic::{fixed_list::FixedList, push_pop::PushPopCollection};
+    /// use arch_satellite_collections::generic::{fixed_list::FixedList, push_pop::PushPopCollection};
     ///
     /// let mut list = FixedList::<i32, 5>::new();
     /// assert_eq!(list.pop(), None);
@@ -79,7 +79,7 @@ pub trait PushPopCollection<T> {
     /// # Examples
     ///
     /// ```rust
-    /// use satellite_bitcoin::generic::{fixed_list::FixedList, push_pop::PushPopCollection};
+    /// use arch_satellite_collections::generic::{fixed_list::FixedList, push_pop::PushPopCollection};
     ///
     /// let mut list = FixedList::<i32, 5>::new();
     /// list.push(1).unwrap();
@@ -94,7 +94,7 @@ pub trait PushPopCollection<T> {
     /// # Examples
     ///
     /// ```rust
-    /// use satellite_bitcoin::generic::{fixed_list::FixedList, push_pop::PushPopCollection};
+    /// use arch_satellite_collections::generic::{fixed_list::FixedList, push_pop::PushPopCollection};
     ///
     /// let mut list = FixedList::<i32, 5>::new();
     /// assert_eq!(list.len(), 0);
@@ -109,7 +109,7 @@ pub trait PushPopCollection<T> {
     /// # Examples
     ///
     /// ```rust
-    /// use satellite_bitcoin::generic::{fixed_list::FixedList, push_pop::PushPopCollection};
+    /// use arch_satellite_collections::generic::{fixed_list::FixedList, push_pop::PushPopCollection};
     ///
     /// let list = FixedList::<i32, 5>::new();
     /// assert_eq!(list.max_size(), 5);

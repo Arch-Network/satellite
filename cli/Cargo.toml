@@ -1,9 +1,10 @@
 [package]
 name = "anchor-cli"
+publish = false
 version.workspace = true
-authors = ["Anchor Maintainers <accounts@200ms.io>"]
+authors = ["Arch Network <contact@arch.network>", "Anchor Maintainers <accounts@200ms.io>"]
 edition.workspace = true
-repository = "https://github.com/coral-xyz/anchor"
+repository = "https://github.com/Arch-Network/satellite"
 description = "Anchor CLI"
 license = "Apache-2.0"
 
@@ -16,8 +17,8 @@ dev = []
 
 [dependencies]
 anchor-client = { workspace = true }
-satellite-lang-idl = { workspace = true, features = ["build", "convert"] }
-satellite-lang = { workspace = true }
+arch-satellite-lang-idl = { workspace = true, features = ["build", "convert"] }
+arch-satellite-lang = { workspace = true }
 anyhow = "1.0.32"
 base64 = "0.21"
 bincode = "1.3.3"

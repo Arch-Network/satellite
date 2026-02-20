@@ -18,10 +18,10 @@ Satellite is Arch Network's fork of Solana's Anchor framework, adapted for build
 a2s analyze --path ./my-anchor-program
 
 # 2. Convert to Satellite
-a2s convert --source ./my-anchor-program --output ./my-satellite-program
+a2s convert --source ./my-anchor-program --output ./my-arch-satellite-program
 
 # 3. Update Cargo.toml paths and build
-cd my-satellite-program
+cd my-arch-satellite-program
 cargo check
 ```
 
@@ -29,8 +29,8 @@ cargo check
 
 | Anchor | Satellite |
 |--------|-----------|
-| `anchor_lang` | `satellite_lang` |
-| `anchor_spl` | `satellite_apl` |
+| `anchor_lang` | `arch_satellite_lang` |
+| `anchor_spl` | `arch_satellite_apl` |
 | Base58 program IDs | Hex program IDs (64 chars) |
 | `InterfaceAccount` | `Account` |
 | `TokenInterface` | `Token` |

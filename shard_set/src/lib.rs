@@ -27,8 +27,8 @@
 //! 2. **Create a `ShardSet`, select shards, call helpers**:
 //!
 //! ```rust,no_run
-//! use satellite_shard::{ShardSet, StateShard};
-//! # use satellite_bitcoin::utxo_info::{UtxoInfo, SingleRuneSet};
+//! use arch_satellite_shard::{ShardSet, StateShard};
+//! # use arch_satellite_bitcoin::utxo_info::{UtxoInfo, SingleRuneSet};
 //! # #[derive(Default, Clone)]
 //! # struct DummyShard;
 //! # impl StateShard<UtxoInfo<SingleRuneSet>, SingleRuneSet> for DummyShard {
@@ -83,7 +83,7 @@
 //!
 //! ```rust,ignore
 //! # use saturn_account_shards::{ShardSet, StateShard};
-//! # use satellite_bitcoin::utxo_info::{UtxoInfo, SingleRuneSet};
+//! # use arch_satellite_bitcoin::utxo_info::{UtxoInfo, SingleRuneSet};
 //! # #[derive(Default, Clone)]
 //! # struct DummyShard;
 //! # impl StateShard<UtxoInfo<SingleRuneSet>, SingleRuneSet> for DummyShard {
@@ -118,8 +118,8 @@
 //!
 //! ```rust
 //! # use saturn_account_shards::{StateShard};
-//! # use satellite_bitcoin::utxo_info::{UtxoInfo, SingleRuneSet};
-//! # use satellite_bitcoin::generic::fixed_set::FixedCapacitySet;
+//! # use arch_satellite_bitcoin::utxo_info::{UtxoInfo, SingleRuneSet};
+//! # use arch_satellite_bitcoin::generic::fixed_set::FixedCapacitySet;
 //! #
 //! struct MyShard {
 //!     btc_utxos: Vec<UtxoInfo<SingleRuneSet>>,
@@ -152,8 +152,8 @@
 //! ### Selecting Shards
 //!
 //! ```rust
-//! # use satellite_shard::{ShardSet, StateShard};
-//! # use satellite_bitcoin::utxo_info::{UtxoInfo, SingleRuneSet};
+//! # use arch_satellite_shard::{ShardSet, StateShard};
+//! # use arch_satellite_bitcoin::utxo_info::{UtxoInfo, SingleRuneSet};
 //! # #[derive(Default, Clone)]
 //! # struct DummyShard;
 //! # impl StateShard<UtxoInfo<SingleRuneSet>, SingleRuneSet> for DummyShard {
@@ -185,9 +185,9 @@
 //! ### Redistributing Liquidity
 //!
 //! ```rust,no_run
-//! # use satellite_shard::{ShardSet, StateShard};
-//! # use satellite_bitcoin::{TransactionBuilder, fee_rate::FeeRate};
-//! # use satellite_bitcoin::utxo_info::{UtxoInfo, SingleRuneSet};
+//! # use arch_satellite_shard::{ShardSet, StateShard};
+//! # use arch_satellite_bitcoin::{TransactionBuilder, fee_rate::FeeRate};
+//! # use arch_satellite_bitcoin::utxo_info::{UtxoInfo, SingleRuneSet};
 //! # use std::str::FromStr;
 //! # use bitcoin::ScriptBuf;
 //! # #[derive(Default, Clone)]

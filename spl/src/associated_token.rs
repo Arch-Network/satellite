@@ -1,7 +1,7 @@
-use satellite_lang::arch_program::account::AccountInfo;
-use satellite_lang::arch_program::pubkey::Pubkey;
-use satellite_lang::Result;
-use satellite_lang::{context::CpiContext, Accounts};
+use arch_satellite_lang::arch_program::account::AccountInfo;
+use arch_satellite_lang::arch_program::pubkey::Pubkey;
+use arch_satellite_lang::Result;
+use arch_satellite_lang::{context::CpiContext, Accounts};
 
 pub use apl_associated_token_account;
 pub use apl_associated_token_account::get_associated_token_address_and_bump_seed;
@@ -17,7 +17,7 @@ pub fn create<'info>(ctx: CpiContext<'_, '_, '_, 'info, Create<'info>>) -> Resul
         ctx.accounts.token_program.key,
         ctx.accounts.system_program.key,
     );
-    satellite_lang::arch_program::program::invoke_signed(
+    arch_satellite_lang::arch_program::program::invoke_signed(
         &ix,
         &[
             ctx.accounts.payer,
@@ -41,7 +41,7 @@ pub fn create<'info>(ctx: CpiContext<'_, '_, '_, 'info, Create<'info>>) -> Resul
 //         ctx.accounts.mint.key,
 //         ctx.accounts.token_program.key,
 //     );
-//     satellite_lang::arch_program::program::invoke_signed(
+//     arch_satellite_lang::arch_program::program::invoke_signed(
 //         &ix,
 //         &[
 //             ctx.accounts.payer,
@@ -71,7 +71,7 @@ type CreateIdempotent<'info> = Create<'info>;
 #[derive(Clone)]
 pub struct AssociatedToken;
 
-impl satellite_lang::Id for AssociatedToken {
+impl arch_satellite_lang::Id for AssociatedToken {
     fn id() -> Pubkey {
         apl_associated_token_account::id()
     }
