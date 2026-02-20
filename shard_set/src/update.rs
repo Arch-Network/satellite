@@ -785,19 +785,20 @@ where
                 .get_mut(pos)
                 .ok_or(StateShardError::OutputEdictIsNotInTransaction)?;
 
-            output.runes_mut().insert_or_modify::<StateShardError, _>(
-                RuneAmount {
-                    id: rune_id,
-                    amount: rune_amount,
-                },
-                |rune_input| {
-                    rune_input.amount = rune_input
-                        .amount
-                        .checked_add(rune_amount)
-                        .ok_or(StateShardError::RuneAmountAdditionOverflow)?;
-                    Ok(())
-                },
-            )?;
+            if let Some(existing) = output.runes_mut().find_mut(&rune_id) {
+                existing.amount = existing
+                    .amount
+                    .checked_add(rune_amount)
+                    .ok_or(StateShardError::RuneAmountAdditionOverflow)?;
+            } else {
+                output
+                    .runes_mut()
+                    .insert(RuneAmount {
+                        id: rune_id,
+                        amount: rune_amount,
+                    })
+                    .map_err(|_| StateShardError::RuneAmountAdditionOverflow)?;
+            }
         }
 
         // Even though the amount might not go to the program address, we have to decrement it
@@ -819,19 +820,20 @@ where
                 .iter_mut()
                 .find(|u| u.meta().vout() == pointer_index)
             {
-                output.runes_mut().insert_or_modify::<StateShardError, _>(
-                    RuneAmount {
-                        id: rune_amount.id,
-                        amount: rune_amount.amount,
-                    },
-                    |rune_input| {
-                        rune_input.amount = rune_input
-                            .amount
-                            .checked_add(rune_amount.amount)
-                            .ok_or(StateShardError::RuneAmountAdditionOverflow)?;
-                        Ok(())
-                    },
-                )?;
+                if let Some(existing) = output.runes_mut().find_mut(&rune_amount.id) {
+                    existing.amount = existing
+                        .amount
+                        .checked_add(rune_amount.amount)
+                        .ok_or(StateShardError::RuneAmountAdditionOverflow)?;
+                } else {
+                    output
+                        .runes_mut()
+                        .insert(RuneAmount {
+                            id: rune_amount.id,
+                            amount: rune_amount.amount,
+                        })
+                        .map_err(|_| StateShardError::RuneAmountAdditionOverflow)?;
+                }
             }
         }
     } else {

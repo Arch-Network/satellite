@@ -276,12 +276,12 @@ checksum = "e16d2d3311acee920a9eb8d33b8cbc1787ce4a264e85f964c2404b969bdcd487"
 
 [[package]]
 name = "apl-associated-token-account"
-version = "0.5.13"
+version = "0.6.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "06254f65e16196eaf98e1c64e9ab624369a07d03c7aa9f78ed8cb2a840f56c9d"
+checksum = "df957ef6232c2cda134b9c87b129203b5da519da94992d58d6fdea6aa18c194f"
 dependencies = [
  "apl-token",
- "arch_program 0.5.15",
+ "arch_program",
  "arrayref",
  "bitcoin 0.31.2",
  "bitcoin-io",
@@ -295,11 +295,11 @@ dependencies = [
 
 [[package]]
 name = "apl-token"
-version = "0.5.13"
+version = "0.6.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "df29fca88b5da09c1bb3eabbd6d2cdf9a7ccb02ba058585900e9a85321354cc8"
+checksum = "52573f97472acd71e0491bc17f5a9f190c6591903d30bf804f7516dc4b8de664"
 dependencies = [
- "arch_program 0.5.15",
+ "arch_program",
  "arrayref",
  "bitcoin 0.31.2",
  "bitcoin-io",
@@ -313,45 +313,15 @@ dependencies = [
 
 [[package]]
 name = "apl-token-metadata"
-version = "0.5.13"
+version = "0.6.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "21dc6f75b54a8d4f0a5867e302424edc22b9e8314554732968ad964d21a37de2"
+checksum = "31cd0b626ecf1624c0327bf367f93de740ead3040983600707691c9314d4d81d"
 dependencies = [
  "apl-token",
- "arch_program 0.5.15",
+ "arch_program",
  "borsh 1.5.7",
  "num-derive",
  "num-traits",
- "thiserror 1.0.66",
-]
-
-[[package]]
-name = "arch_program"
-version = "0.5.15"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f7ce0c4ff38788e0af531ea64093121c45451e0da79d35b5bf511aff680d58cb"
-dependencies = [
- "base64 0.22.1",
- "bincode",
- "bitcode",
- "bitcoin 0.32.5",
- "bitcoin-io",
- "bitcoin_slices",
- "borsh 1.5.7",
- "bs58",
- "bytemuck",
- "hex",
- "memoffset",
- "num-derive",
- "num-traits",
- "rand 0.8.5",
- "rustversion",
- "serde",
- "serde_bytes",
- "serde_derive",
- "sha256",
- "sha3",
- "solana-sanitize",
  "thiserror 1.0.66",
 ]
 
@@ -4355,7 +4325,7 @@ dependencies = [
 name = "satellite-bitcoin-transactions"
 version = "0.31.5"
 dependencies = [
- "arch_program 0.6.2",
+ "arch_program",
  "bitcoin 0.32.5",
  "bytemuck",
  "hex",
@@ -4414,7 +4384,7 @@ dependencies = [
 name = "satellite-lang"
 version = "0.31.5"
 dependencies = [
- "arch_program 0.6.2",
+ "arch_program",
  "base64 0.21.7",
  "bincode",
  "borsh 1.5.7",
@@ -4466,7 +4436,7 @@ dependencies = [
 name = "satellite-serde"
 version = "0.31.5"
 dependencies = [
- "arch_program 0.6.2",
+ "arch_program",
  "bitcoin 0.32.5",
  "hex",
  "primitive-types",
@@ -4478,7 +4448,7 @@ dependencies = [
 name = "satellite-shard"
 version = "0.31.5"
 dependencies = [
- "arch_program 0.6.2",
+ "arch_program",
  "bitcoin 0.32.5",
  "bytemuck",
  "ordinals",
@@ -4569,7 +4539,7 @@ version = "0.29.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9465315bc9d4566e1724f0fffcbcc446268cb522e60f9a27bcded6b19c108113"
 dependencies = [
- "bitcoin_hashes 0.13.0",
+ "bitcoin_hashes 0.14.0",
  "rand 0.8.5",
  "secp256k1-sys 0.10.1",
  "serde",

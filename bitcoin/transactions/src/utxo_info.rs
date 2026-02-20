@@ -5,7 +5,6 @@ use arch_program::{
 };
 
 use bytemuck::{Pod, Zeroable};
-use satellite_collections::declare_fixed_array;
 use satellite_collections::declare_fixed_option;
 use satellite_collections::generic::fixed_set::{FixedCapacitySet, FixedSet};
 
@@ -57,7 +56,7 @@ pub type SingleRuneSet = FixedSet<RuneAmount, 1>;
 pub type SingleRuneSet = FixedSet<RuneAmount, 0>;
 
 #[repr(C, align(8))]
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Debug)]
 // Provide a default generic parameter so callers can simply use `UtxoInfo` without specifying
 // the rune set type. When the `runes` feature is enabled the default is `SingleRuneSet`; when it
 // is disabled the default is `()`.
@@ -76,7 +75,7 @@ pub struct UtxoInfo<RuneSet: FixedCapacitySet<Item = RuneAmount> = SingleRuneSet
     _phantom: std::marker::PhantomData<RuneSet>,
 }
 
-impl<RuneSet: FixedCapacitySet<Item = RuneAmount>> UtxoInfo<RuneSet> {
+impl<RuneSet: FixedCapacitySet<Item = RuneAmount> + Default> UtxoInfo<RuneSet> {
     /// Public constructor that initializes [`UtxoInfo`] with `meta` and `value`,
     /// filling the remaining fields from `Default`.
     pub fn new(meta: UtxoMeta, value: u64) -> Self {
@@ -130,7 +129,9 @@ impl<RuneSet: FixedCapacitySet<Item = RuneAmount>> UtxoInfo<RuneSet> {
 }
 
 // Implement the UtxoInfoTrait for UtxoInfo
-impl<RuneSet: FixedCapacitySet<Item = RuneAmount>> UtxoInfoTrait<RuneSet> for UtxoInfo<RuneSet> {
+impl<RuneSet: FixedCapacitySet<Item = RuneAmount> + Default> UtxoInfoTrait<RuneSet>
+    for UtxoInfo<RuneSet>
+{
     fn new(meta: UtxoMeta, value: u64) -> Self {
         Self {
             meta,
@@ -176,8 +177,14 @@ impl<RuneSet: FixedCapacitySet<Item = RuneAmount>> UtxoInfoTrait<RuneSet> for Ut
     }
 }
 
-// Safety: All generic parameters must also be Pod/Zeroable.
-unsafe impl<RuneSet: FixedCapacitySet<Item = RuneAmount> + Pod> Pod for UtxoInfo<RuneSet> {}
+// Pod and Zeroable are only available when RuneSet itself is Pod/Zeroable
+// AND UtxoInfo implements Copy (which requires RuneSet: Copy).
+// After arch_program 0.6.2, RuneAmount no longer implements Copy/Pod/Zeroable,
+// so UtxoInfo<SingleRuneSet> is no longer Pod/Zeroable.
+unsafe impl<RuneSet: FixedCapacitySet<Item = RuneAmount> + Pod + Copy> Pod for UtxoInfo<RuneSet> where
+    UtxoInfo<RuneSet>: Copy
+{
+}
 unsafe impl<RuneSet: FixedCapacitySet<Item = RuneAmount> + Zeroable> Zeroable
     for UtxoInfo<RuneSet>
 {
@@ -312,8 +319,283 @@ impl TryFrom<&UtxoMeta> for UtxoInfo<SingleRuneSet> {
 // fixed-option wrappers so downstream crates can simply use
 // `FixedArrayUtxoInfo` / `FixedOptionUtxoInfo` without additional boilerplate.
 
-declare_fixed_array!(FixedArrayUtxoInfo, UtxoInfo<SingleRuneSet>, 50);
-declare_fixed_option!(FixedOptionUtxoInfo, UtxoInfo<SingleRuneSet>, 15);
+// Manual definitions replacing the macros because UtxoInfo is no longer Copy/Pod
+// after the arch_program 0.6.2 upgrade (RuneAmount lost Copy/Default/Pod).
+
+#[repr(C)]
+#[derive(Clone, Debug)]
+pub struct FixedArrayUtxoInfo {
+    items: [UtxoInfo<SingleRuneSet>; 50],
+    count: u16,
+    _padding: [u8; 14],
+}
+
+impl FixedArrayUtxoInfo {
+    pub fn new() -> Self {
+        Self {
+            items: core::array::from_fn(|_| UtxoInfo::default()),
+            count: 0,
+            _padding: [0; 14],
+        }
+    }
+
+    #[cfg(not(target_os = "solana"))]
+    pub fn from_slice(input_slice: &[UtxoInfo<SingleRuneSet>]) -> Self {
+        let mut fa = Self::new();
+        let num_to_copy = core::cmp::min(input_slice.len(), 50);
+        for i in 0..num_to_copy {
+            fa.add(input_slice[i].clone());
+        }
+        fa
+    }
+
+    pub fn len(&self) -> usize {
+        self.count as usize
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.count == 0
+    }
+
+    pub fn capacity(&self) -> usize {
+        50
+    }
+
+    pub fn is_full(&self) -> bool {
+        (self.count as usize) == 50
+    }
+
+    pub fn get(&self, index: usize) -> Option<&UtxoInfo<SingleRuneSet>> {
+        if index < self.len() {
+            Some(&self.items[index])
+        } else {
+            None
+        }
+    }
+
+    pub fn get_mut(&mut self, index: usize) -> Option<&mut UtxoInfo<SingleRuneSet>> {
+        if index < self.len() {
+            Some(&mut self.items[index])
+        } else {
+            None
+        }
+    }
+
+    pub fn add(&mut self, item: UtxoInfo<SingleRuneSet>) -> Option<usize> {
+        if self.is_full() {
+            None
+        } else {
+            let index = self.count as usize;
+            self.items[index] = item;
+            self.count += 1;
+            Some(index)
+        }
+    }
+
+    pub fn remove_at(&mut self, index: usize) -> Option<UtxoInfo<SingleRuneSet>> {
+        if index >= self.len() {
+            return None;
+        }
+        let removed_item = self.items[index].clone();
+        for i in index..(self.len() - 1) {
+            self.items[i] = self.items[i + 1].clone();
+        }
+        self.count -= 1;
+        if 50 > 0 {
+            self.items[self.len()] = UtxoInfo::default();
+        }
+        Some(removed_item)
+    }
+
+    pub fn remove_item(&mut self, item_to_remove: &UtxoInfo<SingleRuneSet>) -> bool {
+        let mut found_index: Option<usize> = None;
+        for i in 0..self.len() {
+            if self.items[i] == *item_to_remove {
+                found_index = Some(i);
+                break;
+            }
+        }
+        if let Some(index) = found_index {
+            self.remove_at(index);
+            true
+        } else {
+            false
+        }
+    }
+
+    pub fn iter(&self) -> impl Iterator<Item = &UtxoInfo<SingleRuneSet>> + '_ {
+        self.items.iter().take(self.len())
+    }
+
+    pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut UtxoInfo<SingleRuneSet>> + '_ {
+        let len = self.len();
+        self.items.iter_mut().take(len)
+    }
+
+    pub fn clear(&mut self) {
+        for i in 0..self.len() {
+            self.items[i] = UtxoInfo::default();
+        }
+        self.count = 0;
+    }
+
+    pub fn as_slice(&self) -> &[UtxoInfo<SingleRuneSet>] {
+        &self.items[0..self.len()]
+    }
+
+    pub fn as_mut_slice(&mut self) -> &mut [UtxoInfo<SingleRuneSet>] {
+        let len = self.len();
+        &mut self.items[0..len]
+    }
+
+    pub fn retain<F>(&mut self, mut f: F)
+    where
+        F: FnMut(&UtxoInfo<SingleRuneSet>) -> bool,
+    {
+        let original_len = self.len();
+        let mut write_idx = 0;
+        let mut read_idx = 0;
+        while read_idx < original_len {
+            if f(&self.items[read_idx]) {
+                if read_idx != write_idx {
+                    self.items[write_idx] = self.items[read_idx].clone();
+                }
+                write_idx += 1;
+            }
+            read_idx += 1;
+        }
+        for i in write_idx..original_len {
+            self.items[i] = UtxoInfo::default();
+        }
+        self.count = write_idx as u16;
+    }
+
+    pub fn as_vec(&self) -> Vec<UtxoInfo<SingleRuneSet>> {
+        self.items
+            .iter()
+            .take(self.count as usize)
+            .cloned()
+            .collect()
+    }
+}
+
+impl Default for FixedArrayUtxoInfo {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl PartialEq for FixedArrayUtxoInfo {
+    fn eq(&self, other: &Self) -> bool {
+        self.count == other.count && self.as_slice() == other.as_slice()
+    }
+}
+
+impl Eq for FixedArrayUtxoInfo {}
+
+#[repr(C)]
+#[derive(Clone, Debug)]
+pub struct FixedOptionUtxoInfo {
+    item: UtxoInfo<SingleRuneSet>,
+    present: u8,
+    _padding: [u8; 15],
+}
+
+impl FixedOptionUtxoInfo {
+    pub fn none() -> Self {
+        Self {
+            item: UtxoInfo::default(),
+            present: 0,
+            _padding: [0; 15],
+        }
+    }
+
+    pub fn some(data: UtxoInfo<SingleRuneSet>) -> Self {
+        Self {
+            item: data,
+            present: 1,
+            _padding: [0; 15],
+        }
+    }
+
+    pub fn is_some(&self) -> bool {
+        self.present != 0
+    }
+
+    pub fn is_none(&self) -> bool {
+        self.present == 0
+    }
+
+    pub fn get(&self) -> Option<UtxoInfo<SingleRuneSet>> {
+        if self.is_some() {
+            Some(self.item.clone())
+        } else {
+            None
+        }
+    }
+
+    pub fn as_ref(&self) -> Option<&UtxoInfo<SingleRuneSet>> {
+        if self.is_some() {
+            Some(&self.item)
+        } else {
+            None
+        }
+    }
+
+    pub fn as_mut(&mut self) -> Option<&mut UtxoInfo<SingleRuneSet>> {
+        if self.is_some() {
+            Some(&mut self.item)
+        } else {
+            None
+        }
+    }
+
+    pub fn unwrap(self) -> UtxoInfo<SingleRuneSet> {
+        let option: Option<_> = self.into();
+        option.unwrap()
+    }
+}
+
+impl Default for FixedOptionUtxoInfo {
+    fn default() -> Self {
+        Self::none()
+    }
+}
+
+impl From<FixedOptionUtxoInfo> for Option<UtxoInfo<SingleRuneSet>> {
+    fn from(item: FixedOptionUtxoInfo) -> Option<UtxoInfo<SingleRuneSet>> {
+        if item.is_some() {
+            Some(item.item)
+        } else {
+            None
+        }
+    }
+}
+
+impl From<Option<UtxoInfo<SingleRuneSet>>> for FixedOptionUtxoInfo {
+    fn from(item: Option<UtxoInfo<SingleRuneSet>>) -> FixedOptionUtxoInfo {
+        match item {
+            Some(data) => FixedOptionUtxoInfo::some(data),
+            None => FixedOptionUtxoInfo::none(),
+        }
+    }
+}
+
+impl From<Option<&UtxoInfo<SingleRuneSet>>> for FixedOptionUtxoInfo {
+    fn from(item: Option<&UtxoInfo<SingleRuneSet>>) -> FixedOptionUtxoInfo {
+        match item {
+            Some(data) => FixedOptionUtxoInfo::some(data.clone()),
+            None => FixedOptionUtxoInfo::none(),
+        }
+    }
+}
+
+impl PartialEq for FixedOptionUtxoInfo {
+    #[inline]
+    fn eq(&self, other: &Self) -> bool {
+        self.get() == other.get()
+    }
+}
 
 // Add helper methods to validate runes contained in a UTXO
 #[cfg(feature = "runes")]

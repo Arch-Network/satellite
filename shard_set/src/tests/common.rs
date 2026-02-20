@@ -21,20 +21,99 @@ use satellite_lang::ZeroCopy;
 // plenty of head-room for future tests.
 pub const MAX_BTC_UTXOS: usize = 64;
 
+/// Size of a single `UtxoInfo<SingleRuneSet>` in bytes.
+const UTXO_INFO_SIZE: usize = core::mem::size_of::<UtxoInfo<SingleRuneSet>>();
+/// Total byte size of the mock shard (must match the layout of the logical
+/// fields). We round up to the next multiple of 8 to match the struct's
+/// alignment requirements (UtxoInfo is align(8)).
+const MOCK_SHARD_RAW_SIZE: usize =
+    UTXO_INFO_SIZE * MAX_BTC_UTXOS + UTXO_INFO_SIZE + 1 + 1 + 5;
+const MOCK_SHARD_SIZE: usize =
+    (MOCK_SHARD_RAW_SIZE + 7) & !7; // round up to multiple of 8
+
 /// Zero-copy mock shard used exclusively in unit tests.
-#[repr(C)]
-#[derive(Clone, Copy, Zeroable)]
+///
+/// Stored as a raw byte array so the struct can derive `Copy` + `Pod` (needed
+/// by `AccountLoader` / `ZeroCopy`).  Accessor methods reinterpret the bytes
+/// into the typed fields.
+#[repr(C, align(8))]
+#[derive(Clone, Copy, Zeroable, Pod)]
 pub struct MockShardZc {
-    /// Fixed-capacity array of BTC UTXOs.
-    btc_utxos: [UtxoInfo<SingleRuneSet>; MAX_BTC_UTXOS],
-    /// Rune-bearing UTXO slot.
-    rune_utxo: UtxoInfo<SingleRuneSet>,
-    /// Current number of valid BTC UTXOs (0..=MAX_BTC_UTXOS).
-    btc_utxo_len: u8,
-    /// `1` = `rune_utxo` occupied, `0` = empty.
-    has_rune: u8,
-    /// Padding to keep alignment multiple of 8 (Pod-safe).
-    _padding: [u8; 5],
+    data: [u8; MOCK_SHARD_SIZE],
+}
+
+impl MockShardZc {
+    const BTC_UTXOS_OFFSET: usize = 0;
+    const RUNE_UTXO_OFFSET: usize = UTXO_INFO_SIZE * MAX_BTC_UTXOS;
+    const BTC_UTXO_LEN_OFFSET: usize = Self::RUNE_UTXO_OFFSET + UTXO_INFO_SIZE;
+    const HAS_RUNE_OFFSET: usize = Self::BTC_UTXO_LEN_OFFSET + 1;
+
+    fn btc_utxo_len_raw(&self) -> u8 {
+        self.data[Self::BTC_UTXO_LEN_OFFSET]
+    }
+
+    fn set_btc_utxo_len_raw(&mut self, len: u8) {
+        self.data[Self::BTC_UTXO_LEN_OFFSET] = len;
+    }
+
+    fn has_rune_raw(&self) -> u8 {
+        self.data[Self::HAS_RUNE_OFFSET]
+    }
+
+    fn set_has_rune_raw(&mut self, val: u8) {
+        self.data[Self::HAS_RUNE_OFFSET] = val;
+    }
+
+    fn btc_utxo_ref(&self, idx: usize) -> &UtxoInfo<SingleRuneSet> {
+        let start = Self::BTC_UTXOS_OFFSET + idx * UTXO_INFO_SIZE;
+        unsafe { &*(self.data[start..].as_ptr() as *const UtxoInfo<SingleRuneSet>) }
+    }
+
+    fn btc_utxo_mut(&mut self, idx: usize) -> &mut UtxoInfo<SingleRuneSet> {
+        let start = Self::BTC_UTXOS_OFFSET + idx * UTXO_INFO_SIZE;
+        unsafe { &mut *(self.data[start..].as_mut_ptr() as *mut UtxoInfo<SingleRuneSet>) }
+    }
+
+    fn write_btc_utxo(&mut self, idx: usize, utxo: UtxoInfo<SingleRuneSet>) {
+        let start = Self::BTC_UTXOS_OFFSET + idx * UTXO_INFO_SIZE;
+        unsafe {
+            core::ptr::write(
+                self.data[start..].as_mut_ptr() as *mut UtxoInfo<SingleRuneSet>,
+                utxo,
+            );
+        }
+    }
+
+    fn rune_utxo_ref(&self) -> &UtxoInfo<SingleRuneSet> {
+        unsafe {
+            &*(self.data[Self::RUNE_UTXO_OFFSET..].as_ptr() as *const UtxoInfo<SingleRuneSet>)
+        }
+    }
+
+    fn rune_utxo_mut(&mut self) -> &mut UtxoInfo<SingleRuneSet> {
+        unsafe {
+            &mut *(self.data[Self::RUNE_UTXO_OFFSET..].as_mut_ptr()
+                as *mut UtxoInfo<SingleRuneSet>)
+        }
+    }
+
+    fn write_rune_utxo(&mut self, utxo: UtxoInfo<SingleRuneSet>) {
+        unsafe {
+            core::ptr::write(
+                self.data[Self::RUNE_UTXO_OFFSET..].as_mut_ptr()
+                    as *mut UtxoInfo<SingleRuneSet>,
+                utxo,
+            );
+        }
+    }
+
+    pub fn btc_utxos_max_len(&self) -> usize {
+        MAX_BTC_UTXOS
+    }
+
+    pub fn btc_utxos_len(&self) -> usize {
+        self.btc_utxo_len_raw() as usize
+    }
 }
 
 impl ZeroCopy for MockShardZc {}
@@ -42,16 +121,16 @@ impl ZeroCopy for MockShardZc {}
 impl Sealed for MockShardZc {}
 
 impl Pack for MockShardZc {
-    const LEN: usize = std::mem::size_of::<MockShardZc>();
+    const LEN: usize = core::mem::size_of::<MockShardZc>();
 
     fn pack_into_slice(&self, dst: &mut [u8]) {
-        dst.copy_from_slice(unsafe {
-            std::slice::from_raw_parts(self as *const MockShardZc as *const u8, Self::LEN)
-        });
+        dst.copy_from_slice(&self.data);
     }
 
     fn unpack_from_slice(src: &[u8]) -> std::result::Result<Self, ProgramError> {
-        Ok(unsafe { *(src.as_ptr() as *const MockShardZc) })
+        let mut shard = Self::default();
+        shard.data.copy_from_slice(&src[..Self::LEN]);
+        Ok(shard)
     }
 }
 
@@ -68,7 +147,9 @@ impl Owner for MockShardZc {
 
 impl Default for MockShardZc {
     fn default() -> Self {
-        Self::zeroed()
+        Self {
+            data: [0u8; MOCK_SHARD_SIZE],
+        }
     }
 }
 
@@ -77,42 +158,55 @@ impl Default for MockShardZc {
 // ---------------------------------------------------------------------
 impl StateShard<UtxoInfo<SingleRuneSet>, SingleRuneSet> for MockShardZc {
     fn btc_utxos(&self) -> &[UtxoInfo<SingleRuneSet>] {
-        let len = self.btc_utxo_len as usize;
-        &self.btc_utxos[..len]
+        let len = self.btc_utxo_len_raw() as usize;
+        let start = Self::BTC_UTXOS_OFFSET;
+        unsafe {
+            core::slice::from_raw_parts(
+                self.data[start..].as_ptr() as *const UtxoInfo<SingleRuneSet>,
+                len,
+            )
+        }
     }
 
     fn btc_utxos_mut(&mut self) -> &mut [UtxoInfo<SingleRuneSet>] {
-        let len = self.btc_utxo_len as usize;
-        &mut self.btc_utxos[..len]
+        let len = self.btc_utxo_len_raw() as usize;
+        let start = Self::BTC_UTXOS_OFFSET;
+        unsafe {
+            core::slice::from_raw_parts_mut(
+                self.data[start..].as_mut_ptr() as *mut UtxoInfo<SingleRuneSet>,
+                len,
+            )
+        }
     }
 
     fn btc_utxos_retain(&mut self, f: &mut dyn FnMut(&UtxoInfo<SingleRuneSet>) -> bool) {
-        let len = self.btc_utxo_len as usize;
+        let len = self.btc_utxo_len_raw() as usize;
         let mut write_idx = 0usize;
         for read_idx in 0..len {
-            let keep = f(&self.btc_utxos[read_idx]);
+            let keep = f(self.btc_utxo_ref(read_idx));
             if keep {
                 if write_idx != read_idx {
-                    self.btc_utxos[write_idx] = self.btc_utxos[read_idx];
+                    let cloned = self.btc_utxo_ref(read_idx).clone();
+                    self.write_btc_utxo(write_idx, cloned);
                 }
                 write_idx += 1;
             }
         }
-        self.btc_utxo_len = write_idx as u8;
+        self.set_btc_utxo_len_raw(write_idx as u8);
     }
 
     fn add_btc_utxo(&mut self, utxo: UtxoInfo<SingleRuneSet>) -> Option<usize> {
-        let len = self.btc_utxo_len as usize;
+        let len = self.btc_utxo_len_raw() as usize;
         if len >= MAX_BTC_UTXOS {
             return None;
         }
-        self.btc_utxos[len] = utxo;
-        self.btc_utxo_len += 1;
+        self.write_btc_utxo(len, utxo);
+        self.set_btc_utxo_len_raw((len + 1) as u8);
         Some(len)
     }
 
     fn btc_utxos_len(&self) -> usize {
-        self.btc_utxo_len as usize
+        self.btc_utxo_len_raw() as usize
     }
 
     fn btc_utxos_max_len(&self) -> usize {
@@ -120,33 +214,30 @@ impl StateShard<UtxoInfo<SingleRuneSet>, SingleRuneSet> for MockShardZc {
     }
 
     fn rune_utxo(&self) -> Option<&UtxoInfo<SingleRuneSet>> {
-        if self.has_rune == 1 {
-            Some(&self.rune_utxo)
+        if self.has_rune_raw() == 1 {
+            Some(self.rune_utxo_ref())
         } else {
             None
         }
     }
 
     fn rune_utxo_mut(&mut self) -> Option<&mut UtxoInfo<SingleRuneSet>> {
-        if self.has_rune == 1 {
-            Some(&mut self.rune_utxo)
+        if self.has_rune_raw() == 1 {
+            Some(self.rune_utxo_mut())
         } else {
             None
         }
     }
 
     fn clear_rune_utxo(&mut self) {
-        self.has_rune = 0;
+        self.set_has_rune_raw(0);
     }
 
     fn set_rune_utxo(&mut self, utxo: UtxoInfo<SingleRuneSet>) {
-        self.rune_utxo = utxo;
-        self.has_rune = 1;
+        self.write_rune_utxo(utxo);
+        self.set_has_rune_raw(1);
     }
 }
-
-// SAFETY: MockShardZc is #[repr(C)] with only Pod fields so safe.
-unsafe impl Pod for MockShardZc {}
 
 // ---------------------------------------------------------------------
 // Account-loader factory helpers
