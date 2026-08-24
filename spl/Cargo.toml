@@ -22,6 +22,6 @@ metadata = ["apl-token-metadata"]
 [dependencies]
 arch-satellite-lang = { workspace = true, features = ["derive"] }
 borsh = { version = "0.10.3", optional = true }
-apl-associated-token-account = { version = "0.6.8", features = ["no-entrypoint"], optional = true }
-apl-token = { version = "0.6.8", features = ["no-entrypoint"], optional = true }
-apl-token-metadata = { version = "0.6.8", features = ["no-entrypoint"], optional = true }
+apl-associated-token-account = { version = "0.8.4", features = ["no-entrypoint"], optional = true }
+apl-token = { version = "0.8.4", features = ["no-entrypoint"], optional = true }
+apl-token-metadata = { version = "0.8.4", features = ["no-entrypoint"], optional = true }

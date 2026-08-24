@@ -97,6 +97,8 @@ echo ""
 # Tier 2: Depend on Tier 1
 info "=== Tier 2: Publishing crates that depend on Tier 1 ==="
 publish_crate "arch-satellite-bitcoin-transactions" || warn "arch-satellite-bitcoin-transactions failed or already published"
+# lang-idl is required by attribute-program; publish it before attributes
+publish_crate "arch-satellite-lang-idl" || warn "arch-satellite-lang-idl failed or already published"
 
 # Publish all attribute crates
 info "Publishing lang attribute crates..."
@@ -118,7 +120,6 @@ echo ""
 # Tier 3: Depend on Tier 2
 info "=== Tier 3: Publishing crates that depend on Tier 2 ==="
 publish_crate "arch-satellite-bitcoin" || warn "arch-satellite-bitcoin failed or already published"
-publish_crate "arch-satellite-lang-idl" || warn "arch-satellite-lang-idl failed or already published"
 publish_crate "arch-satellite-lang" || warn "arch-satellite-lang failed or already published"
 
 echo ""
