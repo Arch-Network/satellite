@@ -26,7 +26,7 @@ pub fn generate(program: &Program) -> proc_macro2::TokenStream {
                     "()" => (quote! {arch_satellite_lang::Result<()> }, quote! { Ok(()) }),
                     _ => (
                         quote! { arch_satellite_lang::Result<crate::cpi::Return::<#ret_type>> },
-                        quote! { Ok(crate::cpi::Return::<#ret_type> { phantom: crate::cpi::PhantomData }) }
+                        quote! { Ok(crate::cpi::Return::<#ret_type> { expected_program_id: ix.program_id, phantom: crate::cpi::PhantomData }) }
                     )
                 };
 
@@ -77,13 +77,17 @@ pub fn generate(program: &Program) -> proc_macro2::TokenStream {
 
 
             pub struct Return<T> {
+                expected_program_id: arch_satellite_lang::arch_program::pubkey::Pubkey,
                 phantom: std::marker::PhantomData<T>
             }
 
             impl<T: AnchorDeserialize> Return<T> {
-                pub fn get(&self) -> T {
-                    let (_key, data) = arch_satellite_lang::arch_program::program::get_return_data().unwrap();
-                    T::try_from_slice(&data).unwrap()
+                /// Decodes the return data, failing unless the invoked program set it.
+                pub fn get(&self) -> arch_satellite_lang::Result<T> {
+                    arch_satellite_lang::__private::decode_cpi_return(
+                        &self.expected_program_id,
+                        arch_satellite_lang::arch_program::program::get_return_data(),
+                    )
                 }
             }
 

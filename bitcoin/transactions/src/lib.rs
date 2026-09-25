@@ -50,12 +50,12 @@ use std::str::FromStr;
 
 use arch_program::rune::RuneAmount;
 use arch_program::{
-    account::AccountInfo, helper::add_state_transition, input_to_sign::InputToSign,
-    program::set_transaction_to_sign, program_error::ProgramError, pubkey::Pubkey, utxo::UtxoMeta,
+    account::AccountInfo, input_to_sign::InputToSign, program::set_transaction_to_sign,
+    program_error::ProgramError, pubkey::Pubkey,
 };
 use bitcoin::{
-    absolute::LockTime, transaction::Version, OutPoint, ScriptBuf, Sequence, Transaction, TxIn,
-    TxOut, Witness,
+    absolute::LockTime, transaction::Version, ScriptBuf, Sequence, Transaction, TxIn, TxOut,
+    Witness,
 };
 pub use mempool::{AccountMempoolInfo, MempoolData, MempoolDataView, MempoolInfo, TxStatus};
 
@@ -63,19 +63,18 @@ pub use mempool::{AccountMempoolInfo, MempoolData, MempoolDataView, MempoolInfo,
 use ordinals::{Artifact, Runestone};
 
 use arch_satellite_collections::generic::fixed_list_unchecked::FixedRefList;
-use arch_satellite_collections::generic::{fixed_list::FixedList, fixed_set::FixedCapacitySet};
+use arch_satellite_collections::generic::fixed_set::FixedCapacitySet;
 
 use crate::btc_utxo_holder::BtcUtxoHolder;
-use crate::bytes::txid_to_bytes_big_endian;
 use crate::{
     calc_fee::{
         adjust_transaction_to_pay_fees, estimate_final_tx_vsize,
         estimate_tx_size_with_additional_inputs_outputs,
         estimate_tx_vsize_with_additional_inputs_outputs,
     },
-    constants::DUST_LIMIT,
     error::BitcoinTxError,
     fee_rate::FeeRate,
+    inputs::{match_inputs_to_utxos, records_for, InputRecord},
     mempool::generate_mempool_info,
     utxo_info::UtxoInfo,
 };
@@ -93,6 +92,7 @@ pub mod error;
 pub mod fee_rate;
 mod find_btc;
 pub mod input_calc;
+mod inputs;
 mod mempool;
 #[cfg(feature = "serde")]
 mod serde;
@@ -100,56 +100,6 @@ pub mod util;
 pub mod utxo_info;
 #[cfg(feature = "serde")]
 pub mod utxo_info_json;
-
-#[derive(Clone, Debug, Default)]
-/// A zero-copy wrapper for tracking modified program accounts.
-///
-/// `ModifiedAccount` is a lightweight wrapper around [`AccountInfo`] that enables
-/// [`TransactionBuilder`] to track which program accounts have been modified during
-/// transaction construction, without requiring heap allocation.
-///
-/// ## Design
-///
-/// The wrapper stores a borrowed reference to the actual account data, avoiding
-/// copies or allocations. This makes it suitable for use in constrained environments
-/// like the Solana BPF VM where heap allocation is expensive or unavailable.
-///
-/// ## Lifetime Management
-///
-/// The `'a` lifetime parameter ensures that the wrapped account reference remains
-/// valid for the duration of the transaction building process. This is typically
-/// the lifetime of the instruction execution context.
-///
-/// ## Usage
-///
-/// You typically don't create `ModifiedAccount` instances directly. Instead, they
-/// are created automatically by [`TransactionBuilder`] methods like
-/// [`TransactionBuilder::add_state_transition`] and
-/// related helpers.
-///
-/// ## Memory Safety
-///
-/// The default value (created with `Default::default()`) contains `None` and will
-/// panic if accessed via `as_ref()`. This is by design since such instances should
-/// never be exposed outside of internal testing.
-struct ModifiedAccount<'info>(Option<AccountInfo<'info>>);
-
-impl<'info> ModifiedAccount<'info> {
-    #[inline]
-    /// Creates a new [`ModifiedAccount`] from a borrowed [`AccountInfo`].
-    ///
-    /// This is a zero-cost helper used by
-    /// `TransactionBuilder` internals.
-    pub fn new(account: AccountInfo<'info>) -> Self {
-        Self(Some(account))
-    }
-}
-
-impl<'info> AsRef<AccountInfo<'info>> for ModifiedAccount<'info> {
-    fn as_ref(&self) -> &AccountInfo<'info> {
-        self.0.as_ref().expect("ModifiedAccount is None")
-    }
-}
 
 /// Represents potential transaction inputs for size estimation.
 ///
@@ -314,26 +264,19 @@ pub struct NewPotentialInputsAndOutputs {
 /// # Ok::<(), Box<dyn std::error::Error>>(())
 /// ```
 ///
-/// ## Working with State Transitions
+/// ## State Transitions
 ///
-/// State transitions are a core concept in Arch. Use these methods to manage program account updates:
+/// Since Arch 0.9 an account keeps the UTXO it was created with, so a transaction can no longer
+/// carry an account's state. [`TransactionBuilder::add_state_transition`] and
+/// [`TransactionBuilder::insert_state_transition_input`] are kept for source compatibility and
+/// always fail with [`BitcoinTxError::StateTransitionsUnsupported`].
 ///
-/// ```rust,no_run
-/// # use arch_satellite_bitcoin_transactions::{TransactionBuilder, SignPolicy};
-/// # use arch_program::account::AccountInfo;
-/// # use arch_program::pubkey::Pubkey;
-/// # let mut builder: TransactionBuilder<8, 4, arch_satellite_bitcoin_transactions::utxo_info::SingleRuneSet> = TransactionBuilder::new();
-/// # let account: AccountInfo<'static> = unsafe { std::mem::zeroed() };
-/// // Add a state transition for an existing account
-/// builder.add_state_transition(&account, SignPolicy::Managed)?;
+/// ## Input Bookkeeping
 ///
-/// // The builder automatically:
-/// // 1. Adds the account to modified_accounts list
-/// // 2. Creates an InputToSign entry
-/// // 3. Updates total_btc_input with DUST_LIMIT
-/// // 4. Adds the state transition to the transaction
-/// # Ok::<(), arch_satellite_bitcoin_transactions::error::BitcoinTxError>(())
-/// ```
+/// Add inputs only through the builder's `add_*` / `insert_*` / `find_btc_*` helpers. Each call
+/// either succeeds completely or leaves the builder unchanged, and [`TransactionBuilder::finalize`]
+/// runs [`TransactionBuilder::validate`], which rejects a transaction whose inputs were pushed,
+/// removed or reordered directly on `transaction.input`. Outputs may be edited directly.
 ///
 /// ## Adding User Inputs
 ///
@@ -344,15 +287,17 @@ pub struct NewPotentialInputsAndOutputs {
 /// # use arch_satellite_bitcoin_transactions::utxo_info::{UtxoInfo, SingleRuneSet};
 /// # use arch_satellite_bitcoin_transactions::TxStatus;
 /// # use arch_program::pubkey::Pubkey;
+/// # use arch_program::utxo::UtxoMeta;
 /// # let mut builder: TransactionBuilder<8, 4, arch_satellite_bitcoin_transactions::utxo_info::SingleRuneSet> = TransactionBuilder::new();
-/// # let utxo: UtxoInfo<SingleRuneSet> = unsafe { std::mem::zeroed() };
+/// # let utxo: UtxoInfo<SingleRuneSet> = UtxoInfo::new(UtxoMeta::from([1; 32], 0), 10_000);
+/// # let other_utxo: UtxoInfo<SingleRuneSet> = UtxoInfo::new(UtxoMeta::from([2; 32], 0), 10_000);
 /// # let status = TxStatus::Confirmed;
 /// # let signer = Pubkey::system_program();
 /// // Add a regular input that requires signing
 /// builder.add_tx_input(&utxo, &status, Some(&signer))?;
 ///
 /// // For precise control over input order:
-/// builder.insert_tx_input(0, &utxo, &status, Some(&signer))?;
+/// builder.insert_tx_input(0, &other_utxo, &status, Some(&signer))?;
 /// # Ok::<(), arch_satellite_bitcoin_transactions::error::BitcoinTxError>(())
 /// ```
 ///
@@ -543,25 +488,16 @@ pub struct TransactionBuilder<
     pub transaction: Transaction,
     pub tx_statuses: MempoolInfo,
 
-    /// This tells Arch which accounts have been modified, and thus required
-    /// their data to be saved
-    modified_accounts: FixedList<ModifiedAccount<'info>, MAX_MODIFIED_ACCOUNTS>,
-
     /// This tells Arch which inputs in [InstructionContext::transaction] still
     /// need to be signed, along with which key needs to sign each of them
     pub inputs_to_sign: FixedRefList<InputToSign, MAX_INPUTS_TO_SIGN>,
 
     pub total_btc_input: u64,
 
-    /// Tracks whether any **non–state-transition** inputs or *any* outputs
-    /// have been added to the transaction via builder helpers.
-    ///
-    /// Once this becomes `true`, no further state transitions may be added
-    /// through [`TransactionBuilder::add_state_transition`] or
-    /// [`TransactionBuilder::insert_state_transition_input`].
-    has_seen_non_state_io_or_output: bool,
+    /// One entry per input added through the builder, in transaction order.
+    input_records: Vec<InputRecord>,
 
-    _phantom: std::marker::PhantomData<RuneSet>,
+    _phantom: std::marker::PhantomData<(&'info (), RuneSet)>,
 
     #[cfg(feature = "runes")]
     pub total_rune_inputs: RuneSet,
@@ -659,52 +595,44 @@ impl<
         Self {
             transaction,
             tx_statuses: MempoolInfo::default(),
-            modified_accounts: FixedList::new(),
             inputs_to_sign: FixedRefList::new(),
             total_btc_input: 0,
-            has_seen_non_state_io_or_output: false,
+            input_records: Vec::new(),
 
             #[cfg(feature = "utxo-consolidation")]
             total_btc_consolidation_input: 0,
             #[cfg(feature = "utxo-consolidation")]
             extra_tx_size_for_consolidation: 0,
-            _phantom: std::marker::PhantomData::<RuneSet>,
+            _phantom: std::marker::PhantomData,
         }
     }
 
+    /// Wraps an existing `transaction` whose inputs spend exactly the outpoints in `user_utxos`.
+    ///
+    /// Each input must spend a distinct outpoint described by exactly one entry of `user_utxos`,
+    /// and every entry must be spent; totals are computed from those matched entries.
     #[cfg(not(feature = "runes"))]
     pub fn new_with_transaction<const MAX_UTXOS: usize, const MAX_ACCOUNTS: usize>(
         transaction: Transaction,
         mempool_data: &MempoolData<MAX_UTXOS, MAX_ACCOUNTS>,
         user_utxos: &[UtxoInfo],
     ) -> Result<Self, BitcoinTxError> {
-        assert_eq!(transaction.input.len(), user_utxos.len(), "TransactionBuilder::replace_transaction: Transaction input length must match user UTXOs length");
-
-        for input in &transaction.input {
-            let previous_output = &input.previous_output;
-            let utxo_meta = UtxoMeta::from_outpoint(previous_output.txid, previous_output.vout);
-            let utxo = user_utxos.iter().find(|utxo| utxo.meta == utxo_meta);
-            if utxo.is_none() {
-                return Err(BitcoinTxError::UtxoNotFoundInUserUtxos);
-            }
-        }
-
-        let tx_statuses = generate_mempool_info(user_utxos, mempool_data);
-        let total_btc_input = user_utxos.iter().map(|u| u.value).sum::<u64>();
+        let matched = match_inputs_to_utxos(&transaction, user_utxos)?;
+        let (input_records, total_btc_input) = records_for(&matched)?;
+        let tx_statuses = generate_mempool_info(user_utxos, mempool_data)?;
 
         Ok(Self {
             transaction,
             tx_statuses,
-            modified_accounts: FixedList::new(),
             inputs_to_sign: FixedRefList::new(),
             total_btc_input,
-            has_seen_non_state_io_or_output: false,
+            input_records,
 
             #[cfg(feature = "utxo-consolidation")]
             total_btc_consolidation_input: 0,
             #[cfg(feature = "utxo-consolidation")]
             extra_tx_size_for_consolidation: 0,
-            _phantom: std::marker::PhantomData::<RuneSet>,
+            _phantom: std::marker::PhantomData,
         })
     }
 
@@ -770,10 +698,9 @@ impl<
         Self {
             transaction,
             tx_statuses: MempoolInfo::default(),
-            modified_accounts: FixedList::new(),
             inputs_to_sign: FixedRefList::new(),
             total_btc_input: 0,
-            has_seen_non_state_io_or_output: false,
+            input_records: Vec::new(),
 
             total_rune_inputs: RuneSet::default(),
             runestone: Runestone::default(),
@@ -782,36 +709,31 @@ impl<
             total_btc_consolidation_input: 0,
             #[cfg(feature = "utxo-consolidation")]
             extra_tx_size_for_consolidation: 0,
-            _phantom: std::marker::PhantomData::<RuneSet>,
+            _phantom: std::marker::PhantomData,
         }
     }
 
+    /// Wraps an existing `transaction` whose inputs spend exactly the outpoints in `user_utxos`.
+    ///
+    /// Each input must spend a distinct outpoint described by exactly one entry of `user_utxos`,
+    /// and every entry must be spent; totals are computed from those matched entries.
     #[cfg(feature = "runes")]
     pub fn new_with_transaction(
         transaction: Transaction,
         mempool_data: &impl MempoolDataView,
         user_utxos: &[UtxoInfo<RuneSet>],
     ) -> Result<Self, BitcoinTxError> {
-        if transaction.input.len() != user_utxos.len() {
-            return Err(BitcoinTxError::TransactionInputLengthMustMatchUserUtxosLength);
-        }
+        let matched = match_inputs_to_utxos(&transaction, user_utxos)?;
 
         let mut total_rune_inputs = RuneSet::default();
-        for input in &transaction.input {
-            let previous_output = &input.previous_output;
-            let utxo_meta = UtxoMeta::from_outpoint(previous_output.txid, previous_output.vout);
-            let utxo = user_utxos.iter().find(|utxo| utxo.meta == utxo_meta);
-            if let Some(utxo) = utxo {
-                for rune in utxo.runes.as_slice() {
-                    add_rune_input(&mut total_rune_inputs, rune.clone())?;
-                }
-            } else {
-                return Err(BitcoinTxError::UtxoNotFoundInUserUtxos);
+        for utxo in &matched {
+            for rune in utxo.runes.as_slice() {
+                add_rune_input(&mut total_rune_inputs, rune.clone())?;
             }
         }
 
-        let tx_statuses = generate_mempool_info(user_utxos, mempool_data);
-        let total_btc_input = user_utxos.iter().map(|u| u.value).sum::<u64>();
+        let (input_records, total_btc_input) = records_for(&matched)?;
+        let tx_statuses = generate_mempool_info(user_utxos, mempool_data)?;
 
         let runestone = match Runestone::decipher(&transaction) {
             Some(artifact) => match artifact {
@@ -824,10 +746,9 @@ impl<
         Ok(Self {
             transaction,
             tx_statuses,
-            modified_accounts: FixedList::new(),
             inputs_to_sign: FixedRefList::new(),
             total_btc_input,
-            has_seen_non_state_io_or_output: false,
+            input_records,
 
             total_rune_inputs,
             runestone,
@@ -836,158 +757,54 @@ impl<
             total_btc_consolidation_input: 0,
             #[cfg(feature = "utxo-consolidation")]
             extra_tx_size_for_consolidation: 0,
-            _phantom: std::marker::PhantomData::<RuneSet>,
+            _phantom: std::marker::PhantomData,
         })
     }
 
-    /// Adds a state transition for an existing program account.
+    /// Formerly added a state transition for an existing program account.
     ///
-    /// This method handles the complete process of adding a state transition to the transaction,
-    /// which is required when updating any program-derived account (PDA) or state account on Arch.
-    ///
-    /// ## What it does
-    ///
-    /// The method performs these operations atomically:
-    /// 1. **Adds signing requirement**: Creates an [`InputToSign`] entry so Arch knows which key must sign the input
-    /// 2. **Adds meta-instruction**: Appends the state transition meta-instruction to the transaction
-    /// 3. **Tracks modification**: Adds the account to the `modified_accounts` list for Arch's state saving
-    /// 4. **Updates input total**: Increments `total_btc_input` by [`constants::DUST_LIMIT`] (546 sats)
-    ///
-    /// ## When to use
-    ///
-    /// Use this method when you need to:
-    /// - Update an existing program account
-    /// - Modify state stored in a PDA
-    /// - Perform any operation that changes account data
-    ///
-    /// ## Account Requirements
-    ///
-    /// The account must:
-    /// - Have a valid UTXO backing it on-chain
-    /// - Be owned by a program that you have authority to modify
-    /// - Have exactly [`constants::DUST_LIMIT`] satoshis in its UTXO
-    ///
-    /// ## Examples
-    ///
-    /// ```rust,no_run
-    /// # use arch_satellite_bitcoin_transactions::{TransactionBuilder, SignPolicy};
-    /// # use arch_program::account::AccountInfo;
-    /// # let mut builder: TransactionBuilder<8, 4, arch_satellite_bitcoin_transactions::utxo_info::SingleRuneSet> = TransactionBuilder::new();
-    /// # let account: AccountInfo<'static> = unsafe { std::mem::zeroed() };
-    /// // Add a state transition for an existing liquidity pool account
-    /// builder.add_state_transition(&account, SignPolicy::Managed)?;
-    ///
-    /// // The builder now knows:
-    /// // - This account will be modified
-    /// // - The account's key must sign the transaction
-    /// // - 546 sats are consumed from the account's UTXO
-    /// # Ok::<(), arch_satellite_bitcoin_transactions::error::BitcoinTxError>(())
-    /// ```
-    ///
-    /// ## Error Handling
-    ///
-    /// Returns [`BitcoinTxError::InputToSignListFull`] if the builder has reached its
-    /// `MAX_INPUTS_TO_SIGN` limit, or [`BitcoinTxError::ModifiedAccountListFull`] if
-    /// the `MAX_MODIFIED_ACCOUNTS` limit is exceeded.
-    ///
-    /// ## See Also
-    ///
-    /// - [`Self::insert_state_transition_input`] for position-specific insertions
+    /// Since Arch 0.9 an account keeps the UTXO it was created with and the runtime rejects any
+    /// attempt to spend or move it (`AccountUtxoModified`), so a state transition can never be
+    /// signed. This method is kept for source compatibility, leaves the builder unchanged and
+    /// always returns [`BitcoinTxError::StateTransitionsUnsupported`].
+    #[deprecated(
+        since = "0.33.0",
+        note = "account UTXOs are immutable since Arch 0.9; state transitions always fail"
+    )]
     pub fn add_state_transition(
         &mut self,
-        account: &AccountInfo<'info>,
-        policy: SignPolicy,
+        _account: &AccountInfo<'info>,
+        _policy: SignPolicy,
     ) -> Result<u32, BitcoinTxError> {
-        if self.has_seen_non_state_io_or_output {
-            return Err(BitcoinTxError::InvalidStateTransitionOrdering);
-        }
-
-        let new_input_index = self.transaction.input.len() as u32;
-        if let SignPolicy::Managed = policy {
-            self.inputs_to_sign
-                .push(InputToSign {
-                    index: new_input_index,
-                    signer: account.key.clone(),
-                })
-                .map_err(|_| BitcoinTxError::InputToSignListFull)?;
-        }
-
-        self.modified_accounts
-            .push(ModifiedAccount::new(account.clone()))
-            .map_err(|_| BitcoinTxError::ModifiedAccountListFull)?;
-
-        let utxo_value = add_state_transition(&mut self.transaction, account)
-            .map_err(|_| BitcoinTxError::FailedStateTransition)?;
-        self.total_btc_input += utxo_value;
-
-        Ok(new_input_index)
+        Err(BitcoinTxError::StateTransitionsUnsupported)
     }
 
-    /// Inserts an **existing state‐transition input** at the given `tx_index` keeping all
-    /// internal bookkeeping consistent.
+    /// Formerly inserted a state-transition input at `tx_index`.
     ///
-    /// Use this when the input *order matters* and you need a state-transition (program
-    /// account) input to appear in a specific position.  The function updates
-    /// [`TransactionBuilder::inputs_to_sign`] indices, tracks the modified account and bumps
-    /// [`TransactionBuilder::total_btc_input`].
+    /// Always returns [`BitcoinTxError::StateTransitionsUnsupported`] and leaves the builder
+    /// unchanged; see [`Self::add_state_transition`].
+    #[deprecated(
+        since = "0.33.0",
+        note = "account UTXOs are immutable since Arch 0.9; state transitions always fail"
+    )]
     pub fn insert_state_transition_input(
         &mut self,
-        tx_index: usize,
-        account: &AccountInfo<'info>,
-        policy: SignPolicy,
+        _tx_index: usize,
+        _account: &AccountInfo<'info>,
+        _policy: SignPolicy,
     ) -> Result<(), BitcoinTxError> {
-        if self.has_seen_non_state_io_or_output {
-            return Err(BitcoinTxError::InvalidStateTransitionOrdering);
-        }
-
-        let txid = account.utxo.to_txid();
-        let utxo_outpoint = OutPoint {
-            txid,
-            vout: account.utxo.vout(),
-        };
-
-        self.transaction.input.insert(
-            tx_index,
-            TxIn {
-                previous_output: utxo_outpoint,
-                script_sig: ScriptBuf::new(),
-                sequence: Sequence::MAX,
-                witness: Witness::new(),
-            },
-        );
-
-        let tx_index_u32 = tx_index as u32;
-        for input in self.inputs_to_sign.iter_mut() {
-            if input.index >= tx_index_u32 {
-                input.index += 1;
-            }
-        }
-
-        if let SignPolicy::Managed = policy {
-            self.inputs_to_sign
-                .push(InputToSign {
-                    index: tx_index_u32,
-                    signer: account.key.clone(),
-                })
-                .map_err(|_| BitcoinTxError::InputToSignListFull)?;
-        }
-
-        self.modified_accounts
-            .push(ModifiedAccount::new(account.clone()))
-            .map_err(|_| BitcoinTxError::ModifiedAccountListFull)?;
-
-        // UTXO accounts always have dust limit amount.
-        self.total_btc_input += DUST_LIMIT;
-
-        Ok(())
+        Err(BitcoinTxError::StateTransitionsUnsupported)
     }
 
     /// Adds a regular input owned by `signer`.
     ///
     /// Besides pushing the `TxIn` into the underlying `transaction`, this helper:
-    /// * Records mempool ancestry via [`TransactionBuilder::add_tx_status`].
+    /// * Records mempool ancestry for fee-rate purposes.
     /// * Adds an [`InputToSign`].
     /// * Updates `total_btc_input` (and `total_rune_input` when compiled with the `runes` feature).
+    ///
+    /// Fails without changing the builder if the outpoint is already spent by another input,
+    /// the [`InputToSign`] list is full, or a running total would overflow.
     pub fn add_tx_input<RS>(
         &mut self,
         utxo: &UtxoInfo<RS>,
@@ -997,42 +814,20 @@ impl<
     where
         RS: FixedCapacitySet<Item = RuneAmount>,
     {
-        self.has_seen_non_state_io_or_output = true;
-
-        if let Some(signer) = signer {
-            self.inputs_to_sign
-                .push(InputToSign {
-                    index: self.transaction.input.len() as u32,
-                    signer: *signer,
-                })
-                .map_err(|_| BitcoinTxError::InputToSignListFull)?;
-        }
-
-        let outpoint = utxo.meta.to_outpoint();
-
-        self.add_tx_status(utxo, &status);
-
-        self.transaction.input.push(TxIn {
-            previous_output: outpoint,
-            script_sig: ScriptBuf::new(),
-            sequence: Sequence::MAX,
-            witness: Witness::new(),
-        });
-
-        self.total_btc_input += utxo.value;
-
-        #[cfg(feature = "runes")]
-        {
-            for rune in utxo.runes.as_slice() {
-                self.add_rune_input(rune.clone())?;
-            }
-        }
-
-        Ok(())
+        self.add_input(
+            self.transaction.input.len(),
+            utxo,
+            status,
+            unsigned_tx_in(utxo),
+            signer,
+        )
     }
 
     /// Appends a **user-supplied** [`TxIn`] (already built elsewhere) while still tracking the
     /// UTXO ancestry for fee-rate purposes.
+    ///
+    /// `tx_in.previous_output` must be the outpoint described by `utxo`; otherwise the call fails
+    /// with [`BitcoinTxError::UtxoOutpointMismatch`] and the builder is unchanged.
     pub fn add_user_tx_input<RS>(
         &mut self,
         utxo: &UtxoInfo<RS>,
@@ -1042,30 +837,15 @@ impl<
     where
         RS: FixedCapacitySet<Item = RuneAmount>,
     {
-        self.has_seen_non_state_io_or_output = true;
-
-        self.add_tx_status(utxo, status);
-
-        self.transaction.input.push(tx_in);
-
-        self.total_btc_input += utxo.value;
-
-        #[cfg(feature = "runes")]
-        {
-            for rune in utxo.runes.as_slice() {
-                self.add_rune_input(rune.clone())?;
-            }
-        }
-
-        Ok(())
+        self.add_input(self.transaction.input.len(), utxo, status, tx_in, None)
     }
 
     /// Inserts a **regular** (non-state–account) [`TxIn`] at the given position `tx_index`.
     ///
-    /// Besides pushing the new input into [`TransactionBuilder::transaction`], this helper keeps
+    /// Besides inserting the new input into [`TransactionBuilder::transaction`], this helper keeps
     /// all *internal bookkeeping* consistent:
     ///
-    /// 1. Records the mempool ancestry for fee-rate calculations via [`Self::add_tx_status`].
+    /// 1. Records the mempool ancestry for fee-rate calculations.
     /// 2. Shifts the `index` of every existing [`arch_program::input_to_sign::InputToSign`] that
     ///    appears **at or after** `tx_index` so their indices continue to match the underlying
     ///    transaction after the insertion.
@@ -1076,6 +856,9 @@ impl<
     ///
     /// Use this when the *order* of inputs matters – for example when signing with PSBTs that
     /// expect user inputs to appear before program-generated ones.
+    ///
+    /// Fails without changing the builder if `tx_index` is past the end of the inputs
+    /// ([`BitcoinTxError::InvalidInputIndex`]), or for any reason [`Self::add_tx_input`] fails.
     ///
     /// # Parameters
     /// * `tx_index` – zero-based index where the input should be inserted.
@@ -1092,49 +875,7 @@ impl<
     where
         RS: FixedCapacitySet<Item = RuneAmount>,
     {
-        self.has_seen_non_state_io_or_output = true;
-
-        let outpoint = utxo.meta.to_outpoint();
-
-        self.add_tx_status(utxo, status);
-
-        self.transaction.input.insert(
-            tx_index,
-            TxIn {
-                previous_output: outpoint,
-                script_sig: ScriptBuf::new(),
-                sequence: Sequence::MAX,
-                witness: Witness::new(),
-            },
-        );
-
-        // More efficient update of indices
-        let tx_index_u32 = tx_index as u32;
-        for input in self.inputs_to_sign.iter_mut() {
-            if input.index >= tx_index_u32 {
-                input.index += 1;
-            }
-        }
-
-        if let Some(signer) = signer {
-            self.inputs_to_sign
-                .push(InputToSign {
-                    index: tx_index_u32,
-                    signer: *signer,
-                })
-                .map_err(|_| BitcoinTxError::InputToSignListFull)?;
-        }
-
-        self.total_btc_input += utxo.value;
-
-        #[cfg(feature = "runes")]
-        {
-            for rune in utxo.runes.as_slice() {
-                self.add_rune_input(rune.clone())?;
-            }
-        }
-
-        Ok(())
+        self.add_input(tx_index, utxo, status, unsigned_tx_in(utxo), signer)
     }
 
     /// Inserts a **pre-constructed** [`TxIn`] – built elsewhere – at the specified `tx_index`.
@@ -1142,14 +883,14 @@ impl<
     /// The function behaves similarly to [`Self::insert_tx_input`] but **does not** create a new
     /// [`InputToSign`], as the caller may already have handled signature tracking. It still:
     ///
-    /// * Accounts for the input's mempool ancestry using [`Self::add_tx_status`].
+    /// * Accounts for the input's mempool ancestry.
     /// * Shifts the indices of all existing [`InputToSign`] that come after `tx_index` so they
     ///   remain correct.
     /// * Updates BTC / rune running totals.
     ///
     /// This is handy when you have a non-standard script or any other reason to fully craft the
     /// `TxIn` outside of the builder but still need to place it at a precise position inside the
-    /// transaction.
+    /// transaction. `tx_in.previous_output` must be the outpoint described by `utxo`.
     ///
     /// # Parameters
     /// * `tx_index` – position where `tx_in` should be inserted.
@@ -1166,30 +907,7 @@ impl<
     where
         RS: FixedCapacitySet<Item = RuneAmount>,
     {
-        self.has_seen_non_state_io_or_output = true;
-
-        self.add_tx_status(utxo, status);
-
-        self.transaction.input.insert(tx_index, tx_in.clone());
-
-        // More efficient update of indices
-        let tx_index_u32 = tx_index as u32;
-        for input in self.inputs_to_sign.iter_mut() {
-            if input.index >= tx_index_u32 {
-                input.index += 1;
-            }
-        }
-
-        self.total_btc_input += utxo.value;
-
-        #[cfg(feature = "runes")]
-        {
-            for rune in utxo.runes.as_slice() {
-                self.add_rune_input(rune.clone())?;
-            }
-        }
-
-        Ok(())
+        self.add_input(tx_index, utxo, status, tx_in.clone(), None)
     }
 
     /// Greedily selects UTXOs until at least `amount` satoshis are gathered.
@@ -1314,10 +1032,6 @@ impl<
         fee_rate: &FeeRate,
         address_to_send_remaining_btc: Option<ScriptBuf>,
     ) -> Result<(), BitcoinTxError> {
-        // This helper may create or adjust outputs; once called we are
-        // definitively past the state-transition-only phase.
-        self.has_seen_non_state_io_or_output = true;
-
         adjust_transaction_to_pay_fees(
             &mut self.transaction,
             &self.tx_statuses,
@@ -1359,11 +1073,9 @@ impl<
         pool_shard_btc_utxos: &[BtcHolder],
         new_potential_inputs_and_outputs: &NewPotentialInputsAndOutputs,
     ) {
-        // Consolidation always introduces additional non-state inputs.
-        self.has_seen_non_state_io_or_output = true;
-
         let (total_consolidation_input_amount, extra_tx_size) = add_consolidation_utxos(
             &mut self.transaction,
+            &mut self.input_records,
             &mut self.tx_statuses,
             &mut self.inputs_to_sign,
             pool_pubkey,
@@ -1373,7 +1085,11 @@ impl<
             ARCH_INPUT_SIZE,
         );
 
-        self.total_btc_input += total_consolidation_input_amount;
+        // An overflow here leaves `total_btc_input` below the recorded input values, which
+        // `validate` rejects at `finalize`.
+        self.total_btc_input = self
+            .total_btc_input
+            .saturating_add(total_consolidation_input_amount);
         self.set_consolidation_tracking(total_consolidation_input_amount, extra_tx_size);
     }
 
@@ -1388,7 +1104,9 @@ impl<
         let tx_size_to_be_paid_by_user = {
             #[cfg(feature = "utxo-consolidation")]
             {
-                tx_size - self.extra_tx_size_for_consolidation
+                tx_size
+                    .checked_sub(self.extra_tx_size_for_consolidation)
+                    .ok_or(BitcoinTxError::CalcOverflow)?
             }
             #[cfg(not(feature = "utxo-consolidation"))]
             {
@@ -1445,12 +1163,7 @@ impl<
     ///
     /// Fails with [`BitcoinTxError::InsufficientInputAmount`] if outputs exceed inputs.
     pub fn get_fee_paid(&self) -> Result<u64, BitcoinTxError> {
-        let output_amount = self
-            .transaction
-            .output
-            .iter()
-            .map(|output| output.value.to_sat())
-            .sum::<u64>();
+        let output_amount = total_output_value(&self.transaction)?;
 
         let fee_paid = self
             .total_btc_input
@@ -1483,7 +1196,9 @@ impl<
             .checked_add(total_fee_of_pending_utxos)
             .ok_or(BitcoinTxError::InsufficientInputAmount)?;
 
-        let tx_size_with_ancestors = tx_size + total_size_of_pending_utxos;
+        let tx_size_with_ancestors = tx_size
+            .checked_add(total_size_of_pending_utxos)
+            .ok_or(BitcoinTxError::CalcOverflow)?;
 
         let real_fee_rate_with_ancestors =
             FeeRate::try_from(fee_paid_with_ancestors as f64 / tx_size_with_ancestors as f64)
@@ -1498,14 +1213,8 @@ impl<
 
     /// Returns a slice of transaction inputs that are not state transitions.
     ///
-    /// State transitions are always at the beginning of the transaction and correspond
-    /// to entries in `modified_accounts`. This method returns all inputs after the
-    /// state transition inputs.
-    ///
-    /// ## Returns
-    ///
-    /// A slice of [`TxIn`] containing only non-state-transition inputs. Returns an
-    /// empty slice if all inputs are state transitions or if there are no inputs.
+    /// State transitions can no longer be added (see [`Self::add_state_transition`]), so this is
+    /// every input of the transaction.
     ///
     /// ## Examples
     ///
@@ -1521,8 +1230,7 @@ impl<
     /// }
     /// ```
     pub fn get_non_state_transition_inputs(&self) -> &[TxIn] {
-        let state_transition_count = self.modified_accounts.len();
-        &self.transaction.input[state_transition_count..]
+        &self.transaction.input
     }
 
     /// Finalizes the transaction and prepares it for signing by the Arch runtime.
@@ -1592,10 +1300,8 @@ impl<
     /// ## Error Handling
     ///
     /// Returns [`ProgramError`] if:
-    /// - The transaction data is invalid
-    /// - Required metadata is missing
+    /// - [`Self::validate`] fails: the builder's bookkeeping no longer describes the transaction
     /// - The Arch runtime cannot accept the transaction
-    /// - Internal state is inconsistent
     ///
     /// ## See Also
     ///
@@ -1603,34 +1309,15 @@ impl<
     /// - [`Self::is_fee_rate_valid`] for fee validation
     /// - [`arch_program::program::set_transaction_to_sign`] for the underlying mechanism
     pub fn finalize(&mut self) -> Result<(), ProgramError> {
-        set_transaction_to_sign(
-            self.modified_accounts.as_slice(),
+        self.validate()?;
+
+        set_transaction_to_sign::<AccountInfo<'info>>(
+            &[],
             &self.transaction,
             self.inputs_to_sign.as_slice(),
         )?;
 
         Ok(())
-    }
-
-    fn add_tx_status<RS>(&mut self, utxo: &UtxoInfo<RS>, status: &TxStatus)
-    where
-        RS: FixedCapacitySet<Item = RuneAmount>,
-    {
-        // Check if we have not added this txid yet.
-        for input in &self.transaction.input {
-            let input_txid = txid_to_bytes_big_endian(&input.previous_output.txid);
-            if input_txid == utxo.meta.txid_big_endian() {
-                return;
-            }
-        }
-
-        match status {
-            TxStatus::Pending(info) => {
-                self.tx_statuses.total_fee += info.total_fee;
-                self.tx_statuses.total_size += info.total_size;
-            }
-            TxStatus::Confirmed => {}
-        }
     }
 
     #[cfg(feature = "runes")]
@@ -1639,6 +1326,28 @@ impl<
 
         Ok(())
     }
+}
+
+fn unsigned_tx_in<RS>(utxo: &UtxoInfo<RS>) -> TxIn
+where
+    RS: FixedCapacitySet<Item = RuneAmount>,
+{
+    TxIn {
+        previous_output: utxo.meta.to_outpoint(),
+        script_sig: ScriptBuf::new(),
+        sequence: Sequence::MAX,
+        witness: Witness::new(),
+    }
+}
+
+fn total_output_value(transaction: &Transaction) -> Result<u64, BitcoinTxError> {
+    transaction
+        .output
+        .iter()
+        .try_fold(0u64, |total, output| {
+            total.checked_add(output.value.to_sat())
+        })
+        .ok_or(BitcoinTxError::CalcOverflow)
 }
 
 pub fn add_rune_input<RuneSet: FixedCapacitySet<Item = RuneAmount> + Default>(
@@ -1670,7 +1379,7 @@ mod tests {
     use crate::utxo_info::SingleRuneSet;
     use arch_program::rune::{RuneAmount, RuneId};
     use arch_program::utxo::UtxoMeta;
-    use bitcoin::{Amount, TxOut};
+    use bitcoin::{Amount, OutPoint, TxOut};
 
     #[allow(unused_macros)]
     macro_rules! new_tb {
@@ -1741,7 +1450,7 @@ mod tests {
             assert_eq!(builder.total_btc_consolidation_input, 0);
             #[cfg(feature = "utxo-consolidation")]
             assert_eq!(builder.extra_tx_size_for_consolidation, 0);
-            assert_eq!(builder.modified_accounts.len(), 0);
+            assert!(builder.input_records.is_empty());
             assert_eq!(builder.inputs_to_sign.len(), 0);
         }
     }
@@ -2027,7 +1736,7 @@ mod tests {
             let status = TxStatus::Confirmed;
 
             // Manually test the add_tx_status logic
-            builder.add_tx_status(&utxo, &status);
+            builder.tx_statuses = builder.tx_statuses_with(&utxo, &status).unwrap();
 
             assert_eq!(builder.tx_statuses.total_fee, 0);
             assert_eq!(builder.tx_statuses.total_size, 0);
@@ -2044,33 +1753,10 @@ mod tests {
             let status = TxStatus::Pending(pending_info);
 
             // Manually test the add_tx_status logic
-            builder.add_tx_status(&utxo, &status);
+            builder.tx_statuses = builder.tx_statuses_with(&utxo, &status).unwrap();
 
             assert_eq!(builder.tx_statuses.total_fee, 2000);
             assert_eq!(builder.tx_statuses.total_size, 250);
-        }
-    }
-
-    mod modified_account {
-        use super::*;
-
-        #[test]
-        fn modified_account_new_works() {
-            // This test would require a mock AccountInfo which is complex to create
-            // Skipping for now since we tested the core functionality elsewhere
-        }
-
-        #[test]
-        fn modified_account_default_is_none() {
-            let modified = ModifiedAccount::default();
-            assert!(modified.0.is_none());
-        }
-
-        #[test]
-        #[should_panic(expected = "ModifiedAccount is None")]
-        fn modified_account_as_ref_panics_when_none() {
-            let modified = ModifiedAccount::default();
-            let _ = modified.as_ref();
         }
     }
 
@@ -2250,30 +1936,6 @@ mod tests {
             assert_eq!(slice[2].index, 4); // 2 -> 3 -> 4
             assert_eq!(slice[3].index, 5); // 3 -> 4 -> 5
             assert_eq!(slice[4].index, 6); // 4 -> 5 -> 6
-        }
-    }
-
-    mod modified_accounts_tracking {
-        use super::*;
-
-        #[test]
-        fn tracks_modified_accounts_correctly() {
-            let builder = new_tb!(10, 10);
-
-            // Test that we start with empty modified accounts
-            assert_eq!(builder.modified_accounts.len(), 0);
-
-            // Test that the list is initially empty
-            assert!(builder.modified_accounts.is_empty());
-        }
-
-        #[test]
-        fn respects_max_modified_accounts_limit() {
-            let builder = new_tb!(10, 10);
-
-            // Test that we can't exceed MAX_MODIFIED_ACCOUNTS
-            assert_eq!(builder.modified_accounts.len(), 0);
-            // Note: FixedList doesn't have a capacity() method, but we can test max length through other means
         }
     }
 

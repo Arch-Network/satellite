@@ -65,6 +65,24 @@ pub enum BitcoinTxError {
 
     #[error("State transitions must be added before any other inputs or outputs")]
     InvalidStateTransitionOrdering,
+
+    #[error("Account UTXOs are immutable on Arch; state transitions are no longer supported")]
+    StateTransitionsUnsupported,
+
+    #[error("Input index is out of range")]
+    InvalidInputIndex,
+
+    #[error("The transaction input does not spend the outpoint described by its UTXO metadata")]
+    UtxoOutpointMismatch,
+
+    #[error("The outpoint is already spent by another input of this transaction")]
+    DuplicateInput,
+
+    #[error("An input to sign references a missing input or one that is already registered")]
+    InvalidInputToSign,
+
+    #[error("The transaction inputs no longer match the inputs recorded by the builder")]
+    InputBookkeepingMismatch,
 }
 
 // === Conversions ============================================================

@@ -1,0 +1,30 @@
+[graph]
+all-features = true
+
+[advisories]
+yanked = "deny"
+unmaintained = "workspace"
+# Each entry below is reachable only from the off-chain developer tools
+# (anchor-cli, anchor-client, arch-satellite-avm) through the Solana 2.2 client
+# stack, which pins the affected versions. None reaches a crate that is compiled
+# into an on-chain program. Remove an entry as soon as its fix becomes reachable.
+ignore = [
+    { id = "RUSTSEC-2024-0344", reason = "curve25519-dalek 3.x, pinned by solana-sdk 2.2 via ed25519-dalek 1.x" },
+    { id = "RUSTSEC-2022-0093", reason = "ed25519-dalek 1.x, pinned by solana-sdk 2.2" },
+    { id = "RUSTSEC-2026-0258", reason = "h2 0.3, pinned by reqwest 0.11 in solana-rpc-client and avm; no 0.3 fix" },
+    { id = "RUSTSEC-2026-0037", reason = "quinn-proto, pinned by solana-quic-client's quinn 0.11.6; no compatible fix" },
+    { id = "RUSTSEC-2026-0185", reason = "quinn-proto, pinned by solana-quic-client's quinn 0.11.6; no compatible fix" },
+    { id = "RUSTSEC-2026-0049", reason = "rustls-webpki 0.102, pulled in by quinn-proto 0.11.9 above" },
+    { id = "RUSTSEC-2025-0141", reason = "bincode 1.x is used by anchor-cli to encode Solana instructions, matching solana-sdk 2.2" },
+    { id = "RUSTSEC-2025-0009", reason = "ring 0.16, pinned by rustls 0.21 in the Solana 2.2 and reqwest 0.11 stacks" },
+    { id = "RUSTSEC-2026-0098", reason = "rustls-webpki 0.101, pinned by rustls 0.21; no 0.101 fix" },
+    { id = "RUSTSEC-2026-0099", reason = "rustls-webpki 0.101, pinned by rustls 0.21; no 0.101 fix" },
+    { id = "RUSTSEC-2026-0104", reason = "rustls-webpki 0.101, pinned by rustls 0.21; no 0.101 fix" },
+]
+
+[bans]
+multiple-versions = "allow"
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"

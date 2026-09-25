@@ -115,6 +115,17 @@ impl<'info, T: ZeroCopy + Owner> AccountLoader<'info, T> {
         }
     }
 
+    /// Fails unless `data` can hold the discriminator followed by a `T`.
+    fn check_size(data: &[u8]) -> Result<()> {
+        let required = T::DISCRIMINATOR.len() + mem::size_of::<T>();
+        if data.len() < required {
+            return Err(
+                Error::from(ErrorCode::AccountDataTooSmall).with_values((required, data.len()))
+            );
+        }
+        Ok(())
+    }
+
     /// Constructs a new `Loader` from a previously initialized account.
     #[inline(never)]
     pub fn try_from(acc_info: &'info AccountInfo<'info>) -> Result<AccountLoader<'info, T>> {
@@ -133,6 +144,7 @@ impl<'info, T: ZeroCopy + Owner> AccountLoader<'info, T> {
         if given_disc != disc {
             return Err(ErrorCode::AccountDiscriminatorMismatch.into());
         }
+        Self::check_size(data)?;
 
         Ok(AccountLoader::new(acc_info))
     }
@@ -161,6 +173,7 @@ impl<'info, T: ZeroCopy + Owner> AccountLoader<'info, T> {
         if given_disc != disc {
             return Err(ErrorCode::AccountDiscriminatorMismatch.into());
         }
+        Self::check_size(&data)?;
 
         Ok(Ref::map(data, |data| {
             bytemuck::from_bytes(&data[disc.len()..mem::size_of::<T>() + disc.len()])
@@ -185,6 +198,7 @@ impl<'info, T: ZeroCopy + Owner> AccountLoader<'info, T> {
         if given_disc != disc {
             return Err(ErrorCode::AccountDiscriminatorMismatch.into());
         }
+        Self::check_size(&data)?;
 
         Ok(RefMut::map(data, |data| {
             bytemuck::from_bytes_mut(
@@ -203,6 +217,7 @@ impl<'info, T: ZeroCopy + Owner> AccountLoader<'info, T> {
         }
 
         let data = self.acc_info.try_borrow_mut_data()?;
+        Self::check_size(&data)?;
 
         // The discriminator should be zero, since we're initializing.
         let disc = T::DISCRIMINATOR;
@@ -247,7 +262,9 @@ impl<'info, T: ZeroCopy + Owner> AccountsExit<'info> for AccountLoader<'info, T>
             let mut data = self.acc_info.try_borrow_mut_data()?;
             let dst: &mut [u8] = &mut data;
             let mut writer = BpfWriter::new(dst);
-            writer.write_all(T::DISCRIMINATOR).unwrap();
+            writer
+                .write_all(T::DISCRIMINATOR)
+                .map_err(|_| ErrorCode::AccountDidNotSerialize)?;
         }
         Ok(())
     }

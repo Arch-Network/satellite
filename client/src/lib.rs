@@ -91,6 +91,18 @@ pub fn arch_to_solana_pubkey(pubkey: &ArchPubkey) -> Pubkey {
 pub fn solana_to_arch_pubkey(pubkey: &Pubkey) -> ArchPubkey {
     ArchPubkey::new_from_array(pubkey.to_bytes())
 }
+
+/// Convert an `arch_program` account meta into the Solana SDK type used by this client.
+#[inline]
+pub fn arch_to_solana_account_meta(
+    meta: &arch_satellite_lang::arch_program::account::AccountMeta,
+) -> AccountMeta {
+    AccountMeta {
+        pubkey: arch_to_solana_pubkey(&meta.pubkey),
+        is_signer: meta.is_signer,
+        is_writable: meta.is_writable,
+    }
+}
 use solana_account_decoder::UiAccountEncoding;
 use solana_client::nonblocking::rpc_client::RpcClient as AsyncRpcClient;
 use solana_client::rpc_config::{
@@ -604,8 +616,12 @@ impl<C: Deref<Target = impl Signer> + Clone, S: AsSigner> RequestBuilder<'_, C, 
     /// ```
     #[must_use]
     pub fn accounts(mut self, accounts: impl ToAccountMetas) -> Self {
-        let mut metas = accounts.to_account_metas(None);
-        self.accounts.append(&mut metas);
+        self.accounts.extend(
+            accounts
+                .to_account_metas(None)
+                .iter()
+                .map(arch_to_solana_account_meta),
+        );
         self
     }
 

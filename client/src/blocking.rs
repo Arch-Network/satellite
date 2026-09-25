@@ -2,7 +2,8 @@ use crate::{
     ClientError, Config, EventContext, EventUnsubscriber, Program, ProgramAccountsIterator,
     RequestBuilder,
 };
-use arch_satellite_lang::{prelude::Pubkey, AccountDeserialize, Discriminator};
+use arch_satellite_lang::{AccountDeserialize, Discriminator};
+use solana_sdk::pubkey::Pubkey;
 #[cfg(not(feature = "mock"))]
 use solana_client::rpc_client::RpcClient;
 use solana_client::{

@@ -3,7 +3,7 @@ use crate::config::{
     Manifest, PackageManager, ProgramArch, ProgramDeployment, ProgramWorkspace, ScriptsConfig,
     TestValidator, WithPath, SHUTDOWN_WAIT, STARTUP_WAIT,
 };
-use anchor_client::Cluster;
+use anchor_client::{arch_to_solana_pubkey, solana_to_arch_pubkey, Cluster};
 use anyhow::{anyhow, Context, Result};
 use checks::{check_anchor_version, check_deps, check_idl_build_feature, check_overflow};
 use clap::{CommandFactory, Parser};
@@ -2361,7 +2361,7 @@ fn fetch_idl(cfg_override: &ConfigOverride, idl_addr: Pubkey) -> Result<serde_js
 
     let mut account = client.get_account(&idl_addr)?;
     if account.executable {
-        let idl_addr = IdlAccount::address(&idl_addr);
+        let idl_addr = idl_account_address(&idl_addr);
         account = client.get_account(&idl_addr)?;
     }
 
@@ -2375,6 +2375,10 @@ fn fetch_idl(cfg_override: &ConfigOverride, idl_addr: Pubkey) -> Result<serde_js
     let mut s = Vec::new();
     z.read_to_end(&mut s)?;
     serde_json::from_slice(&s[..]).map_err(Into::into)
+}
+
+fn idl_account_address(program_id: &Pubkey) -> Pubkey {
+    arch_to_solana_pubkey(&IdlAccount::address(&solana_to_arch_pubkey(program_id)))
 }
 
 fn get_idl_account(client: &RpcClient, idl_address: &Pubkey) -> Result<IdlAccount> {
@@ -2410,7 +2414,7 @@ fn idl_close(
     priority_fee: Option<u64>,
 ) -> Result<Pubkey> {
     with_workspace(cfg_override, |cfg| {
-        let idl_address = idl_address.unwrap_or_else(|| IdlAccount::address(&program_id));
+        let idl_address = idl_address.unwrap_or_else(|| idl_account_address(&program_id));
         idl_close_account(cfg, &program_id, idl_address, print_only, priority_fee)?;
 
         Ok(idl_address)
@@ -2448,9 +2452,9 @@ fn idl_set_buffer(
         let url = cluster_url(cfg, &cfg.test_validator);
         let client = create_client(url);
 
-        let idl_address = IdlAccount::address(&program_id);
+        let idl_address = idl_account_address(&program_id);
         let idl_authority = if print_only {
-            get_idl_account(&client, &idl_address)?.authority
+            arch_to_solana_pubkey(&get_idl_account(&client, &idl_address)?.authority)
         } else {
             keypair.pubkey()
         };
@@ -2461,8 +2465,7 @@ fn idl_set_buffer(
                 AccountMeta::new(idl_address, false),
                 AccountMeta::new(idl_authority, true),
             ];
-            let mut data = arch_satellite_lang::idl::IDL_IX_TAG.to_le_bytes().to_vec();
-            data.append(&mut IdlInstruction::SetBuffer.try_to_vec()?);
+            let data = serialize_idl_ix(IdlInstruction::SetBuffer)?;
             Instruction {
                 program_id,
                 accounts,
@@ -2537,7 +2540,7 @@ fn idl_authority(cfg_override: &ConfigOverride, program_id: Pubkey) -> Result<()
         let idl_address = {
             let account = client.get_account(&program_id)?;
             if account.executable {
-                IdlAccount::address(&program_id)
+                idl_account_address(&program_id)
             } else {
                 program_id
             }
@@ -2562,7 +2565,7 @@ fn idl_set_authority(
     with_workspace(cfg_override, |cfg| {
         // Misc.
         let idl_address = match address {
-            None => IdlAccount::address(&program_id),
+            None => idl_account_address(&program_id),
             Some(addr) => addr,
         };
         let keypair = get_keypair(&cfg.provider.wallet.to_string())?;
@@ -2570,14 +2573,16 @@ fn idl_set_authority(
         let client = create_client(url);
 
         let idl_authority = if print_only {
-            get_idl_account(&client, &idl_address)?.authority
+            arch_to_solana_pubkey(&get_idl_account(&client, &idl_address)?.authority)
         } else {
             keypair.pubkey()
         };
 
         // Instruction data.
         let data =
-            serialize_idl_ix(arch_satellite_lang::idl::IdlInstruction::SetAuthority { new_authority })?;
+            serialize_idl_ix(arch_satellite_lang::idl::IdlInstruction::SetAuthority {
+                new_authority: solana_to_arch_pubkey(&new_authority),
+            })?;
 
         // Instruction accounts.
         let accounts = vec![
@@ -2633,7 +2638,7 @@ fn idl_erase_authority(
         cfg_override,
         program_id,
         None,
-        ERASED_AUTHORITY,
+        arch_to_solana_pubkey(&ERASED_AUTHORITY),
         false,
         priority_fee,
     )?;
@@ -2653,7 +2658,7 @@ fn idl_close_account(
     let client = create_client(url);
 
     let idl_authority = if print_only {
-        get_idl_account(&client, &idl_address)?.authority
+        arch_to_solana_pubkey(&get_idl_account(&client, &idl_address)?.authority)
     } else {
         keypair.pubkey()
     };
@@ -3965,7 +3970,7 @@ fn create_idl_account(
     priority_fee: Option<u64>,
 ) -> Result<Pubkey> {
     // Misc.
-    let idl_address = IdlAccount::address(program_id);
+    let idl_address = idl_account_address(program_id);
     let keypair = get_keypair(keypair_path)?;
     let url = cluster_url(cfg, &cfg.test_validator);
     let client = create_client(url);
@@ -3994,7 +3999,7 @@ fn create_idl_account(
             AccountMeta::new_readonly(keypair.pubkey(), true),
             AccountMeta::new(idl_address, false),
             AccountMeta::new_readonly(program_signer, false),
-            AccountMeta::new_readonly(solana_sdk::system_program::SYSTEM_PROGRAM_ID, false),
+            AccountMeta::new_readonly(solana_sdk::system_program::ID, false),
             AccountMeta::new_readonly(*program_id, false),
         ];
         instructions.push(Instruction {
@@ -4010,7 +4015,7 @@ fn create_idl_account(
                 accounts: vec![
                     AccountMeta::new(idl_address, false),
                     AccountMeta::new_readonly(keypair.pubkey(), true),
-                    AccountMeta::new_readonly(solana_sdk::system_program::SYSTEM_PROGRAM_ID, false),
+                    AccountMeta::new_readonly(solana_sdk::system_program::ID, false),
                 ],
                 data,
             });
@@ -4047,7 +4052,7 @@ fn create_idl_account(
         cfg,
         program_id,
         idl,
-        IdlAccount::address(program_id),
+        idl_account_address(program_id),
         priority_fee,
     )?;
 
@@ -4086,8 +4091,7 @@ fn create_idl_buffer(
             AccountMeta::new(buffer.pubkey(), false),
             AccountMeta::new_readonly(keypair.pubkey(), true),
         ];
-        let mut data = arch_satellite_lang::idl::IDL_IX_TAG.to_le_bytes().to_vec();
-        data.append(&mut IdlInstruction::CreateBuffer.try_to_vec()?);
+        let data = serialize_idl_ix(IdlInstruction::CreateBuffer)?;
         Instruction {
             program_id: *program_id,
             accounts,

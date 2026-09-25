@@ -18,7 +18,8 @@ where
 {
     /// Greedily selects UTXOs until at least `amount` satoshis are gathered.
     ///
-    /// Returns the indices of the chosen items plus the total value selected.
+    /// Returns the indices of the chosen items plus the total value selected. On error no input
+    /// is added.
     pub fn find_btc_in_utxos<T>(
         &mut self,
         utxos: &[T],
@@ -27,6 +28,23 @@ where
     ) -> Result<(Vec<usize>, u64), BitcoinTxError>
     where
         T: AsRef<UtxoInfo<RuneSet>>, // same RuneSet generic as builder
+    {
+        let checkpoint = self.checkpoint();
+        let result = self.select_btc_in_utxos(utxos, program_info_pubkey, amount);
+        if result.is_err() {
+            self.rollback(checkpoint);
+        }
+        result
+    }
+
+    fn select_btc_in_utxos<T>(
+        &mut self,
+        utxos: &[T],
+        program_info_pubkey: &Pubkey,
+        amount: u64,
+    ) -> Result<(Vec<usize>, u64), BitcoinTxError>
+    where
+        T: AsRef<UtxoInfo<RuneSet>>,
     {
         if amount == 0 {
             return Ok((Vec::new(), 0));
@@ -72,12 +90,13 @@ where
             let utxo = &utxos[utxo_idx];
             utxo_indices[selected_count] = utxo_idx;
             selected_count += 1;
-            btc_amount += self.add_btc_input_for_simple(
+            let added = self.add_btc_input_for_simple(
                 utxo,
                 program_info_pubkey,
                 &mut consolidation_inputs_count,
                 &mut total_consolidation_input_amount,
             )?;
+            btc_amount = u64::checked_add(btc_amount, added).ok_or(BitcoinTxError::CalcOverflow)?;
         }
 
         if btc_amount < amount {
@@ -96,7 +115,31 @@ where
 
     /// Greedily selects UTXOs from holders until at least `amount` satoshis are gathered.
     /// Optionally targets `amount + DUST_LIMIT` with early exit allowed on exact `amount`.
+    /// On error no input is added.
     pub fn find_btc_in_utxos_from_holder<BtcHolder>(
+        &mut self,
+        holder: &[BtcHolder],
+        program_info_pubkey: &Pubkey,
+        amount: u64,
+        enforce_dust_remainder: bool,
+    ) -> Result<u64, BitcoinTxError>
+    where
+        BtcHolder: BtcUtxoHolder,
+    {
+        let checkpoint = self.checkpoint();
+        let result = self.select_btc_from_holders(
+            holder,
+            program_info_pubkey,
+            amount,
+            enforce_dust_remainder,
+        );
+        if result.is_err() {
+            self.rollback(checkpoint);
+        }
+        result
+    }
+
+    fn select_btc_from_holders<BtcHolder>(
         &mut self,
         holder: &[BtcHolder],
         program_info_pubkey: &Pubkey,
@@ -249,6 +292,10 @@ where
             Item = arch_program::rune::RuneAmount,
         >,
     {
+        if selected_pairs.len() >= MAX_INPUTS_TO_SIGN {
+            return Err(BitcoinTxError::InputToSignListFull);
+        }
+
         self.add_tx_input(utxo_ref, &TxStatus::Confirmed, Some(program_info_pubkey))?;
 
         let added: u64 = utxo_ref.value;
@@ -257,7 +304,8 @@ where
         {
             if utxo_ref.needs_consolidation.is_some() {
                 *consolidation_inputs_count += 1;
-                *total_consolidation_input_amount += utxo_ref.value;
+                *total_consolidation_input_amount =
+                    total_consolidation_input_amount.saturating_add(utxo_ref.value);
             }
         }
 
@@ -282,7 +330,8 @@ where
         #[cfg(feature = "utxo-consolidation")]
         if utxo_ref.needs_consolidation.is_some() {
             *consolidation_inputs_count += 1;
-            *total_consolidation_input_amount += utxo_ref.value;
+            *total_consolidation_input_amount =
+                total_consolidation_input_amount.saturating_add(utxo_ref.value);
         }
 
         Ok(utxo_ref.value)
@@ -629,10 +678,10 @@ mod tests {
                 utxos: vec![utxo(700, 0)],
             },
             TestHolder {
-                utxos: vec![utxo(2_000, 0)],
+                utxos: vec![utxo(2_000, 1)],
             },
             TestHolder {
-                utxos: vec![utxo(300, 0)],
+                utxos: vec![utxo(300, 2)],
             },
         ];
 
@@ -868,7 +917,9 @@ mod tests {
         // Mark the best overall candidate (holder 0, utxo 0) as already selected
         selected.push((0, 0)).unwrap();
 
-        let best = builder.pick_best_btc_candidate(&holders, &selected).unwrap();
+        let best = builder
+            .pick_best_btc_candidate(&holders, &selected)
+            .unwrap();
         // Should now pick the next best, which is holder 1's 4k utxo
         assert_eq!(best, (1, 0));
     }
@@ -907,8 +958,12 @@ mod tests {
     fn minimally_involve_each_holder_errors_when_selection_capacity_full() {
         // selected_pairs is full; attempting to minimally involve another holder should error
         let holders = vec![
-            TestHolder { utxos: vec![utxo(700, 0)] },
-            TestHolder { utxos: vec![utxo(800, 0)] },
+            TestHolder {
+                utxos: vec![utxo(700, 0)],
+            },
+            TestHolder {
+                utxos: vec![utxo(800, 0)],
+            },
         ];
 
         let mut builder: TransactionBuilder<8, 1, SingleRuneSet> = TransactionBuilder::new();
@@ -947,7 +1002,7 @@ mod tests {
                 utxos: vec![cons(100, 0), utxo(1_000, 1)],
             },
             TestHolder {
-                utxos: vec![cons(200, 0), utxo(500, 1)],
+                utxos: vec![cons(200, 2), utxo(500, 3)],
             },
         ];
 
@@ -968,12 +1023,8 @@ mod tests {
             .unwrap();
 
         assert_eq!(added, 1_500);
-        assert!(selected_pairs
-            .iter()
-            .any(|&(h, u)| h == 0 && u == 1));
-        assert!(selected_pairs
-            .iter()
-            .any(|&(h, u)| h == 1 && u == 1));
+        assert!(selected_pairs.iter().any(|&(h, u)| h == 0 && u == 1));
+        assert!(selected_pairs.iter().any(|&(h, u)| h == 1 && u == 1));
     }
 
     #[test]

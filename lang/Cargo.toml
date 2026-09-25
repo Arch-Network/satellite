@@ -54,8 +54,7 @@ arch-satellite-derive-space = { workspace = true }
 arch-satellite-lang-idl = { workspace = true, optional = true }
 
 base64 = "0.21"
-bincode = "1"
 borsh = { version = "1.4.0" }
 bytemuck = "1.14"
-arch_program = { version = "0.8.4" }
+arch_program = { version = "0.10.0" }
 thiserror = "1.0.61"

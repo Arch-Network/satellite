@@ -541,25 +541,82 @@ impl arch_satellite_lang::Ids for Token {
 // outside of these methods.
 pub mod accessor {
     use super::*;
+    use arch_satellite_lang::error::ErrorCode;
+
+    fn read<const N: usize>(account: &AccountInfo, offset: usize) -> Result<[u8; N]> {
+        let bytes = account.try_borrow_data()?;
+        bytes
+            .get(offset..offset + N)
+            .and_then(|field| field.try_into().ok())
+            .ok_or_else(|| ErrorCode::AccountDataTooSmall.into())
+    }
 
     pub fn amount(account: &AccountInfo) -> Result<u64> {
-        let bytes = account.try_borrow_data()?;
-        let mut amount_bytes = [0u8; 8];
-        amount_bytes.copy_from_slice(&bytes[64..72]);
-        Ok(u64::from_le_bytes(amount_bytes))
+        Ok(u64::from_le_bytes(read(account, 64)?))
     }
 
     pub fn mint(account: &AccountInfo) -> Result<Pubkey> {
-        let bytes = account.try_borrow_data()?;
-        let mut mint_bytes = [0u8; 32];
-        mint_bytes.copy_from_slice(&bytes[..32]);
-        Ok(Pubkey::new_from_array(mint_bytes))
+        Ok(Pubkey::new_from_array(read(account, 0)?))
     }
 
     pub fn authority(account: &AccountInfo) -> Result<Pubkey> {
-        let bytes = account.try_borrow_data()?;
-        let mut owner_bytes = [0u8; 32];
-        owner_bytes.copy_from_slice(&bytes[32..64]);
-        Ok(Pubkey::new_from_array(owner_bytes))
+        Ok(Pubkey::new_from_array(read(account, 32)?))
+    }
+
+    #[cfg(test)]
+    mod tests {
+        use super::*;
+        use arch_satellite_lang::arch_program::utxo::UtxoMeta;
+        use arch_satellite_lang::error::Error;
+
+        fn with_data(data: Vec<u8>, f: impl FnOnce(&AccountInfo)) {
+            let key = Pubkey::new_unique();
+            let owner = Pubkey::new_unique();
+            let mut lamports = 0;
+            let mut data = data;
+            let utxo = UtxoMeta::default();
+            let info = AccountInfo::new(
+                &key,
+                &mut lamports,
+                &mut data,
+                &owner,
+                &utxo,
+                false,
+                false,
+                false,
+            );
+            f(&info);
+        }
+
+        fn is_too_small<T: std::fmt::Debug>(result: Result<T>) -> bool {
+            matches!(
+                result,
+                Err(Error::AnchorError(e))
+                    if e.error_code_number == u32::from(ErrorCode::AccountDataTooSmall)
+            )
+        }
+
+        #[test]
+        fn short_accounts_are_rejected() {
+            for len in [0, 31, 63, 71] {
+                with_data(vec![0; len], |info| {
+                    assert!(is_too_small(amount(info)));
+                    assert_eq!(mint(info).is_ok(), len >= 32);
+                    assert_eq!(authority(info).is_ok(), len >= 64);
+                });
+            }
+        }
+
+        #[test]
+        fn full_accounts_decode() {
+            let mut data = vec![1u8; 32];
+            data.extend([2u8; 32]);
+            data.extend(7u64.to_le_bytes());
+            with_data(data, |info| {
+                assert_eq!(mint(info).unwrap(), Pubkey::new_from_array([1; 32]));
+                assert_eq!(authority(info).unwrap(), Pubkey::new_from_array([2; 32]));
+                assert_eq!(amount(info).unwrap(), 7);
+            });
+        }
     }
 }

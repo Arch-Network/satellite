@@ -256,6 +256,9 @@ pub enum ErrorCode {
     /// 3017 - The account was duplicated for more than one reallocation
     #[msg("The account was duplicated for more than one reallocation")]
     AccountDuplicateReallocs,
+    /// 3018 - The account data is too small for the expected type
+    #[msg("The account data is too small for the expected type")]
+    AccountDataTooSmall,
 
     // Miscellaneous
     /// 4100 - The declared program id does not match actual program id
@@ -267,6 +270,15 @@ pub enum ErrorCode {
     /// 4102 - Invalid numeric conversion error
     #[msg("Error during numeric conversion")]
     InvalidNumericConversion = 4102,
+    /// 4103 - The CPI callee did not set return data
+    #[msg("The CPI callee did not set return data")]
+    CpiReturnDataMissing = 4103,
+    /// 4104 - The CPI return data was set by a program other than the callee
+    #[msg("The CPI return data was set by a program other than the callee")]
+    CpiReturnProgramMismatch = 4104,
+    /// 4105 - The CPI return data could not be deserialized
+    #[msg("The CPI return data could not be deserialized")]
+    CpiReturnDataInvalid = 4105,
 
     // Deprecated
     /// 5000 - The API being used is deprecated and should no longer be used

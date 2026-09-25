@@ -59,16 +59,7 @@ pub fn event(
         }
     };
 
-    #[cfg(feature = "idl-build")]
-    {
-        let idl_build = arch_satellite_syn::idl::gen_idl_print_fn_event(&event_strct);
-        return proc_macro::TokenStream::from(quote! {
-            #ret
-            #idl_build
-        });
-    }
-
-    #[allow(unreachable_code)]
+    // Events are not part of the Satellite IDL, so `idl-build` adds nothing here.
     proc_macro::TokenStream::from(ret)
 }
 

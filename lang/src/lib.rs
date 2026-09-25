@@ -443,7 +443,10 @@ pub mod __private {
     pub use bytemuck;
     pub use arch_satellite_attribute_account::ZeroCopyAccessor;
 
-    pub use crate::{bpf_writer::BpfWriter, common::is_closed};
+    pub use crate::{
+        bpf_writer::BpfWriter,
+        common::{decode_cpi_return, is_closed},
+    };
 
     use arch_program::pubkey::Pubkey;
 
