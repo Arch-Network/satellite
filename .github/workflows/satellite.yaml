@@ -1,0 +1,42 @@
+name: Satellite
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    name: Test (${{ matrix.features }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        features: [default, all-features]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup/
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.features }}
+      - name: Test workspace
+        run: >
+          cargo test --workspace --locked --all-targets --exclude arch-satellite-avm
+          ${{ matrix.features == 'all-features' && '--all-features' || '' }}
+      # avm tests change files on disk, so they cannot run in parallel.
+      - name: Test avm
+        run: cargo test --locked -p arch-satellite-avm -- --test-threads=1
+
+  deny:
+    name: cargo-deny
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: EmbarkStudios/cargo-deny-action@v2
+        with:
+          command: check advisories bans sources
