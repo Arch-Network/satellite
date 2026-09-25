@@ -1,3 +1,5 @@
+// IDL generation requires `IdlBuild` on every account type, which generic accounts do not have.
+#![cfg(not(feature = "idl-build"))]
 #![allow(dead_code)]
 
 use arch_program::pubkey::Pubkey;

@@ -124,8 +124,10 @@ pub(crate) fn adjust_transaction_to_pay_fees(
     let total_btc_used = transaction
         .output
         .iter()
-        .map(|output| output.value.to_sat())
-        .sum::<u64>();
+        .try_fold(0u64, |total, output| {
+            total.checked_add(output.value.to_sat())
+        })
+        .ok_or(BitcoinTxError::CalcOverflow)?;
 
     let (total_size_of_pending_utxos, total_fee_paid_of_pending_utxos) =
         (tx_statuses.total_size as usize, tx_statuses.total_fee);
@@ -265,19 +267,18 @@ fn add_reserved_inputs_and_outputs<C: PushPopCollection<InputToSign>>(
         signer,
     }) = new_potential_inputs_and_outputs.inputs
     {
+        if signer
+            && inputs_to_sign
+                .len()
+                .checked_add(count)
+                .map_or(true, |len| len > inputs_to_sign.max_size())
+        {
+            return Err(PushPopError::Full);
+        }
+
         // Pre-allocate capacity to avoid repeated reallocations
         transaction.input.reserve(count);
-
-        let mut inputs_to_sign_len = inputs_to_sign.len();
         for _ in 0..count {
-            if signer {
-                if inputs_to_sign_len + 1 > inputs_to_sign.max_size() {
-                    return Err(PushPopError::Full);
-                }
-
-                inputs_to_sign_len += 1;
-            }
-
             transaction.input.push(item.clone());
         }
     }

@@ -2,7 +2,8 @@ use crate::{
     AsSigner, ClientError, Config, EventContext, EventUnsubscriber, Program,
     ProgramAccountsIterator, RequestBuilder,
 };
-use arch_satellite_lang::{prelude::Pubkey, AccountDeserialize, Discriminator};
+use arch_satellite_lang::{AccountDeserialize, Discriminator};
+use solana_sdk::pubkey::Pubkey;
 use solana_client::nonblocking::rpc_client::RpcClient as AsyncRpcClient;
 use solana_client::{rpc_config::RpcSendTransactionConfig, rpc_filter::RpcFilterType};
 use solana_sdk::{

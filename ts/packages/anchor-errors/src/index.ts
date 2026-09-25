@@ -161,6 +161,8 @@ export const ANCHOR_ERROR__ACCOUNT_SYSVAR_MISMATCH = 3015;
 export const ANCHOR_ERROR__ACCOUNT_REALLOC_EXCEEDS_LIMIT = 3016;
 /** The account was duplicated for more than one reallocation. */
 export const ANCHOR_ERROR__ACCOUNT_DUPLICATE_REALLOCS = 3017;
+/** The account data is too small for the expected type. */
+export const ANCHOR_ERROR__ACCOUNT_DATA_TOO_SMALL = 3018;
 
 // Miscellaneous errors.
 
@@ -170,6 +172,12 @@ export const ANCHOR_ERROR__DECLARED_PROGRAM_ID_MISMATCH = 4100;
 export const ANCHOR_ERROR__TRYING_TO_INIT_PAYER_AS_PROGRAM_ACCOUNT = 4101;
 /** The program could not perform the numeric conversion, out of range integral type conversion attempted. */
 export const ANCHOR_ERROR__INVALID_NUMERIC_CONVERSION = 4102;
+/** The CPI callee did not set return data. */
+export const ANCHOR_ERROR__CPI_RETURN_DATA_MISSING = 4103;
+/** The CPI return data was set by a program other than the callee. */
+export const ANCHOR_ERROR__CPI_RETURN_PROGRAM_MISMATCH = 4104;
+/** The CPI return data could not be deserialized. */
+export const ANCHOR_ERROR__CPI_RETURN_DATA_INVALID = 4105;
 
 // Deprecated errors.
 
@@ -251,7 +259,11 @@ export type AnchorErrorCode =
   | typeof ANCHOR_ERROR__ACCOUNT_SYSVAR_MISMATCH
   | typeof ANCHOR_ERROR__ACCOUNT_REALLOC_EXCEEDS_LIMIT
   | typeof ANCHOR_ERROR__ACCOUNT_DUPLICATE_REALLOCS
+  | typeof ANCHOR_ERROR__ACCOUNT_DATA_TOO_SMALL
   | typeof ANCHOR_ERROR__DECLARED_PROGRAM_ID_MISMATCH
   | typeof ANCHOR_ERROR__TRYING_TO_INIT_PAYER_AS_PROGRAM_ACCOUNT
   | typeof ANCHOR_ERROR__INVALID_NUMERIC_CONVERSION
+  | typeof ANCHOR_ERROR__CPI_RETURN_DATA_MISSING
+  | typeof ANCHOR_ERROR__CPI_RETURN_PROGRAM_MISMATCH
+  | typeof ANCHOR_ERROR__CPI_RETURN_DATA_INVALID
   | typeof ANCHOR_ERROR__DEPRECATED;

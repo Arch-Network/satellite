@@ -5,7 +5,7 @@ use arch_program::{input_to_sign::InputToSign, pubkey::Pubkey, MAX_BTC_TX_SIZE};
 use bitcoin::{Transaction, TxIn, TxOut};
 
 #[cfg(feature = "utxo-consolidation")]
-use crate::{btc_utxo_holder::BtcUtxoHolder, mempool::MempoolInfo};
+use crate::{btc_utxo_holder::BtcUtxoHolder, inputs::InputRecord, mempool::MempoolInfo};
 
 use arch_satellite_collections::generic::push_pop::PushPopCollection;
 
@@ -16,8 +16,9 @@ use crate::{
 };
 
 #[cfg(feature = "utxo-consolidation")]
-pub fn add_consolidation_utxos<BtcHolder, C>(
+pub(crate) fn add_consolidation_utxos<BtcHolder, C>(
     transaction: &mut Transaction,
+    input_records: &mut Vec<InputRecord>,
     _tx_statuses: &mut MempoolInfo,
     inputs_to_sign: &mut C,
     pool_pubkey: &Pubkey,
@@ -81,7 +82,11 @@ where
                 &tx_in,
                 &new_potential_inputs_and_outputs,
             ) {
-                total_input_amount += utxo.value; // Add btc utxo from pool
+                input_records.push(InputRecord {
+                    outpoint,
+                    value: utxo.value,
+                });
+                total_input_amount = u64::saturating_add(total_input_amount, utxo.value);
                 additional_inputs_to_consolidate += 1;
                 // All program outputs are confirmed by default.
                 // tx_statuses.total_fee += 0;
@@ -476,6 +481,7 @@ mod tests {
 
         let (total_amount, extra_size) = add_consolidation_utxos(
             &mut transaction,
+            &mut Vec::new(),
             &mut tx_statuses,
             &mut inputs_to_sign,
             &pool_pubkey,
@@ -511,6 +517,7 @@ mod tests {
 
         let (total_amount, extra_size) = add_consolidation_utxos(
             &mut transaction,
+            &mut Vec::new(),
             &mut tx_statuses,
             &mut inputs_to_sign,
             &pool_pubkey,
@@ -551,6 +558,7 @@ mod tests {
 
         let (total_amount, _) = add_consolidation_utxos(
             &mut transaction,
+            &mut Vec::new(),
             &mut tx_statuses,
             &mut inputs_to_sign,
             &pool_pubkey,
@@ -712,6 +720,7 @@ mod tests {
 
         let (total_amount, extra_size) = add_consolidation_utxos(
             &mut transaction,
+            &mut Vec::new(),
             &mut tx_statuses,
             &mut inputs_to_sign,
             &pool_pubkey,
@@ -750,6 +759,7 @@ mod tests {
 
         let (total_amount, extra_size) = add_consolidation_utxos(
             &mut transaction,
+            &mut Vec::new(),
             &mut tx_statuses,
             &mut inputs_to_sign,
             &pool_pubkey,
@@ -814,6 +824,7 @@ mod tests {
 
         let (consolidation_amount, _) = add_consolidation_utxos(
             &mut transaction,
+            &mut Vec::new(),
             &mut tx_statuses,
             &mut inputs_to_sign,
             &signer,

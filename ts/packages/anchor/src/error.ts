@@ -422,12 +422,16 @@ export const LangErrorCode = {
   AccountReallocExceedsLimit:
     errors.ANCHOR_ERROR__ACCOUNT_REALLOC_EXCEEDS_LIMIT,
   AccountDuplicateReallocs: errors.ANCHOR_ERROR__ACCOUNT_DUPLICATE_REALLOCS,
+  AccountDataTooSmall: errors.ANCHOR_ERROR__ACCOUNT_DATA_TOO_SMALL,
 
   // Miscellaneous
   DeclaredProgramIdMismatch: errors.ANCHOR_ERROR__DECLARED_PROGRAM_ID_MISMATCH,
   TryingToInitPayerAsProgramAccount:
     errors.ANCHOR_ERROR__TRYING_TO_INIT_PAYER_AS_PROGRAM_ACCOUNT,
   InvalidNumericConversion: errors.ANCHOR_ERROR__INVALID_NUMERIC_CONVERSION,
+  CpiReturnDataMissing: errors.ANCHOR_ERROR__CPI_RETURN_DATA_MISSING,
+  CpiReturnProgramMismatch: errors.ANCHOR_ERROR__CPI_RETURN_PROGRAM_MISMATCH,
+  CpiReturnDataInvalid: errors.ANCHOR_ERROR__CPI_RETURN_DATA_INVALID,
 
   // Used for APIs that shouldn't be used anymore.
   Deprecated: errors.ANCHOR_ERROR__DEPRECATED,
@@ -659,6 +663,10 @@ export const LangErrorMessage = new Map<number, string>([
     LangErrorCode.AccountDuplicateReallocs,
     "The account was duplicated for more than one reallocation",
   ],
+  [
+    LangErrorCode.AccountDataTooSmall,
+    "The account data is too small for the expected type",
+  ],
 
   // Miscellaneous
   [
@@ -672,6 +680,15 @@ export const LangErrorMessage = new Map<number, string>([
   [
     LangErrorCode.InvalidNumericConversion,
     "The program could not perform the numeric conversion, out of range integral type conversion attempted",
+  ],
+  [LangErrorCode.CpiReturnDataMissing, "The CPI callee did not set return data"],
+  [
+    LangErrorCode.CpiReturnProgramMismatch,
+    "The CPI return data was set by a program other than the callee",
+  ],
+  [
+    LangErrorCode.CpiReturnDataInvalid,
+    "The CPI return data could not be deserialized",
   ],
 
   // Deprecated

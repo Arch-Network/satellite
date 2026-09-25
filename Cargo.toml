@@ -27,35 +27,35 @@ exclude = [
 resolver = "2"
 
 [workspace.package]
-version = "0.31.5"
+version = "0.33.0"
 edition = "2021"
 
 [workspace.dependencies]
 # Bitcoin crates
-arch-satellite-math = { path = "bitcoin/math", version = "0.31.5" }
-arch-satellite-collections = { path = "bitcoin/collections", version = "0.31.5" }
-arch-satellite-bitcoin-transactions = { path = "bitcoin/transactions", version = "0.31.5" }
-arch-satellite-bitcoin = { path = "bitcoin", version = "0.31.5" }
+arch-satellite-math = { path = "bitcoin/math", version = "0.33.0" }
+arch-satellite-collections = { path = "bitcoin/collections", version = "0.33.0" }
+arch-satellite-bitcoin-transactions = { path = "bitcoin/transactions", version = "0.33.0" }
+arch-satellite-bitcoin = { path = "bitcoin", version = "0.33.0" }
 
 # Lang crates
-arch-satellite-syn = { path = "lang/syn", version = "0.31.5" }
-arch-satellite-attribute-access-control = { path = "lang/attribute/access-control", version = "0.31.5" }
-arch-satellite-attribute-account = { path = "lang/attribute/account", version = "0.31.5" }
-arch-satellite-attribute-constant = { path = "lang/attribute/constant", version = "0.31.5" }
-arch-satellite-attribute-error = { path = "lang/attribute/error", version = "0.31.5" }
-arch-satellite-attribute-event = { path = "lang/attribute/event", version = "0.31.5" }
-arch-satellite-attribute-program = { path = "lang/attribute/program", version = "0.31.5" }
-arch-satellite-derive-accounts = { path = "lang/derive/accounts", version = "0.31.5" }
-arch-satellite-derive-serde = { path = "lang/derive/serde", version = "0.31.5" }
-arch-satellite-derive-space = { path = "lang/derive/space", version = "0.31.5" }
-arch-satellite-lang = { path = "lang", version = "0.31.5" }
+arch-satellite-syn = { path = "lang/syn", version = "0.33.0" }
+arch-satellite-attribute-access-control = { path = "lang/attribute/access-control", version = "0.33.0" }
+arch-satellite-attribute-account = { path = "lang/attribute/account", version = "0.33.0" }
+arch-satellite-attribute-constant = { path = "lang/attribute/constant", version = "0.33.0" }
+arch-satellite-attribute-error = { path = "lang/attribute/error", version = "0.33.0" }
+arch-satellite-attribute-event = { path = "lang/attribute/event", version = "0.33.0" }
+arch-satellite-attribute-program = { path = "lang/attribute/program", version = "0.33.0" }
+arch-satellite-derive-accounts = { path = "lang/derive/accounts", version = "0.33.0" }
+arch-satellite-derive-serde = { path = "lang/derive/serde", version = "0.33.0" }
+arch-satellite-derive-space = { path = "lang/derive/space", version = "0.33.0" }
+arch-satellite-lang = { path = "lang", version = "0.33.0" }
 
 # IDL crates
-arch-satellite-lang-idl-spec = { path = "idl/spec", version = "0.31.5" }
-arch-satellite-lang-idl = { path = "idl", version = "0.31.5" }
+arch-satellite-lang-idl-spec = { path = "idl/spec", version = "0.33.0" }
+arch-satellite-lang-idl = { path = "idl", version = "0.33.0" }
 
 # Other crates
-arch-satellite-serde = { path = "serde", version = "0.31.5" }
-arch-satellite-shard = { path = "shard_set", version = "0.31.5" }
-arch-satellite-apl = { path = "spl", version = "0.31.5" }
-anchor-client = { path = "client", version = "0.31.5" }
+arch-satellite-serde = { path = "serde", version = "0.33.0" }
+arch-satellite-shard = { path = "shard_set", version = "0.33.0" }
+arch-satellite-apl = { path = "spl", version = "0.33.0" }
+anchor-client = { path = "client", version = "0.33.0" }
