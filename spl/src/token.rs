@@ -566,7 +566,6 @@ pub mod accessor {
     #[cfg(test)]
     mod tests {
         use super::*;
-        use arch_satellite_lang::arch_program::utxo::UtxoMeta;
         use arch_satellite_lang::error::Error;
 
         fn with_data(data: Vec<u8>, f: impl FnOnce(&AccountInfo)) {
@@ -574,13 +573,11 @@ pub mod accessor {
             let owner = Pubkey::new_unique();
             let mut lamports = 0;
             let mut data = data;
-            let utxo = UtxoMeta::default();
             let info = AccountInfo::new(
                 &key,
                 &mut lamports,
                 &mut data,
                 &owner,
-                &utxo,
                 false,
                 false,
                 false,

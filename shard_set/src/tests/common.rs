@@ -248,7 +248,6 @@ pub fn create_loader() -> AccountLoader<'static, MockShardZc> {
     // Leak all heap allocations → `'static` lifetime suitable for tests.
     let key = Box::leak(Box::new(Pubkey::default()));
     let owner = Box::leak(Box::new(Pubkey::default()));
-    let utxo = Box::leak(Box::new(UtxoMeta::default()));
     let lamports = Box::leak(Box::new(0u64));
 
     // ----- Alignment-aware manual buffer --------------------------------------------------
@@ -287,7 +286,7 @@ pub fn create_loader() -> AccountLoader<'static, MockShardZc> {
 
     // Assemble `AccountInfo`.
     let account_info = AccountInfo::new(
-        key, lamports, data, owner, utxo, /* is_signer   = */ false,
+        key, lamports, data, owner, /* is_signer   = */ false,
         /* is_writable = */ true, /* is_executable = */ false,
     );
 
