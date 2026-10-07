@@ -1,4 +1,4 @@
-use arch_satellite_lang::arch_program::{account::AccountInfo, pubkey::Pubkey, utxo::UtxoMeta};
+use arch_satellite_lang::arch_program::{account::AccountInfo, pubkey::Pubkey};
 use arch_satellite_lang::error::{Error, ErrorCode};
 use arch_satellite_lang::prelude::*;
 use arch_satellite_lang::ZeroCopy;
@@ -31,7 +31,6 @@ fn account(data: Vec<u8>) -> &'static AccountInfo<'static> {
         Box::leak(Box::new(0)),
         data.leak(),
         &ID,
-        Box::leak(Box::new(UtxoMeta::default())),
         false,
         true,
         false,

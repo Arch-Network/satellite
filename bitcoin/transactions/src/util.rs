@@ -188,7 +188,7 @@ pub fn assert_account_is_at_index<'a, E>(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use arch_program::{pubkey::Pubkey, utxo::UtxoMeta};
+    use arch_program::pubkey::Pubkey;
     use bitcoin::{absolute::LockTime, transaction::Version, ScriptBuf, TxOut};
 
     fn empty_tx() -> Transaction {
@@ -214,7 +214,6 @@ mod tests {
     fn make_accounts(count: usize) -> Vec<AccountInfo<'static>> {
         // Helper to construct `count` accounts with stable backing storage by leaking small boxes.
         let owner_static: &'static Pubkey = Box::leak(Box::new(Pubkey::new_unique()));
-        let utxo_static: &'static UtxoMeta = Box::leak(Box::new(UtxoMeta::default()));
 
         let mut accounts: Vec<AccountInfo<'static>> = Vec::with_capacity(count);
         for _ in 0..count {
@@ -226,7 +225,6 @@ mod tests {
                 lamports_ref,
                 data_ref,
                 owner_static,
-                utxo_static,
                 /*is_signer=*/ false,
                 /*is_writable=*/ true,
                 /*is_executable=*/ false,

@@ -37,7 +37,7 @@ impl<'info, B, T: Accounts<'info, B>> Accounts<'info, B> for Vec<T> {
 
 #[cfg(test)]
 mod tests {
-    use arch_program::{pubkey::Pubkey, utxo::UtxoMeta};
+    use arch_program::pubkey::Pubkey;
 
     use super::*;
 
@@ -50,7 +50,6 @@ mod tests {
     #[test]
     fn test_accounts_trait_for_vec() {
         let program_id = Pubkey::default();
-        let meta1 = UtxoMeta::from([0; 32], 0);
         let key = Pubkey::default();
         let mut lamports1 = 0;
         let mut data1 = vec![0; 10];
@@ -60,7 +59,6 @@ mod tests {
             &mut lamports1,
             &mut data1,
             &owner,
-            &meta1,
             true,
             true,
             false,
@@ -68,13 +66,11 @@ mod tests {
 
         let mut lamports2 = 0;
         let mut data2 = vec![0; 10];
-        let meta2 = UtxoMeta::from([0; 32], 0);
         let account2 = AccountInfo::new(
             &key,
             &mut lamports2,
             &mut data2,
             &owner,
-            &meta2,
             true,
             true,
             false,

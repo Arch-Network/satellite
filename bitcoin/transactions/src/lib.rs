@@ -1311,11 +1311,7 @@ impl<
     pub fn finalize(&mut self) -> Result<(), ProgramError> {
         self.validate()?;
 
-        set_transaction_to_sign::<AccountInfo<'info>>(
-            &[],
-            &self.transaction,
-            self.inputs_to_sign.as_slice(),
-        )?;
+        set_transaction_to_sign(&self.transaction, self.inputs_to_sign.as_slice())?;
 
         Ok(())
     }
